@@ -4,5 +4,21 @@
 <dict>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_lnp._tcp</string>
+		<string>_airplay._tcp</string>
+		<string>_webos-tv._tcp</string>
+		<string>_webostv._tcp</string>
+		<string>_webos-second-screen._tcp</string>
+		<string>_dlna._tcp</string>
+		<string>_connectsdk._tcp</string>
+		<string>_googlecast._tcp</string>
+		<string>_http._tcp.</string>
+		<string>_AA9C0F97._googlecast._tcp</string>
+		<string>_CC1AD845._googlecast._tcp</string>
+		<string>_B6208013._googlecast._tcp</string>
+		<string>_dial._tcp</string>
+	</array>
 </dict>
 </plist>

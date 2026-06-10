@@ -35,20 +35,20 @@ struct SplashView: View {
         }
         .appScreen()
         .onAppear {
-//            TVRemoteVM.commonViewModel = commonVM
-//            TVRemoteVM.configureDiscoveryIfNeeded()
-//            TVRemoteVM.startDiscovery()
+            TVRemoteVM.commonViewModel = commonVM
+            TVRemoteVM.configureDiscoveryIfNeeded()
+            TVRemoteVM.startDiscovery()
             
             vm.requestTrackingPermission()
         }
         .navigationDestination(isPresented: $vm.navigateToHome) {
-//            TabbarView()
+            TabbarView()
         }
         .navigationDestination(isPresented: $vm.navigateToLanguage) {
-//            LangaugeView(isOpenFromSplash: true)
+            LanguageView(isOpenFromSplash: true)
         }
         .navigationDestination(isPresented: $vm.navigateToIntro1) {
-//            IntroPagerView()
+            IntroMainView()
         }
     }
 }

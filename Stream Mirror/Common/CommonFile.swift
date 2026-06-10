@@ -106,13 +106,13 @@ struct placeholderView: View {
             
             VStack(alignment:.center,spacing: 5) {
                 Text(title)
-                    .font(.system(size: 20, weight: .semibold))
-//                    .foregroundStyle(AppColor.textColor)
+                    .font(.system(size: 16))
+                    .foregroundStyle(.white)
                 
                 if isTitle2 {
                     Text(title2)
-                        .font(.system(size: 14))
-//                        .foregroundStyle(AppColor.textColor2)
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppColor.textColor)
                         .padding(.horizontal,15)
                         .lineLimit(nil)
                 }
@@ -130,7 +130,7 @@ struct GlassCardModifier: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
             content
-                .background(.white.opacity(0.1))
+                .background(.white.opacity(0.10))
                 .cornerRadius(cornerRadius)
                 .glassEffect(
                     .clear.interactive(),

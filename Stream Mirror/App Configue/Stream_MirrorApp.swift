@@ -20,9 +20,9 @@ struct Stream_MirrorApp: App {
         WindowGroup {
             NavigationStack {
                 SplashView()
-                    .environmentObject(commonVM)
-                    .environmentObject(TVRemoteVM)
             }
+            .environmentObject(commonVM)
+            .environmentObject(TVRemoteVM)
         }
     }
 }

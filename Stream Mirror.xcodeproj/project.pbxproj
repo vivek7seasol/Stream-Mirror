@@ -11,19 +11,65 @@
 		FF86834D2FD941E4002462D0 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = FF86834C2FD941E4002462D0 /* Starscream */; };
 		FF8683502FD94218002462D0 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = FF86834F2FD94218002462D0 /* SwiftProtobuf */; };
 		FF8683522FD94218002462D0 /* SwiftProtobufPluginLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = FF8683512FD94218002462D0 /* SwiftProtobufPluginLibrary */; };
+		FF86847C2FD98D22002462D0 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF86847B2FD98D22002462D0 /* ReplayKit.framework */; };
+		FF8684832FD98D22002462D0 /* StreamMirrorBroadcast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FF86847A2FD98D21002462D0 /* StreamMirrorBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FF8684812FD98D22002462D0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FF86802A2FD937AB002462D0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FF8684792FD98D21002462D0;
+			remoteInfo = StreamMirrorBroadcast;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FF8684882FD98D22002462D0 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				FF8684832FD98D22002462D0 /* StreamMirrorBroadcast.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1CDD629BFDE7E1046DCDA968 /* Pods-Stream Mirror.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Stream Mirror.debug.xcconfig"; path = "Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror.debug.xcconfig"; sourceTree = "<group>"; };
 		59CD3D1E823E3ED5676F8B81 /* Pods-Stream Mirror.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Stream Mirror.release.xcconfig"; path = "Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror.release.xcconfig"; sourceTree = "<group>"; };
 		CC80FCDC61AF20D0411533AE /* Pods_Stream_Mirror.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Stream_Mirror.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF8680322FD937AB002462D0 /* Stream Mirror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Stream Mirror.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF86847A2FD98D21002462D0 /* StreamMirrorBroadcast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StreamMirrorBroadcast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF86847B2FD98D22002462D0 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FF8684842FD98D22002462D0 /* Exceptions for "StreamMirrorBroadcast" folder in "StreamMirrorBroadcast" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = FF8684792FD98D21002462D0 /* StreamMirrorBroadcast */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		FF8680342FD937AB002462D0 /* Stream Mirror */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Stream Mirror";
+			sourceTree = "<group>";
+		};
+		FF86847D2FD98D22002462D0 /* StreamMirrorBroadcast */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FF8684842FD98D22002462D0 /* Exceptions for "StreamMirrorBroadcast" folder in "StreamMirrorBroadcast" target */,
+			);
+			path = StreamMirrorBroadcast;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -40,6 +86,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FF8684772FD98D21002462D0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FF86847C2FD98D22002462D0 /* ReplayKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -47,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				CC80FCDC61AF20D0411533AE /* Pods_Stream_Mirror.framework */,
+				FF86847B2FD98D22002462D0 /* ReplayKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -64,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				FF8680342FD937AB002462D0 /* Stream Mirror */,
+				FF86847D2FD98D22002462D0 /* StreamMirrorBroadcast */,
 				FF8680332FD937AB002462D0 /* Products */,
 				CDF1CC4F61EFDBE563D9FEBC /* Pods */,
 				8D4A2A2329F5B0C2986B0EA8 /* Frameworks */,
@@ -74,6 +130,7 @@
 			isa = PBXGroup;
 			children = (
 				FF8680322FD937AB002462D0 /* Stream Mirror.app */,
+				FF86847A2FD98D21002462D0 /* StreamMirrorBroadcast.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -91,10 +148,12 @@
 				FF8680302FD937AB002462D0 /* Resources */,
 				B81F469324DB9B002C973630 /* [CP] Embed Pods Frameworks */,
 				9DDE3036B98A7E500C35EE78 /* [CP] Copy Pods Resources */,
+				FF8684882FD98D22002462D0 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				FF8684822FD98D22002462D0 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				FF8680342FD937AB002462D0 /* Stream Mirror */,
@@ -103,6 +162,28 @@
 			productName = "Stream Mirror";
 			productReference = FF8680322FD937AB002462D0 /* Stream Mirror.app */;
 			productType = "com.apple.product-type.application";
+		};
+		FF8684792FD98D21002462D0 /* StreamMirrorBroadcast */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FF8684852FD98D22002462D0 /* Build configuration list for PBXNativeTarget "StreamMirrorBroadcast" */;
+			buildPhases = (
+				FF8684762FD98D21002462D0 /* Sources */,
+				FF8684772FD98D21002462D0 /* Frameworks */,
+				FF8684782FD98D21002462D0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				FF86847D2FD98D22002462D0 /* StreamMirrorBroadcast */,
+			);
+			name = StreamMirrorBroadcast;
+			packageProductDependencies = (
+			);
+			productName = StreamMirrorBroadcast;
+			productReference = FF86847A2FD98D21002462D0 /* StreamMirrorBroadcast.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -115,6 +196,9 @@
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					FF8680312FD937AB002462D0 = {
+						CreatedOnToolsVersion = 26.4.1;
+					};
+					FF8684792FD98D21002462D0 = {
 						CreatedOnToolsVersion = 26.4.1;
 					};
 				};
@@ -138,12 +222,20 @@
 			projectRoot = "";
 			targets = (
 				FF8680312FD937AB002462D0 /* Stream Mirror */,
+				FF8684792FD98D21002462D0 /* StreamMirrorBroadcast */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		FF8680302FD937AB002462D0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FF8684782FD98D21002462D0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -227,7 +319,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FF8684762FD98D21002462D0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FF8684822FD98D22002462D0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FF8684792FD98D21002462D0 /* StreamMirrorBroadcast */;
+			targetProxy = FF8684812FD98D22002462D0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		FF86803B2FD937AC002462D0 /* Debug */ = {
@@ -350,6 +457,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Stream Mirror/Stream Mirror.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = WU3GMM6Y8Z;
@@ -397,6 +505,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Stream Mirror/Stream Mirror.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = WU3GMM6Y8Z;
@@ -438,6 +547,71 @@
 			};
 			name = Release;
 		};
+		FF8684862FD98D22002462D0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = StreamMirrorBroadcast/StreamMirrorBroadcast.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WU3GMM6Y8Z;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StreamMirrorBroadcast/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StreamMirrorBroadcast;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sumit.remote.SmartRemoteBroadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FF8684872FD98D22002462D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = StreamMirrorBroadcast/StreamMirrorBroadcast.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WU3GMM6Y8Z;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StreamMirrorBroadcast/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StreamMirrorBroadcast;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sumit.remote.SmartRemoteBroadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -455,6 +629,15 @@
 			buildConfigurations = (
 				FF86803E2FD937AC002462D0 /* Debug */,
 				FF86803F2FD937AC002462D0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FF8684852FD98D22002462D0 /* Build configuration list for PBXNativeTarget "StreamMirrorBroadcast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF8684862FD98D22002462D0 /* Debug */,
+				FF8684872FD98D22002462D0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
