@@ -6,7 +6,17 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9392AF623134519A6B44EEA5 /* Pods_Stream_Mirror.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC80FCDC61AF20D0411533AE /* Pods_Stream_Mirror.framework */; };
+		FF86834D2FD941E4002462D0 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = FF86834C2FD941E4002462D0 /* Starscream */; };
+		FF8683502FD94218002462D0 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = FF86834F2FD94218002462D0 /* SwiftProtobuf */; };
+		FF8683522FD94218002462D0 /* SwiftProtobufPluginLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = FF8683512FD94218002462D0 /* SwiftProtobufPluginLibrary */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		1CDD629BFDE7E1046DCDA968 /* Pods-Stream Mirror.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Stream Mirror.debug.xcconfig"; path = "Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror.debug.xcconfig"; sourceTree = "<group>"; };
+		59CD3D1E823E3ED5676F8B81 /* Pods-Stream Mirror.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Stream Mirror.release.xcconfig"; path = "Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror.release.xcconfig"; sourceTree = "<group>"; };
+		CC80FCDC61AF20D0411533AE /* Pods_Stream_Mirror.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Stream_Mirror.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF8680322FD937AB002462D0 /* Stream Mirror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Stream Mirror.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -23,17 +33,40 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF8683522FD94218002462D0 /* SwiftProtobufPluginLibrary in Frameworks */,
+				9392AF623134519A6B44EEA5 /* Pods_Stream_Mirror.framework in Frameworks */,
+				FF86834D2FD941E4002462D0 /* Starscream in Frameworks */,
+				FF8683502FD94218002462D0 /* SwiftProtobuf in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8D4A2A2329F5B0C2986B0EA8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CC80FCDC61AF20D0411533AE /* Pods_Stream_Mirror.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CDF1CC4F61EFDBE563D9FEBC /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1CDD629BFDE7E1046DCDA968 /* Pods-Stream Mirror.debug.xcconfig */,
+				59CD3D1E823E3ED5676F8B81 /* Pods-Stream Mirror.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		FF8680292FD937AB002462D0 = {
 			isa = PBXGroup;
 			children = (
 				FF8680342FD937AB002462D0 /* Stream Mirror */,
 				FF8680332FD937AB002462D0 /* Products */,
+				CDF1CC4F61EFDBE563D9FEBC /* Pods */,
+				8D4A2A2329F5B0C2986B0EA8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,9 +85,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FF86803D2FD937AC002462D0 /* Build configuration list for PBXNativeTarget "Stream Mirror" */;
 			buildPhases = (
+				CA19E14B5405639D29019DC3 /* [CP] Check Pods Manifest.lock */,
 				FF86802E2FD937AB002462D0 /* Sources */,
 				FF86802F2FD937AB002462D0 /* Frameworks */,
 				FF8680302FD937AB002462D0 /* Resources */,
+				B81F469324DB9B002C973630 /* [CP] Embed Pods Frameworks */,
+				9DDE3036B98A7E500C35EE78 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -64,8 +100,6 @@
 				FF8680342FD937AB002462D0 /* Stream Mirror */,
 			);
 			name = "Stream Mirror";
-			packageProductDependencies = (
-			);
 			productName = "Stream Mirror";
 			productReference = FF8680322FD937AB002462D0 /* Stream Mirror.app */;
 			productType = "com.apple.product-type.application";
@@ -94,6 +128,10 @@
 			);
 			mainGroup = FF8680292FD937AB002462D0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FF86834B2FD941E4002462D0 /* XCRemoteSwiftPackageReference "Starscream" */,
+				FF86834E2FD94218002462D0 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FF8680332FD937AB002462D0 /* Products */;
 			projectDirPath = "";
@@ -113,6 +151,73 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		9DDE3036B98A7E500C35EE78 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B81F469324DB9B002C973630 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Stream Mirror/Pods-Stream Mirror-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CA19E14B5405639D29019DC3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Stream Mirror-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		FF86802E2FD937AB002462D0 /* Sources */ = {
@@ -162,7 +267,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -223,7 +328,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -241,15 +346,19 @@
 		};
 		FF86803E2FD937AC002462D0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1CDD629BFDE7E1046DCDA968 /* Pods-Stream Mirror.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WU3GMM6Y8Z;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Stream-Mirror-Info.plist";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -258,40 +367,45 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sumit.Mirror.Stream-Mirror";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sumit.remote;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = 1;
 				XROS_DEPLOYMENT_TARGET = 26.4;
 			};
 			name = Debug;
 		};
 		FF86803F2FD937AC002462D0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 59CD3D1E823E3ED5676F8B81 /* Pods-Stream Mirror.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WU3GMM6Y8Z;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Stream-Mirror-Info.plist";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -300,25 +414,26 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sumit.Mirror.Stream-Mirror";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sumit.remote;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = 1;
 				XROS_DEPLOYMENT_TARGET = 26.4;
 			};
 			name = Release;
@@ -345,6 +460,43 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FF86834B2FD941E4002462D0 /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.8;
+			};
+		};
+		FF86834E2FD94218002462D0 /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-protobuf.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.33.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FF86834C2FD941E4002462D0 /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FF86834B2FD941E4002462D0 /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
+		};
+		FF86834F2FD94218002462D0 /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FF86834E2FD94218002462D0 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+		FF8683512FD94218002462D0 /* SwiftProtobufPluginLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FF86834E2FD94218002462D0 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobufPluginLibrary;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FF86802A2FD937AB002462D0 /* Project object */;
 }

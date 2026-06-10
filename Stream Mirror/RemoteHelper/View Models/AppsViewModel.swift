@@ -16,9 +16,9 @@ class AppsViewModel: ObservableObject {
     @Published var isLoadingApps = false
     @Published var appFetchError: String?
         
-    var tvRemoteViewModel: TVRemoteViewModel
+    var tvRemoteViewModel: RemoteViewModel
     
-    init(tvRemoteViewModel: TVRemoteViewModel) {
+    init(tvRemoteViewModel: RemoteViewModel) {
         self.tvRemoteViewModel = tvRemoteViewModel
     }
     

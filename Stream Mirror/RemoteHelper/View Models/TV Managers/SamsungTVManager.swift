@@ -135,7 +135,7 @@ class SamsungTVManager: TVCommanderDelegate, ObservableObject {
         do {
             commander = try TVCommander(
                 tvIPAddress: ip,
-                appName: appName,
+                appName: AppStrings.appName,
                 authToken: savedToken // ✅ PASS TOKEN HERE
             )
             commander?.delegate = self

@@ -8,16 +8,19 @@
 import Foundation
 import SwiftUI
 
-var str = StringConstant()
+var str = StringFile()
 
 extension Notification.Name {
     static let languageChanged = Notification.Name("languageChanged")
 }
 
+func isIpad() -> Bool {
+    UIDevice.current.userInterfaceIdiom == .pad
+}
 
 // Language change hone par naya object banao
 func onLanguageChanged() {
-    str = StringConstant() // purana automatically remove, naya assign
+    str = StringFile() // purana automatically remove, naya assign
     NotificationCenter.default.post(name: .languageChanged, object: nil)
 }
 
@@ -177,9 +180,6 @@ func showToastAtTop(message: String, duration: TimeInterval = 3.0) {
     view.showToastAtTop(message: message, duration: duration)
 }
 
-func isIpad() -> Bool {
-    UIDevice.current.userInterfaceIdiom == .pad
-}
 
 struct Blur: UIViewRepresentable {
     var style: UIBlurEffect.Style = .systemMaterialLight

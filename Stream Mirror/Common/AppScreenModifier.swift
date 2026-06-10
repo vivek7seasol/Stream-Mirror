@@ -12,7 +12,6 @@ struct AppScreenModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         ZStack {
-//            AppColor.AppBGColor
             Image("AppBG")
                 .resizable()
                 .ignoresSafeArea()

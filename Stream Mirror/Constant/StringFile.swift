@@ -7,7 +7,9 @@
 
 import Foundation
 
-class StringConstant {
+class StringFile {
     
-    
+    let SelectLanguage = "Select Language".localized
+    let Selectyourpreferredlanguagebelow = "Select your preferred language below".localized
+    let Done = "Done".localized
 }

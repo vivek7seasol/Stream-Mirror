@@ -5,8 +5,8 @@
 //  Created by Parthiv Akbari on 17/02/26.
 //
 
-import Foundation
-
-var remoteViewModel: TVRemoteViewModel {
-    return TVRemoteSession.shared.viewModel
-}
+//import Foundation
+//
+//var remoteViewModel: RemoteViewModel {
+//    return TVRemoteSession.shared.viewModel
+//}

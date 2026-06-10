@@ -1,5 +1,5 @@
 //
-//  CastVM.swift
+//  TVCastViewModel.swift
 //  ClarioMirror
 //
 //  Created by Vivek Rakholiya on 06/05/26.
@@ -10,14 +10,14 @@ import Combine
 import GoogleCast
 
 var gcastDevice: [GCKDevice] = []
-class CastVM: NSObject, ObservableObject, GCKDiscoveryManagerListener  {
+class TVCastViewModel: NSObject, ObservableObject, GCKDiscoveryManagerListener  {
 //    @Published var devices: [GCKDevice] = []
     @Published var selectedDevice: GCKDevice?
     @Published var isDiscovering: Bool = false
     @Published var isCastingInProgress = false
     @Published var isConnected = false
     let SELECTED_TV = "SELECTED_TV"
-    static let shared = CastVM()
+    static let shared = TVCastViewModel()
     var superVC : UIViewController?
     var castDetail: CastDetail?
     var onStartVideo: (() -> Void)?
@@ -285,14 +285,14 @@ class CastVM: NSObject, ObservableObject, GCKDiscoveryManagerListener  {
     
 }
 
-extension CastVM: GCKLoggerDelegate {
+extension TVCastViewModel: GCKLoggerDelegate {
     func logMessage(_ message: String, fromFunction function: String, location: String) {
         print("\(location): \(function) - \(message)")
     }
 }
 
 
-extension CastVM: GCKSessionManagerListener {
+extension TVCastViewModel: GCKSessionManagerListener {
     func sessionManager(_ sessionManager: GCKSessionManager, didStart session: GCKSession) {
         print("sessionManager: didStart session")
         
@@ -303,7 +303,7 @@ extension CastVM: GCKSessionManagerListener {
             return
         }
         
-        attemptCastingPendingMedia(pendingMedia, retries: 3, delay: 1.0, title: appName, des: "")
+        attemptCastingPendingMedia(pendingMedia, retries: 3, delay: 1.0, title: AppStrings.appName, des: "")
     }
     
     func sessionManager(_ sessionManager: GCKSessionManager, didFailToStart session: GCKSession, withError error: Error) {

@@ -8,8 +8,8 @@
 
 import Foundation
 
-class UDManager {
-    static let shared = UDManager()
+class UserDefaultManager {
+    static let shared = UserDefaultManager()
     private init() {}
     
     private let standard = UserDefaults.standard

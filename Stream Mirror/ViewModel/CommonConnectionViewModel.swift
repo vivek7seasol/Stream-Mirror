@@ -11,9 +11,9 @@ import AVFoundation
 internal import MediaPlayer
 import GoogleCast
 
-class CommonConnectionVM: ObservableObject {
-    @Published var castViewModel: CastVM
-    @Published var connectSDKDiscoveryModel: ConnectSDKVM
+class CommonConnectionViewModel: ObservableObject {
+    @Published var castViewModel: TVCastViewModel
+    @Published var connectSDKDiscoveryModel: TVConnectSDKViewModel
     
     @Published var connectedTvType: TVType?
     @Published var tvName: String?
@@ -28,15 +28,15 @@ class CommonConnectionVM: ObservableObject {
     @Published var volume: Float = 0.5
     @Published var isSeeking = false
     @Published var playbackTimer: Timer?
-    @Published var tvRemoteViewModel = TVRemoteViewModel()
+    @Published var tvRemoteViewModel = RemoteViewModel()
     @Published var showVideoControls: Bool = true
     
     private var cancellables = Set<AnyCancellable>()
     private let volumeController = GCKUIDeviceVolumeController()
     
     init() {
-        self.castViewModel = CastVM()
-        self.connectSDKDiscoveryModel = ConnectSDKVM()
+        self.castViewModel = TVCastViewModel()
+        self.connectSDKDiscoveryModel = TVConnectSDKViewModel()
         
         observeAllTvManagersChanges()
     }
@@ -386,7 +386,7 @@ class CommonConnectionVM: ObservableObject {
                 switch exportSession.status {
                 case .completed:
                     print("Video compressed successfully")
-                    self.uploadFile(compressedURL, mediaType: "video/mp4", title: appName, des: "", imgHei: 1024, imgWid: 1024)
+                    self.uploadFile(compressedURL, mediaType: "video/mp4", title: AppStrings.appName, des: "", imgHei: 1024, imgWid: 1024)
                 case .failed:
                     self.isUploading = false
                     if let error = exportSession.error {
@@ -424,7 +424,7 @@ class CommonConnectionVM: ObservableObject {
         exportMusic(from: url, to: temporaryFileURL) { success in
             if success {
                 DispatchQueue.main.async {
-                    self.uploadFile(temporaryFileURL, mediaType: "audio/m4a", title: track.title ?? appName, des: track.artist ?? "", imgHei: 1024, imgWid: 1024)
+                    self.uploadFile(temporaryFileURL, mediaType: "audio/m4a", title: track.title ?? AppStrings.appName, des: track.artist ?? "", imgHei: 1024, imgWid: 1024)
                 }
             } else {
                 print("Failed to export music")
@@ -484,7 +484,7 @@ class CommonConnectionVM: ObservableObject {
     
     // MARK: - upload to local server and then serve the tv
     func uploadFile(_ url: URL, mediaType: String, title: String, des: String,imgHei : Int, imgWid : Int) {
-        guard var serverUrl = CastServer.shared.serverURL else {
+        guard var serverUrl = TVCastServer.shared.serverURL else {
             print("Invalid server URL")
             //            uploadFile(url, mediaType: mediaType)
             DispatchQueue.main.async { self.isUploading = false }
@@ -539,47 +539,6 @@ class CommonConnectionVM: ObservableObject {
         }
     }
     
-//    MARK: - PDF,PPT Casting
-//    func compressAndUploadPPT(from image: UIImage, mediaType: String, imgHei : Int, imgWid : Int,selectedQuality : Int) {
-//
-//        let targetSize: CGSize
-//        switch selectedQuality {
-//        case 0:
-//            targetSize = CGSize(width: 1280, height: 720)
-//        case 1:
-//            targetSize = CGSize(width: 1920, height: 1080)
-//        case 2:
-//            targetSize = CGSize(width: 3840, height: 2160)
-//        default:
-//            targetSize = CGSize(width: 1280, height: 720)
-//        }
-//
-//        let compressionQuality: CGFloat
-//        switch selectedQuality {
-//        case 0:
-//            compressionQuality = 0.2
-//        case 1:
-//            compressionQuality = 0.6
-//        case 2:
-//            compressionQuality = 1.0
-//        default:
-//            compressionQuality = 0.6
-//        }
-//
-//        let resizedImage = resizeImage(image: image, targetSize: targetSize)
-//        if let compressedImageData = resizedImage.jpegData(compressionQuality: compressionQuality) {
-//            let compressedURL = FileManager.default.temporaryDirectory.appendingPathComponent("compressed_image.jpg")
-//            do {
-//                try compressedImageData.write(to: compressedURL)
-//                uploadFile(compressedURL, mediaType: mediaType, title: title, des: des, imgHei: imgHei, imgWid: imgWid)
-//            } catch {
-//                print("Error writing compressed image to temporary URL: \(error)")
-//            }
-//        } else {
-//            print("Failed to compress image")
-//        }
-//    }
-    
     func isAirPlayConnected() -> Bool {
         let route = AVAudioSession.sharedInstance().currentRoute
         return route.outputs.contains { $0.portType == .airPlay }
@@ -594,7 +553,7 @@ class CommonConnectionVM: ObservableObject {
     }
 }
 
-extension CommonConnectionVM {
+extension CommonConnectionViewModel {
     func setTVPlaceHolder(connectedTvType: TVType){
         if connectedTvType == .ANDROID || connectedTvType == .SAMSUNG || connectedTvType == .FIRE || connectedTvType == .ROKU {
             CastMedia(url: URL(string: androidBannerUrl)!, mediaType: "image/jpeg",title: "", des: "", imgHei: 4096, imgWid: 2280)

@@ -11,7 +11,7 @@ final class TVRemoteSession {
 
     static let shared = TVRemoteSession()
 
-    let viewModel = TVRemoteViewModel()
+    let viewModel = RemoteViewModel()
     private var isConfigured = false
 
     private init() {}

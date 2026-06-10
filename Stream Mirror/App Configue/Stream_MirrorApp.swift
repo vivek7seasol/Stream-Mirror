@@ -9,9 +9,20 @@ import SwiftUI
 
 @main
 struct Stream_MirrorApp: App {
+    
+    @StateObject var commonVM = CommonConnectionViewModel()
+    @StateObject var TVRemoteVM = RemoteViewModel()
+    @StateObject private var webServer = TVCastServer.shared
+    @StateObject private var mirroringwebserver = TVMirrorServer.shared
+    
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationStack {
+                SplashView()
+                    .environmentObject(commonVM)
+                    .environmentObject(TVRemoteVM)
+            }
         }
     }
 }

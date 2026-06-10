@@ -11,7 +11,7 @@ import Combine
 import Network
 import GoogleCast
 
-class TVRemoteViewModel: NSObject, ObservableObject {
+class RemoteViewModel: NSObject, ObservableObject {
     // MARK: - Published Properties
     @Published var connectedTVType: TVType?
     @Published var selectedTVType: TVType?
@@ -27,7 +27,7 @@ class TVRemoteViewModel: NSObject, ObservableObject {
     private var isDiscoveryConfigured = false
     private var isSwitchingDevice = false
     private var pendingDevice: ConnectableDevice?
-    weak var commonViewModel: CommonCastConnectSDKVM?
+    weak var commonViewModel: CommonConnectionViewModel?
     // MARK: - Managers
     var currentTVManager: AnyObject?
     private var discoveryManager: DiscoveryManager
@@ -351,8 +351,8 @@ class TVRemoteViewModel: NSObject, ObservableObject {
 
             print("✅ Cast device linked via IP")
 
-            CastVM.shared.selectedDevice = match
-            CastVM.shared.isConnected = true
+            TVCastViewModel.shared.selectedDevice = match
+            TVCastViewModel.shared.isConnected = true
             return
         }
 
@@ -364,8 +364,8 @@ class TVRemoteViewModel: NSObject, ObservableObject {
 
             print("✅ Cast device linked via NAME")
 
-            CastVM.shared.selectedDevice = match
-            CastVM.shared.isConnected = true
+            TVCastViewModel.shared.selectedDevice = match
+            TVCastViewModel.shared.isConnected = true
             return
         }
 
@@ -898,7 +898,7 @@ class TVRemoteViewModel: NSObject, ObservableObject {
 }
 
 // MARK: - DiscoveryManagerDelegate
-extension TVRemoteViewModel: DiscoveryManagerDelegate {
+extension RemoteViewModel: DiscoveryManagerDelegate {
     func discoveryManager(_ manager: DiscoveryManager!, didFind device: ConnectableDevice!) {
         if !discoveredDevices.contains(where: { $0.address == device.address }) {
             discoveredDevices.append(device)
@@ -916,7 +916,7 @@ extension TVRemoteViewModel: DiscoveryManagerDelegate {
     }
 }
 
-extension TVRemoteViewModel {
+extension RemoteViewModel {
 
     func handleVoiceCommands(_ rawText: String) {
 

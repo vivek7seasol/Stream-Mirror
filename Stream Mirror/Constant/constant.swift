@@ -30,7 +30,6 @@ var adsCount = 4
 var adsPlus = 1
 var smallNativeBannerId = ""
 var NewsAPI = "https://api-story.7seasol.in/api/"
-//var afterClick = ""
 
 #if DEBUG
 //Test URL
@@ -45,5 +44,6 @@ let BearerToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmZmNlOWE0MGFmNTU5MDM5N
 
 
 public let ACCESS = "AKIA2FCATE7MLGSZBHML"
-
 public let SECRET = "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"
+
+var androidBannerUrl = "https://7seasol-application.s3.ap-south-1.amazonaws.com/Smart+View/TV%20Banner1.png"

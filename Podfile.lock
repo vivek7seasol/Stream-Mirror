@@ -1,0 +1,56 @@
+PODS:
+  - AWSCore (2.41.0)
+  - AWSS3 (2.41.0):
+    - AWSCore (= 2.41.0)
+  - ConnectSDK/Core (1.6.0):
+    - ConnectSDK/no-arc
+  - ConnectSDK/no-arc (1.6.0)
+  - google-cast-sdk (4.8.4)
+  - Google-Mobile-Ads-SDK (13.2.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleUserMessagingPlatform (3.1.0)
+  - lottie-ios (4.6.0)
+  - ShimmerSwift (2.1.1)
+  - SVProgressHUD (2.3.1):
+    - SVProgressHUD/Core (= 2.3.1)
+  - SVProgressHUD/Core (2.3.1)
+  - Toast-Swift (5.1.1)
+
+DEPENDENCIES:
+  - AWSS3
+  - ConnectSDK/Core
+  - google-cast-sdk
+  - Google-Mobile-Ads-SDK
+  - lottie-ios
+  - ShimmerSwift
+  - SVProgressHUD
+  - Toast-Swift
+
+SPEC REPOS:
+  trunk:
+    - AWSCore
+    - AWSS3
+    - ConnectSDK
+    - google-cast-sdk
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
+    - lottie-ios
+    - ShimmerSwift
+    - SVProgressHUD
+    - Toast-Swift
+
+SPEC CHECKSUMS:
+  AWSCore: ee7594bda3132cde8666328bf9a09d8770c1c100
+  AWSS3: 50da7408a26c1c2886d02968807f2a0b6bf936ca
+  ConnectSDK: f6159b056ec53943df82c4d541a9bfae21592be4
+  google-cast-sdk: 32f65af50d164e3c475e79ad123db3cc26fbcd37
+  Google-Mobile-Ads-SDK: f0365e190d66539c65cea8ded43e2c367abb5477
+  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
+  lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
+  ShimmerSwift: f7ed2daf9c246de8299dfd9e12c6ab465cba9842
+  SVProgressHUD: 4837c74bdfe2e51e8821c397825996a8d7de6e22
+  Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
+
+PODFILE CHECKSUM: 1eb034c74c3f1809853eb26ff51b0e16f52685bc
+
+COCOAPODS: 1.16.2

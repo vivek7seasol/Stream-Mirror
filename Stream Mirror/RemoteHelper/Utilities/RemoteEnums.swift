@@ -20,7 +20,7 @@ enum AppRoute: Hashable {
     case FirstSubscriptionView
     case SecondSubscriptionView
     case mainTabView
-    case searchingDevicesView(viewModel: TVRemoteViewModel)
+    case searchingDevicesView(viewModel: RemoteViewModel)
     case connectionGuideView
 }
 

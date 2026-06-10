@@ -10,7 +10,7 @@ import Lottie
 import SwiftUI
 
 
-struct MyLottieView: UIViewRepresentable {
+struct LottieFile: UIViewRepresentable {
     var animationFileName: String
     let loopMode: LottieLoopMode
     func makeUIView(context: Context) -> UIView {
@@ -32,7 +32,9 @@ struct MyLottieView: UIViewRepresentable {
     }
     func updateUIView(_ uiView: UIView, context: Context) {}
 }
-struct MyLottieView2: UIViewRepresentable {
+
+
+struct LottieFile2: UIViewRepresentable {
     var animationFileName: String
     let loopMode: LottieLoopMode
     func makeUIView(context: Context) -> UIView {
@@ -56,11 +58,7 @@ struct MyLottieView2: UIViewRepresentable {
 }
 
 
-struct MyLottie {
-    static var Splashlottie = "Splashlottie"
-    static var Cast = "Cast"
-    static var Loading = "Loading"
-    static var music_wave = "music_wave"
-    static var Signal = "Signal"
-    static var cast_to_tv = "cast_to_tv"
+struct MyLottieFiles {
+    static var Splash = "Splash"
+    
 }

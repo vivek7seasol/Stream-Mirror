@@ -30,7 +30,6 @@ class SplashViewModel: ObservableObject {
         AdsManager.shared.requestForConsentForm { _ in
             DispatchQueue.main.async {
                 self.handleStartupFlow()
-//                navigateToHome = true
             }
         }
     }

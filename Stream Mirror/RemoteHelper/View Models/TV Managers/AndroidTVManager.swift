@@ -52,7 +52,7 @@ class AndroidTVManager: ObservableObject {
         }
         
         connectionHandler = PairingManager(encryptionHandler, securityHandler, DefaultLogger())
-        deviceController = RemoteManager(encryptionHandler, CommandNetwork.DeviceInfo("TV Remote", "iPhone", "1.0.0", appName, "235"), DefaultLogger())
+        deviceController = RemoteManager(encryptionHandler, CommandNetwork.DeviceInfo("TV Remote", "iPhone", "1.0.0", AppStrings.appName, "235"), DefaultLogger())
     }
     
     func establishConnection(with host: String) {
@@ -79,7 +79,7 @@ class AndroidTVManager: ObservableObject {
                         }
                     }
 
-                    self?.connectionHandler.connect(host, appName, "App")
+                    self?.connectionHandler.connect(host, AppStrings.appName, "App")
                 }
             }
 
@@ -109,7 +109,7 @@ class AndroidTVManager: ObservableObject {
                 }
             }
             
-            self.connectionHandler.connect(host, appName, "App")
+            self.connectionHandler.connect(host, AppStrings.appName, "App")
         }
     }
 
