@@ -12,6 +12,7 @@ struct HomeView: View {
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @State private var showDeviceList: Bool = false
+    @State private var showYoutube: Bool = false
     
     var body: some View {
         ZStack {
@@ -41,7 +42,7 @@ struct HomeView: View {
                     firstCard {
                         
                     } YTAction: {
-                        
+                        showYoutube = true
                     } FileAction: {
                         
                     }
@@ -132,6 +133,11 @@ struct HomeView: View {
         .appScreen()
         .navigationDestination(isPresented: $showDeviceList) {
             DeviceListview()
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
+        .navigationDestination(isPresented: $showYoutube) {
+            YTView(initialURL: "https://www.youtube.com/")
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }

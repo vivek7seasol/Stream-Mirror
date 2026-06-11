@@ -54,7 +54,7 @@
 }
 @end
 
-@interface AirPlayServiceMirrored () <ServiceCommandDelegate, UIWebViewDelegate, UIAlertViewDelegate>
+@interface AirPlayServiceMirrored () <ServiceCommandDelegate, WKUIDelegate, UIAlertViewDelegate>
 
 @property (nonatomic, copy) SuccessBlock launchSuccessBlock;
 @property (nonatomic, copy) FailureBlock launchFailureBlock;
@@ -99,18 +99,18 @@
     {
         _connected = NO;
         _connecting = YES;
-
+        
         [self checkScreenCount];
-
+        
         NSString *title = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_AirPlay_Mirror_Title" value:@"Mirroring Required" table:@"ConnectSDK"];
         NSString *message = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_AirPlay_Mirror_Description" value:@"Enable AirPlay mirroring to connect to this device" table:@"ConnectSDK"];
         NSString *ok = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_AirPlay_Mirror_OK" value:@"OK" table:@"ConnectSDK"];
         NSString *cancel = [[NSBundle mainBundle] localizedStringForKey:@"Connect_SDK_AirPlay_Mirror_Cancel" value:@"Cancel" table:@"ConnectSDK"];
-
-        _connectingAlertView = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancel otherButtonTitles:ok, nil];
-
+        
+//        _connectingAlertView = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancel otherButtonTitles:ok, nil];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hScreenConnected:) name:UIScreenDidConnectNotification object:nil];
-
+        
         if (self.service && self.service.delegate && [self.service.delegate respondsToSelector:@selector(deviceService:pairingRequiredOfType:withData:)])
             dispatch_on_main(^{ [self.service.delegate deviceService:self.service pairingRequiredOfType:DeviceServicePairingTypeAirPlayMirroring withData:_connectingAlertView]; });
     }
@@ -289,8 +289,8 @@
             return;
         } else
         {
-            NSString *webAppHost = _webAppWebView.request.URL.host;
-
+//            NSString *webAppHost = _webAppWebView.request.URL.host;
+            NSString *webAppHost = self.webAppWebView.URL.host;
             if ([webAppId rangeOfString:webAppHost].location != NSNotFound)
             {
                 if (params && params.count > 0)
@@ -316,17 +316,24 @@
 
     DLog(@"Created a web view with bounds %@", NSStringFromCGRect(self.secondWindow.bounds));
 
-    _webAppWebView = [[UIWebView alloc] initWithFrame:self.secondWindow.bounds];
-    _webAppWebView.allowsInlineMediaPlayback = YES;
-    _webAppWebView.mediaPlaybackAllowsAirPlay = NO;
-    _webAppWebView.mediaPlaybackRequiresUserAction = NO;
+    WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+    config.allowsInlineMediaPlayback = YES;
+    config.allowsAirPlayForMediaPlayback = NO;
+    if (@available(iOS 10.0, *)) {
+        config.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
+    } else {
+        config.mediaTypesRequiringUserActionForPlayback = NO; // Deprecated but works on iOS 9
+    }
+    _webAppWebView = [[WKWebView alloc] initWithFrame:self.secondWindow.bounds configuration:config];
 
     AirPlayServiceViewController *secondScreenViewController = [[AirPlayServiceViewController alloc] init];
     secondScreenViewController.view = _webAppWebView;
-    _webAppWebView.delegate = self;
+    //    _webAppWebView.delegate = self;
+    _webAppWebView.navigationDelegate = self;
+    _webAppWebView.UIDelegate = self;
     self.secondWindow.rootViewController = secondScreenViewController;
     self.secondWindow.hidden = NO;
-
+    
     LaunchSession *launchSession = [LaunchSession launchSessionForAppId:webAppId];
     launchSession.sessionType = LaunchSessionTypeWebApp;
     launchSession.service = self.service;
@@ -375,8 +382,8 @@
 {
     if (self.webAppWebView && self.connected)
     {
-        NSString *webAppHost = self.webAppWebView.request.URL.host;
-
+//        NSString *webAppHost = self.webAppWebView.request.URL.host;
+        NSString *webAppHost = self.webAppWebView.URL.host;
         if ([webAppLaunchSession.appId rangeOfString:webAppHost].location != NSNotFound)
         {
             AirPlayWebAppSession *webAppSession = [[AirPlayWebAppSession alloc] initWithLaunchSession:webAppLaunchSession service:self.service];
@@ -428,8 +435,9 @@
         _secondWindow.hidden = YES;
         _secondWindow.screen = nil;
         _secondWindow = nil;
-
-        _webAppWebView.delegate = nil;
+//        _webAppWebView.delegate = nil;
+        _webAppWebView.UIDelegate = nil;
+        _webAppWebView.navigationDelegate = nil;
         _webAppWebView = nil;
     }
 
@@ -459,38 +467,45 @@
 
 #pragma mark - UIWebViewDelegate
 
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error
+//- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     DLog(@"%@", error.localizedDescription);
-
+    
     if (self.launchFailureBlock)
         self.launchFailureBlock(error);
-
+    
     self.launchSuccessBlock = nil;
     self.launchFailureBlock = nil;
 }
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+- (void)webView:(WKWebView *)webView
+decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+//- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    NSURLRequest *request = navigationAction.request;
+    NSLog(@"Request: %@", request.URL.absoluteString);
+    
     if ([request.URL.absoluteString hasPrefix:@"connectsdk://"])
     {
         NSString *jsonString = [[request.URL.absoluteString componentsSeparatedByString:@"connectsdk://"] lastObject];
         jsonString = [ConnectUtil urlDecode:jsonString];
-
+        
         NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-
+        
         NSError *jsonError;
         id messageObject = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonError];
-
+        
         if (jsonError || !messageObject)
             messageObject = jsonString;
-
+        
         DLog(@"Got p2p message from web app:\n%@", messageObject);
-
+        
         if (self.activeWebAppSession)
         {
-            NSString *webAppHost = self.webAppWebView.request.URL.host;
-
+            //            NSString *webAppHost = self.webAppWebView.request.URL.host;
+            NSString *webAppHost = self.webAppWebView.URL.host;
             // check if current running web app matches the current web app session
             if ([self.activeWebAppSession.launchSession.appId rangeOfString:webAppHost].location != NSNotFound)
             {
@@ -501,15 +516,15 @@
             } else
                 [self.activeWebAppSession disconnectFromWebApp];
         }
-
-        return NO;
+        decisionHandler(WKNavigationActionPolicyAllow);
     } else
     {
-        return YES;
+        decisionHandler(WKNavigationActionPolicyAllow);
     }
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView
+//- (void)webViewDidFinishLoad:(UIWebView *)webView
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
     DLog(@"%@", webView.request.URL.absoluteString);
 
@@ -519,8 +534,8 @@
     self.launchSuccessBlock = nil;
     self.launchFailureBlock = nil;
 }
-
-- (void)webViewDidStartLoad:(UIWebView *)webView
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
+//- (void)webViewDidStartLoad:(UIWebView *)webView
 {
     DLog(@"%@", webView.request.URL.absoluteString);
 }

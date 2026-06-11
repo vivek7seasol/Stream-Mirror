@@ -190,7 +190,12 @@ struct PopupCard: View {
 
             VStack(spacing: 5) {
                 Text(title)
+                    .font(.system(size: 20,weight: .semibold))
+                    .foregroundStyle(.white)
+                
                 Text(subtitle)
+                    .font(.system(size: 12))
+                    .foregroundStyle(AppColor.textColor)
             }
 
             commonButtonFile(text: btnTitle) {

@@ -71,5 +71,29 @@ class StringFile {
     let DisconnectCurrentDevice1 = "Disconnect Current Device".localized
     let DisconnectCurrentDevice2 = "Please disconnect the current device before continuing.".localized
     
+    let WIFI1 = "Turn On Wi-Fi".localized
+    let WIFI2 = "Find and connect to available devices.".localized
+    let WIFI3 = "Turn On Wi-Fi".localized
+    
+    let localNetwork1 = "Local Network Off".localized
+    let localNetwork2 = "Turn on permission to discover available devices.".localized
+    let localNetwork3 = "Open Settings".localized
+    
+    let YouTube = "YouTube".localized
+    let Preview = "Preview".localized
+    
+    let SetTimer = "Set Timer".localized
+    let SetTimer2 = "Choose a quick preset or enter custom seconds to start your timer.".localized
+    let Basic = "Basic".localized
+    let Normal = "Normal".localized
+    let Enhanced = "Enhanced".localized
+    let QuickPresets = "Quick Presets".localized
+    let Seconds = "Seconds".localized
+    let EnterSeconds = "Enter Seconds".localized
+    let Minimum5secondsrequired = "Minimum 5 seconds required".localized
+    let StartTimer = "Start Timer".localized
+    let NoPhotosAvailable = "No Photos Available".localized
+    
+    
     
 }

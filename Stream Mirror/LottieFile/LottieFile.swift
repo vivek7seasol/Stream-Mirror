@@ -61,5 +61,7 @@ struct LottieFile2: UIViewRepresentable {
 struct MyLottieFiles {
     static var Splash = "Splash"
     static var connecting = "connecting"
+    static var Cast = "Cast"
+    static var WifiTv = "Wifi Tv"
     
 }

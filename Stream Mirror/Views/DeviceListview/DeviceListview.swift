@@ -11,18 +11,16 @@ import GoogleCast
 
 struct DeviceListview: View {
     
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject private var TVRemoteVM: RemoteViewModel
     @EnvironmentObject private var commonVM: CommonConnectionViewModel
-    
+    @StateObject var permissionVM = DeviceListViewModel()
     @State private var showStep: Bool = false
     @State private var showConnectionPopup = false
     @State private var showDisconnectPopup = false
     @State private var pendingDevice: ConnectableDevice?
     @State private var showSwitchDevicePopup = false
-    
-    private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue(label: "wifi-monitor")
     
     private var connectedDevices: [ConnectableDevice] {
         TVRemoteVM.discoveredDevices.filter {
@@ -31,12 +29,12 @@ struct DeviceListview: View {
         }
     }
     
-    //    private var otherDevices: [ConnectableDevice] {
-    //        TVRemoteVM.discoveredDevices.filter {
-    //            TVRemoteVM.deviceName != $0.friendlyName ||
-    //            TVRemoteVM.connectedTVType == nil
-    //        }
-    //    }
+    private var otherDevices: [ConnectableDevice] {
+        TVRemoteVM.discoveredDevices.filter {
+            TVRemoteVM.deviceName != $0.friendlyName ||
+            TVRemoteVM.connectedTVType == nil
+        }
+    }
     
     var body: some View {
         ZStack {
@@ -148,18 +146,17 @@ struct DeviceListview: View {
                             ForEach(TVRemoteVM.discoveredDevices, id: \.address) { device in
                                 Button {
                                     if TVRemoteVM.connectedTVType != nil &&
-                                            TVRemoteVM.deviceName != device.friendlyName {
-
-                                            pendingDevice = device
-
-                                            withAnimation(.spring()) {
-                                                showSwitchDevicePopup = true
-                                            }
-
-                                        } else {
-
-                                            TVRemoteVM.connect(to: device)
+                                        TVRemoteVM.deviceName != device.friendlyName {
+                                        
+                                        pendingDevice = device
+                                        
+                                        withAnimation(.spring()) {
+                                            showSwitchDevicePopup = true
                                         }
+                                        
+                                    } else {
+                                        TVRemoteVM.connect(to: device)
+                                    }
                                 } label: {
                                     DeviceListingRow(
                                         deviceName: device.friendlyName ?? "Unknown TV".localized,
@@ -178,27 +175,36 @@ struct DeviceListview: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
-            print("ConnectSDK Devices")
-            TVRemoteVM.discoveredDevices.forEach {
-                print($0.friendlyName ?? "",
-                      $0.address)
-            }
+            permissionVM.startNetworkMonitoring()
+            permissionVM.checkLocalNetworkPermission()
             
-            print("Google Cast Devices")
-            gcastDevice.forEach {
-                print($0.friendlyName ?? "",
-                      $0.ipAddress ?? "")
-            }
         }
-        .onChange(of: TVRemoteVM.isConnectedSuccessfully) { isConnected in
-            if isConnected {
+        .onChange(of: TVRemoteVM.connectedTVType) { connectedTvType in
+            if let type = connectedTvType,
+               TVRemoteVM.isConnectedSuccessfully {
                 withAnimation(.spring()) {
                     showConnectionPopup = true
+                }
+                print("🔥 CommonVM Updated:", type, TVRemoteVM.deviceName ?? "")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    if let connectedType = commonVM.getConnectedTvType() {
+                        commonVM.setTVPlaceHolder(connectedTvType: connectedType)
+                        print("✅ Placeholder casted")
+                    }
+                }
+            }
+        }
+        .onChange(of: scenePhase) { phase in
+            
+            if phase == .active {
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    permissionVM.checkLocalNetworkPermission()
                 }
             }
         }
         .onDisappear {
-            monitor.cancel()
+            permissionVM.stopChecking()
             TVRemoteVM.showProgress = false
             TVRemoteVM.pinCode = ""
             TVRemoteVM.showPinDialog = false
@@ -271,6 +277,7 @@ struct DeviceListview: View {
                             subtitle: str.connect2,
                             btnTitle: str.Connect
                         ) {
+                            
                             withAnimation(.spring()) {
                                 showConnectionPopup = false
                             }
@@ -306,38 +313,75 @@ struct DeviceListview: View {
                     }
                     
                     if showSwitchDevicePopup {
-
+                        
                         PopupCard(
                             image: "disconnectCurrentDevice",
                             title: str.DisconnectCurrentDevice1,
                             subtitle: str.DisconnectCurrentDevice2,
                             btnTitle: str.Disconnect
                         ) {
-
+                            
                             guard let device = pendingDevice else { return }
-
+                            
                             TVRemoteVM.disconnectTV()
-
+                            
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                                 TVRemoteVM.connect(to: device)
                             }
-
+                            
                             pendingDevice = nil
-
+                            
                             withAnimation(.spring()) {
                                 showSwitchDevicePopup = false
                             }
-
+                            
                         } closeAction: {
-
+                            
                             pendingDevice = nil
-
+                            
                             withAnimation(.spring()) {
                                 showSwitchDevicePopup = false
                             }
                         }
                     }
+                    
+                    if permissionVM.showNoNetworkPopup {
+                        
+                        PopupCard(
+                            image: "WIFI",
+                            title: str.WIFI1,
+                            subtitle: str.WIFI2,
+                            btnTitle: str.WIFI3
+                        ) {
+                            
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                            
+                        } closeAction: {
+                            
+                            permissionVM.showNoNetworkPopup = false
+                        }
+                    }
+                    if permissionVM.showLocalNetworkPopup {
+                        
+                        PopupCard(
+                            image: "Network",
+                            title: str.localNetwork1,
+                            subtitle: str.localNetwork2,
+                            btnTitle: str.localNetwork3
+                        ) {
+                            
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                            
+                        } closeAction: {
+                            permissionVM.showLocalNetworkPopup = false
+                        }
+                    }
                 }
+                .ignoresSafeArea(edges:.bottom)
             }
             .animation(.spring(), value: showConnectionPopup)
             .animation(.spring(), value: showDisconnectPopup)

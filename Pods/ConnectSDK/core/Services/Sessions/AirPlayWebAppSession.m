@@ -217,8 +217,15 @@
 
     NSString *commandString = [NSString stringWithFormat:@"window.connectManager.handleMessage({from: -1, message: \"%@\" })", message];
 
-    [self.service.mirroredService.webAppWebView stringByEvaluatingJavaScriptFromString:commandString];
-
+//    [self.service.mirroredService.webAppWebView stringByEvaluatingJavaScriptFromString:commandString];
+    [self.service.mirroredService.webAppWebView evaluateJavaScript:commandString
+                                                completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"JavaScript error: %@", error.localizedDescription);
+        } else {
+            NSLog(@"JavaScript result: %@", result);
+        }
+    }];
     if (success)
         success(nil);
 }
@@ -243,8 +250,15 @@
         NSString *messageString = [[NSString alloc] initWithData:messageData encoding:NSUTF8StringEncoding];
         NSString *commandString = [NSString stringWithFormat:@"window.connectManager.handleMessage({from: -1, message: %@ })", messageString];
 
-        [self.service.mirroredService.webAppWebView stringByEvaluatingJavaScriptFromString:commandString];
-
+        /*[self.service.mirroredService.webAppWebView stringByEvaluatingJavaScriptFromString:commandString]*/;
+        [self.service.mirroredService.webAppWebView evaluateJavaScript:commandString
+                                                    completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+            if (error) {
+                NSLog(@"JavaScript error: %@", error.localizedDescription);
+            } else {
+                NSLog(@"JavaScript result: %@", result);
+            }
+        }];
         if (success)
             success(nil);
     }

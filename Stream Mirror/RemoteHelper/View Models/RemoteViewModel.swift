@@ -375,6 +375,8 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
 
     func submitPinCode() {
+        print("PIN Submitted")
+        print("selectedTVType =", selectedTVType as Any)
         guard let type = selectedTVType else { return }
         
         switch type {
