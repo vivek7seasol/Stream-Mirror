@@ -103,7 +103,7 @@ struct DeviceListingRow: View {
 struct stepCard: View {
     var body: some View {
         ZStack {
-            VStack {
+            VStack(alignment:.leading,spacing: 8) {
                 Text(str.HowtoConnect)
                     .font(.system(size: 16,weight: .medium))
                     .foregroundStyle(.white)
@@ -118,6 +118,7 @@ struct stepCard: View {
                     }
                     .frame(width: 26,height: 26)
                     .background(.white.opacity(0.10))
+                    .cornerRadius(12)
                     
                     Text(str.Keepbothdevicesconnected)
                         .font(.system(size: 14))
@@ -132,6 +133,7 @@ struct stepCard: View {
                     }
                     .frame(width: 26,height: 26)
                     .background(.white.opacity(0.10))
+                    .cornerRadius(12)
                     
                     Text(str.TurnofanyVPNorproxyconnections)
                         .font(.system(size: 14))
@@ -146,6 +148,7 @@ struct stepCard: View {
                     }
                     .frame(width: 26,height: 26)
                     .background(.white.opacity(0.10))
+                    .cornerRadius(12)
                     
                     Text(str.RestartyourTVandtryagain)
                         .font(.system(size: 14))
@@ -157,9 +160,58 @@ struct stepCard: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical,15)
         .modifier(GlassCardModifier(cornerRadius: 20))
+        .padding(.horizontal,15)
     }
 }
 
+
+struct PopupCard: View {
+
+    let image: String
+    let title: String
+    let subtitle: String
+    let btnTitle: String
+
+    let btnAction: () -> Void
+    let closeAction: () -> Void
+
+    var body: some View {
+        VStack {
+
+            singleButtonCard(image: "close") {
+                closeAction()
+            }
+            .frame(maxWidth: .infinity, alignment: .topTrailing)
+            .padding(.trailing)
+
+            Image(image)
+                .resizable()
+                .frame(width: 150, height: 110)
+
+            VStack(spacing: 5) {
+                Text(title)
+                Text(subtitle)
+            }
+
+            commonButtonFile(text: btnTitle) {
+                btnAction()
+            }
+            .padding()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(.black)
+        .clipShape(
+            CustomCorner(
+                corners: [.topLeft, .topRight],
+                radius: 40
+            )
+        )
+    }
+}
+
+
 #Preview {
-    DeviceListingRow(deviceName: "Samsung QLED 8K", status: .connecting)
+    PopupCard(image: "WIFI", title: "Turn On Wi-Fi", subtitle: "Find and connect to available devices.", btnTitle: "Turn On Wi-Fi", btnAction: {}, closeAction: {})
+//    DeviceListingRow(deviceName: "Samsung QLED 8K", status: .connecting)
 }

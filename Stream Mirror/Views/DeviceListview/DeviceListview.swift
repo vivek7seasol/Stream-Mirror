@@ -7,12 +7,22 @@
 
 import SwiftUI
 import ConnectSDK
+import GoogleCast
 
 struct DeviceListview: View {
     
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject private var TVRemoteVM: RemoteViewModel
     @EnvironmentObject private var commonVM: CommonConnectionViewModel
+    
+    @State private var showStep: Bool = false
+    @State private var showConnectionPopup = false
+    @State private var showDisconnectPopup = false
+    @State private var pendingDevice: ConnectableDevice?
+    @State private var showSwitchDevicePopup = false
+    
+    private let monitor = NWPathMonitor()
+    private let queue = DispatchQueue(label: "wifi-monitor")
     
     private var connectedDevices: [ConnectableDevice] {
         TVRemoteVM.discoveredDevices.filter {
@@ -21,12 +31,12 @@ struct DeviceListview: View {
         }
     }
     
-    private var otherDevices: [ConnectableDevice] {
-        TVRemoteVM.discoveredDevices.filter {
-            TVRemoteVM.deviceName != $0.friendlyName ||
-            TVRemoteVM.connectedTVType == nil
-        }
-    }
+    //    private var otherDevices: [ConnectableDevice] {
+    //        TVRemoteVM.discoveredDevices.filter {
+    //            TVRemoteVM.deviceName != $0.friendlyName ||
+    //            TVRemoteVM.connectedTVType == nil
+    //        }
+    //    }
     
     var body: some View {
         ZStack {
@@ -39,14 +49,16 @@ struct DeviceListview: View {
                 .frame(maxWidth: .infinity,alignment: .trailing)
                 .padding(.trailing)
                 
-                VStack(spacing:15) {
+                VStack(spacing:8) {
                     Text(str.ConnecttoaDevice)
                         .font(.system(size: isIpad() ? 28 : 20,weight: .semibold))
                         .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
                     
                     Text(str.ConnecttoaDevice2)
                         .font(.system(size: isIpad() ? 18 : 12))
                         .foregroundStyle(AppColor.textColor)
+                        .multilineTextAlignment(.center)
                 }
                 .padding(.horizontal,20)
                 
@@ -66,10 +78,18 @@ struct DeviceListview: View {
                     
                     ForEach(connectedDevices, id: \.address) { device in
                         
-                        DeviceListingRow(
-                            deviceName: device.friendlyName ?? "Unknown TV".localized,
-                            status: .connected
-                        )
+                        Button {
+                            withAnimation(.spring()) {
+                                showDisconnectPopup = true
+                            }
+                        } label: {
+                            
+                            DeviceListingRow(
+                                deviceName: device.friendlyName ?? "Unknown TV".localized,
+                                status: .connected
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                     
                 }
@@ -86,44 +106,68 @@ struct DeviceListview: View {
                 .padding(.horizontal)
                 .padding(.vertical,15)
                 
-                if otherDevices.isEmpty {
+                if showStep {
+                    
+                    stepCard()
+                    
+                } else if TVRemoteVM.discoveredDevices.isEmpty {
+                    
                     Spacer()
-                    VStack {
-                        placeholderView(image: "DeviceListPH", title: str.NoDevicesAvailable, title2: str.GetConnectedinaThreeSimpleSteps, isTitle2: true)
+                    VStack(spacing:50) {
+                        placeholderView(
+                            image: "DeviceListPH",
+                            title: str.NoDevicesAvailable,
+                            title2: str.GetConnectedinaThreeSimpleSteps,
+                            isTitle2: true
+                        )
                         
                         Button {
-                            
-                        } label: {
-                            
-                            VStack {
-                                Text(str.HowItWorks)
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(.white)
-                                    .padding(.top, 50)
-                                    .overlay(alignment: .bottom) {
-                                        Rectangle()
-                                            .fill(.white)
-                                            .frame(height: 1)
-                                            .offset(y: 4)
-                                    }
+                            withAnimation {
+                                showStep = true
                             }
+                        } label: {
+                            Text(str.HowItWorks)
+                                .font(.system(size: 14))
+                                .foregroundStyle(.white)
+                                .overlay(alignment: .bottom) {
+                                    Rectangle()
+                                        .fill(.white)
+                                        .frame(height: 1)
+                                        .offset(y: 4)
+                                }
                         }
                         .buttonStyle(.plain)
                     }
                     Spacer()
+                    
                 } else {
-                    ScrollView(.vertical,showsIndicators: false) {
-                        ForEach(otherDevices, id: \.address) { device in
-                            
-                            Button {
-                                TVRemoteVM.connect(to: device)
-                            } label: {
-                                DeviceListingRow(
-                                    deviceName: device.friendlyName ?? "Unknown TV".localized,
-                                    status: statusForDevice(device)
-                                )
+                    
+                    VStack(spacing: 12) {
+                        
+                        ScrollView(.vertical, showsIndicators: false) {
+                            ForEach(TVRemoteVM.discoveredDevices, id: \.address) { device in
+                                Button {
+                                    if TVRemoteVM.connectedTVType != nil &&
+                                            TVRemoteVM.deviceName != device.friendlyName {
+
+                                            pendingDevice = device
+
+                                            withAnimation(.spring()) {
+                                                showSwitchDevicePopup = true
+                                            }
+
+                                        } else {
+
+                                            TVRemoteVM.connect(to: device)
+                                        }
+                                } label: {
+                                    DeviceListingRow(
+                                        deviceName: device.friendlyName ?? "Unknown TV".localized,
+                                        status: statusForDevice(device)
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -133,21 +177,185 @@ struct DeviceListview: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            print("ConnectSDK Devices")
+            TVRemoteVM.discoveredDevices.forEach {
+                print($0.friendlyName ?? "",
+                      $0.address)
+            }
+            
+            print("Google Cast Devices")
+            gcastDevice.forEach {
+                print($0.friendlyName ?? "",
+                      $0.ipAddress ?? "")
+            }
+        }
+        .onChange(of: TVRemoteVM.isConnectedSuccessfully) { isConnected in
+            if isConnected {
+                withAnimation(.spring()) {
+                    showConnectionPopup = true
+                }
+            }
+        }
+        .onDisappear {
+            monitor.cancel()
+            TVRemoteVM.showProgress = false
+            TVRemoteVM.pinCode = ""
+            TVRemoteVM.showPinDialog = false
+        }
+        .alert(
+            "Enter PIN Code".localized,
+            isPresented: $TVRemoteVM.showPinDialog
+        ) {
+            TextField("Enter PIN".localized, text: $TVRemoteVM.pinCode)
+            
+            Button("Cancel".localized, role: .cancel) {
+                TVRemoteVM.pinCode = ""
+                TVRemoteVM.showPinDialog = false
+                TVRemoteVM.disconnectTV()
+            }
+            
+            Button("Submit".localized) {
+                TVRemoteVM.submitPinCode()
+                TVRemoteVM.pinCode = ""
+                TVRemoteVM.showPinDialog = false
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    if TVRemoteVM.connectedTVType == nil {
+                        TVRemoteVM.showProgress = false
+                    }
+                }
+            }
+            
+        } message: {
+            Text("Please enter the PIN code displayed on your TV".localized)
+        }
         
+        // MARK: - Samsung Alert (unchanged)
+        .alert(
+            "Samsung TV Permission Required".localized,
+            isPresented: $TVRemoteVM.showAllowInTVSettingsAlert
+        ) {
+            Button("OK".localized, role: .cancel) { }
+        } message: {
+            Text(String(
+                format: "To connect your iPhone, please allow permission on your Samsung TV:\n\n1. Open Settings on your TV\n2. Go to Connections → External Device Manager\n3. Select Device Connection Manager\n4. Open Device List\n5. Find %@ and select it\n6. Set it to \"Allowed\"\n\nAfter allowing, try connecting again.".localized,
+                AppStrings.appName
+            ))
+        }
+        .overlay(alignment: .bottom) {
+            
+            ZStack {
+                
+                if showConnectionPopup || showDisconnectPopup {
+                    
+                    Color.black.opacity(0.45)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.spring()) {
+                                showConnectionPopup = false
+                                showDisconnectPopup = false
+                            }
+                        }
+                }
+                
+                VStack {
+                    Spacer()
+                    
+                    // Connection Success Popup
+                    if showConnectionPopup {
+                        
+                        PopupCard(
+                            image: "connect2",
+                            title: "\(str.connect1) \(TVRemoteVM.deviceName ?? "")",
+                            subtitle: str.connect2,
+                            btnTitle: str.Connect
+                        ) {
+                            withAnimation(.spring()) {
+                                showConnectionPopup = false
+                            }
+                        } closeAction: {
+                            withAnimation(.spring()) {
+                                showConnectionPopup = false
+                            }
+                        }
+                    }
+                    
+                    // Disconnect Popup
+                    if showDisconnectPopup {
+                        
+                        PopupCard(
+                            image: "disconnect",
+                            title: str.disconnect1,
+                            subtitle: str.disconnect2 + "\(TVRemoteVM.deviceName ?? "")?",
+                            btnTitle: str.Disconnect
+                        ) {
+                            
+                            TVRemoteVM.disconnectTV()
+                            
+                            withAnimation(.spring()) {
+                                showDisconnectPopup = false
+                            }
+                            
+                        } closeAction: {
+                            
+                            withAnimation(.spring()) {
+                                showDisconnectPopup = false
+                            }
+                        }
+                    }
+                    
+                    if showSwitchDevicePopup {
+
+                        PopupCard(
+                            image: "disconnectCurrentDevice",
+                            title: str.DisconnectCurrentDevice1,
+                            subtitle: str.DisconnectCurrentDevice2,
+                            btnTitle: str.Disconnect
+                        ) {
+
+                            guard let device = pendingDevice else { return }
+
+                            TVRemoteVM.disconnectTV()
+
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                                TVRemoteVM.connect(to: device)
+                            }
+
+                            pendingDevice = nil
+
+                            withAnimation(.spring()) {
+                                showSwitchDevicePopup = false
+                            }
+
+                        } closeAction: {
+
+                            pendingDevice = nil
+
+                            withAnimation(.spring()) {
+                                showSwitchDevicePopup = false
+                            }
+                        }
+                    }
+                }
+            }
+            .animation(.spring(), value: showConnectionPopup)
+            .animation(.spring(), value: showDisconnectPopup)
+        }
     }
     
     private func statusForDevice(_ device: ConnectableDevice) -> deviceStatus {
-
+        
         if TVRemoteVM.connectedTVType != nil,
            TVRemoteVM.deviceName == device.friendlyName {
             return .connected
         }
-
+        
         if TVRemoteVM.showProgress,
            TVRemoteVM.deviceName == device.friendlyName {
             return .connecting
         }
-
+        
         return .notConnected
     }
 }

@@ -6,6 +6,7 @@
 	<string>ca-app-pub-3940256099942544~1458002511</string>
 	<key>NSBonjourServices</key>
 	<array>
+		<string>_bonjour._tcp</string>
 		<string>_lnp._tcp</string>
 		<string>_airplay._tcp</string>
 		<string>_webos-tv._tcp</string>

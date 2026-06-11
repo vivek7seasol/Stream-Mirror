@@ -68,7 +68,7 @@ struct firstCard: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: isIpad() ? 230 : 210)
-                .gradientBackground(colors: [Color("#00D9F8"),Color("#6733FF")],start: .topLeading,end: .bottomTrailing)
+                .gradientBackground(colors: [Color("#00D9F8"),Color("#6733FF")],start: .topLeading,end: .bottomTrailing,cornerRadius: 25)
             }
             .buttonStyle(.plain)
             
@@ -98,7 +98,7 @@ struct firstCard: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: isIpad() ? 120 : 100)
-                    .gradientBackground(colors: [Color("#FF716E"),Color("#E82725")],start: .topLeading,end: .bottomTrailing)
+                    .gradientBackground(colors: [Color("#FF716E"),Color("#E82725")],start: .topLeading,end: .bottomTrailing,cornerRadius: 25)
                 }
                 .buttonStyle(.plain)
                 
@@ -128,7 +128,7 @@ struct firstCard: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: isIpad() ? 120 : 100)
-                    .gradientBackground(colors: [Color("#FFB235"),Color("#FF7406")],start: .topLeading,end: .bottomTrailing)
+                    .gradientBackground(colors: [Color("#FFB235"),Color("#FF7406")],start: .topLeading,end: .bottomTrailing,cornerRadius: 25)
                 }
                 .buttonStyle(.plain)
             }

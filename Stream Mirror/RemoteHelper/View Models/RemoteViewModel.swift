@@ -900,9 +900,14 @@ class RemoteViewModel: NSObject, ObservableObject {
 // MARK: - DiscoveryManagerDelegate
 extension RemoteViewModel: DiscoveryManagerDelegate {
     func discoveryManager(_ manager: DiscoveryManager!, didFind device: ConnectableDevice!) {
+        print("ConnectSDK Found:",
+                  device.friendlyName ?? "",
+                  device.address)
+
         if !discoveredDevices.contains(where: { $0.address == device.address }) {
             discoveredDevices.append(device)
         }
+        print("ConnectSDK Count:", discoveredDevices.count)
     }
     
     func discoveryManager(_ manager: DiscoveryManager!, didLose device: ConnectableDevice!) {

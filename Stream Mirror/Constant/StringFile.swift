@@ -59,4 +59,17 @@ class StringFile {
     let Keepbothdevicesconnected = "Keep both devices connected.".localized
     let TurnofanyVPNorproxyconnections = "Turn off any VPN or proxy connections.".localized
     let RestartyourTVandtryagain = "Restart your TV and try again.".localized
+    
+    let connect1 = "Connected to ".localized
+    let connect2 = "Your TV is connected and ready for screen sharing.".localized
+    let Connect = "Connect".localized
+    
+    let disconnect1 = "Disconnect from ".localized
+    let disconnect2 = "Are you sure you want to disconnect from this device?".localized
+    let Disconnect = "Disconnect".localized
+    
+    let DisconnectCurrentDevice1 = "Disconnect Current Device".localized
+    let DisconnectCurrentDevice2 = "Please disconnect the current device before continuing.".localized
+    
+    
 }

@@ -74,6 +74,7 @@ struct IntroMainView: View {
                         }
                     } else {
                         intro3 = true
+                        showTabbar = true
                     }
                 }
                 .padding(.horizontal, 15)
