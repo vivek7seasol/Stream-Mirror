@@ -90,10 +90,14 @@ class StringFile {
     let QuickPresets = "Quick Presets".localized
     let Seconds = "Seconds".localized
     let EnterSeconds = "Enter Seconds".localized
-    let Minimum5secondsrequired = "Minimum 5 seconds required".localized
+    let Minimum5secondsrequired = "Timer must be between 5 and 30 seconds".localized
     let StartTimer = "Start Timer".localized
     let NoPhotosAvailable = "No Photos Available".localized
+    let NoVideoAvailable = "No Video Available".localized
     
+    let NoMusicAvailable = "No Music Available".localized
+    let FavoritesMusic = "Favorites Music".localized
+    let YourFavoritesAreEmpty = "Your Favorites Are Empty".localized
     
     
 }

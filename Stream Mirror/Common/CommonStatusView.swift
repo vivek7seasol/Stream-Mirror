@@ -35,28 +35,35 @@ struct CommonStatusView<Trailing: View>: View {
     var body: some View {
         
         ZStack {
-           
+
+            Text(title)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(.white)
+
             HStack {
-                
+
                 singleButtonCard(image: "back") {
+
                     if let onBack {
                         onBack()
                     } else {
                         dismiss()
                     }
                 }
+
                 Spacer()
-                Text(title)
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(.white)
-                
-                Spacer()
-                trailing
-                if isCastingShow {
-                    singleButtonCard(image: "Cast") {
-                        onCast()
+
+                HStack(spacing: 10) {
+
+                    trailing
+
+                    if isCastingShow {
+                        singleButtonCard(image: "Cast") {
+                            onCast()
+                        }
                     }
                 }
+                .frame(minWidth: 90, alignment: .trailing)
             }
         }
         .padding(.horizontal, 15)

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Photos
+internal import Photos
 import SwiftUI
 import Combine
 
@@ -18,6 +18,13 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
     @Published var isPremissionLimited = false
     @Published var isLoading = false
     @Published var showPlaceholder = false
+    @Published var selectedIndex = 0
+    @Published var showPhotoCasting = false
+    @Published var showVideoCasting = false
+    @Published var showDeviceList = false
+    
+    @Published var selectedVideoIndex = 0
+    
     private var isReloading = false
 
     

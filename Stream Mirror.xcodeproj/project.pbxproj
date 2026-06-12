@@ -466,7 +466,9 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Stream-Mirror-Info.plist";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app needs access to your music library to display songs.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app requires access to the local network to discover and cast to Smart TV";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to display photos and videos.";
 				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -515,7 +517,9 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Stream-Mirror-Info.plist";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app needs access to your music library to display songs.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app requires access to the local network to discover and cast to Smart TV";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to display photos and videos.";
 				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized ads to you.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;

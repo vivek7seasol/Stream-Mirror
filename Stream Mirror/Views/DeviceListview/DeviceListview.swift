@@ -146,17 +146,28 @@ struct DeviceListview: View {
                             ForEach(TVRemoteVM.discoveredDevices, id: \.address) { device in
                                 Button {
                                     if TVRemoteVM.connectedTVType != nil &&
-                                        TVRemoteVM.deviceName != device.friendlyName {
-                                        
-                                        pendingDevice = device
-                                        
-                                        withAnimation(.spring()) {
-                                            showSwitchDevicePopup = true
-                                        }
-                                        
-                                    } else {
-                                        TVRemoteVM.connect(to: device)
-                                    }
+                                           TVRemoteVM.deviceName == device.friendlyName {
+
+                                           withAnimation(.spring()) {
+                                               showDisconnectPopup = true
+                                           }
+
+                                       }
+                                       // Different device tapped
+                                       else if TVRemoteVM.connectedTVType != nil {
+
+                                           pendingDevice = device
+
+                                           withAnimation(.spring()) {
+                                               showSwitchDevicePopup = true
+                                           }
+
+                                       }
+                                       // No device connected
+                                       else {
+
+                                           TVRemoteVM.connect(to: device)
+                                       }
                                 } label: {
                                     DeviceListingRow(
                                         deviceName: device.friendlyName ?? "Unknown TV".localized,

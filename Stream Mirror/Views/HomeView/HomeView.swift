@@ -13,6 +13,9 @@ struct HomeView: View {
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @State private var showDeviceList: Bool = false
     @State private var showYoutube: Bool = false
+    @State private var showPhotos: Bool = false
+    @State private var showVideos: Bool = false
+    @State private var showMusic: Bool = false
     
     var body: some View {
         ZStack {
@@ -68,15 +71,15 @@ struct HomeView: View {
                                     }
                                     Spacer()
                                     castingCard(title: str.Photo, image: "Photo") {
-                                        
+                                        showPhotos = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Video, image: "Video") {
-                                        
+                                        showVideos = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Music, image: "Music") {
-                                        
+                                        showMusic = true
                                     }
                                     Spacer()
                                 }
@@ -141,6 +144,17 @@ struct HomeView: View {
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }
+        .navigationDestination(isPresented: $showPhotos) {
+            PhotosView()
+        }
+        .navigationDestination(isPresented: $showVideos) {
+            VideosView()
+        }
+        .navigationDestination(isPresented: $showMusic) {
+            MusicView()
+        }
+        
+        
     }
 }
 
