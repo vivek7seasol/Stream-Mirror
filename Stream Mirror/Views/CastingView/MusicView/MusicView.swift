@@ -34,7 +34,9 @@ struct MusicView: View {
                     
                     Spacer()
 
-                    ProgressView()
+                    ProgressView("Loading Music...")
+                        .tint(.white)
+                        .foregroundColor(.white)
 
                     Spacer()
 
@@ -48,6 +50,7 @@ struct MusicView: View {
                         title2: "",
                         isTitle2: false
                     )
+                    Spacer()
 
                 } else {
                     
@@ -98,7 +101,6 @@ struct MusicView: View {
                         .padding(.bottom, 20)
                     }
                 }
-                Spacer()
                 
                 if let song = musicVM.currentlyPlaying {
 

@@ -14,18 +14,23 @@ struct YTView: View {
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @StateObject private var YTVM = YoutubeViewModel()
+    var isOpenFromYT = false
     let initialURL: String
     
     var body: some View {
         ZStack {
             
             VStack {
-                CommonStatusView(
-                    title: str.Youtube,
-                    onCast: {
-                        YTVM.showDeviceList = true
-                    }
-                )
+                if isOpenFromYT {
+                    CommonStatusView(
+                        title: str.Youtube,
+                        onCast: {
+                            YTVM.showDeviceList = true
+                        }
+                    )
+                } else {
+                    CommonStatusView(title: str.Browser,isCastingShow: false)
+                }
                 
                 ZStack(alignment:.bottomTrailing) {
                     YoutubePreview(
@@ -36,37 +41,39 @@ struct YTView: View {
                             YTVM.processAndFetchVideoDetails(from: url)
                         }
                     )
-                    //
-                    Button {
-
-                        TVRemoteVM.handleDeviceAction {
+                    
+                    if isOpenFromYT {
+                        Button {
                             
-                        } onTV: {
-                            YTVM.selectedVideo = YTVM.videoList.first
-
-                            YTVM.preparePlayer()
-
-                            YTVM.showPreview = true
-                        } onNoDevice: {
-                            YTVM.showDeviceList = true
+                            TVRemoteVM.handleDeviceAction {
+                                
+                            } onTV: {
+                                YTVM.selectedVideo = YTVM.videoList.first
+                                
+                                YTVM.preparePlayer()
+                                
+                                YTVM.showPreview = true
+                            } onNoDevice: {
+                                YTVM.showDeviceList = true
+                            }
+                            
+                        } label: {
+                            ZStack {
+                                LottieFile2(animationFileName: MyLottieFiles.WifiTv, loopMode: .loop)
+                                    .frame(width: isIpad() ? 130 :  40, height: isIpad() ? 130 :  40)
+                                    .rotationEffect(.degrees(0))
+                            }
+                            .frame(width: isIpad() ? 70 : 56,height: isIpad() ? 70 : 56)
+                            .background(.black)
+                            .cornerRadius( isIpad() ? 35 :28)
+                            .frame(width: isIpad() ? 80 : 66,height: isIpad() ? 80 : 66)
+                            .modifier(GlassCardModifier(cornerRadius: isIpad() ? 40 : 33))
                         }
-
-                    } label: {
-                        ZStack {
-                            LottieFile2(animationFileName: MyLottieFiles.WifiTv, loopMode: .loop)
-                                .frame(width: isIpad() ? 130 :  40, height: isIpad() ? 130 :  40)
-                                .rotationEffect(.degrees(0))
-                        }
-                        .frame(width: isIpad() ? 70 : 56,height: isIpad() ? 70 : 56)
-                        .background(.black)
-                        .cornerRadius( isIpad() ? 35 :28)
-                        .frame(width: isIpad() ? 80 : 66,height: isIpad() ? 80 : 66)
-                        .modifier(GlassCardModifier(cornerRadius: isIpad() ? 40 : 33))
+                        .padding(.trailing, 3)
+                        .padding(.bottom, 3)
+                        .disabled(YTVM.videoList.isEmpty)
+                        .opacity(YTVM.videoList.isEmpty ? 0.7 : 1)
                     }
-                    .padding(.trailing, 3)
-                    .padding(.bottom, 3)
-                    .disabled(YTVM.videoList.isEmpty)
-                    .opacity(YTVM.videoList.isEmpty ? 0.7 : 1)
                 }
                 
                 ZStack {
@@ -129,7 +136,7 @@ struct YTView: View {
         }
         .appScreen()
         .onAppear {
-            YTVM.loadSearchOrURL(text: "https://www.youtube.com/")
+            YTVM.loadSearchOrURL(text: initialURL)
         }
         .navigationDestination(isPresented: $YTVM.showPreview) {
 

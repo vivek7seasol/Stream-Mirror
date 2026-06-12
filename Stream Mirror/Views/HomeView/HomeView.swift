@@ -11,11 +11,15 @@ struct HomeView: View {
     
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
+    
+    @State private var text: String = ""
     @State private var showDeviceList: Bool = false
     @State private var showYoutube: Bool = false
     @State private var showPhotos: Bool = false
     @State private var showVideos: Bool = false
     @State private var showMusic: Bool = false
+    @State private var showBrowser: Bool = false
+    @State private var showFiles: Bool = false
     
     var body: some View {
         ZStack {
@@ -47,7 +51,7 @@ struct HomeView: View {
                     } YTAction: {
                         showYoutube = true
                     } FileAction: {
-                        
+                        showFiles = true
                     }
                     
                     VStack(spacing:15) {
@@ -57,6 +61,7 @@ struct HomeView: View {
                                     Divider()
                                         .frame(width: isIpad() ? 7 : 4,height: isIpad() ? 26 : 22)
                                         .background(.white)
+                                        .cornerRadius(15)
                                     
                                     Text(str.DisplayCasting)
                                         .font(.system(size: isIpad() ? 24 : 18,weight: .semibold))
@@ -96,6 +101,7 @@ struct HomeView: View {
                                     Divider()
                                         .frame(width: isIpad() ? 7 :4,height: isIpad() ? 26 : 22)
                                         .background(.white)
+                                        .cornerRadius(15)
                                     
                                     Text(str.SmartTools)
                                         .font(.system(size: isIpad() ? 24 : 18,weight: .semibold))
@@ -106,7 +112,7 @@ struct HomeView: View {
                                 HStack {
                                     Spacer()
                                     castingCard(title: str.Browser, image: "Browser") {
-                                        
+                                        showBrowser = true
                                     }
                                     Spacer()
                                     castingCard(title: str.OnlineImage, image: "Online Image") {
@@ -140,7 +146,7 @@ struct HomeView: View {
                 .environmentObject(commonVM)
         }
         .navigationDestination(isPresented: $showYoutube) {
-            YTView(initialURL: "https://www.youtube.com/")
+            YTView(isOpenFromYT: true, initialURL: "https://www.youtube.com/")
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }
@@ -152,6 +158,12 @@ struct HomeView: View {
         }
         .navigationDestination(isPresented: $showMusic) {
             MusicView()
+        }
+        .navigationDestination(isPresented: $showBrowser) {
+            BrowserView(text: $text)
+        }
+        .navigationDestination(isPresented: $showFiles) {
+            Filesview()
         }
         
         

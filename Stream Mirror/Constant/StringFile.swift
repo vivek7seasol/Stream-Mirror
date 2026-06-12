@@ -99,5 +99,37 @@ class StringFile {
     let FavoritesMusic = "Favorites Music".localized
     let YourFavoritesAreEmpty = "Your Favorites Are Empty".localized
     
+    let OnlineBrowser = "Online Browser".localized
+    let Browsewebsitesquicklyandsecurely = "Browse websites quickly and securely.".localized
+    let Search = "Search".localized
+    let PopularWebsites = "Popular Websites".localized
+    let Google = "Google".localized
+    let Facebook = "Facebook".localized
+    let Vimeo = "Vimeo".localized
+    let Telegram = "Telegram".localized
+    let Instagram = "Instagram".localized
     
+    let PDFFiles = "PDF Files".localized
+    let AllyourPDFfilesinoneplace = "All your PDF files in one place.".localized
+    let OpenPDF = "Open PDF".localized
+    let WordDocuments = "Word Documents".localized
+    let Viewyourddocumentsanytime = "View your saved documents anytime.".localized
+    let OpenDoc = "Open Doc".localized
+    let PPTFiles = "PPT Files".localized
+    let Quicklyaccessyourfilesanytime = "Quickly access your PPT files anytime.".localized
+    let OpenPresentation = "Open Presentation".localized
+    let NoPDFAvailable = "No PDF Available".localized
+    let yourfirstPDFtogetstarted = "Add your first PDF to get started.".localized
+    let NoDocumentsAvailable = "No Documents Available".localized
+    let Addyourfirstdocumenttogetstartedquickly = "Add your first document to get started quickly.".localized
+    let NoPresentationsAvailable = "No Presentations Available".localized
+    let Addyourfirstpresentationtogetstarted = "Add your first presentation to get started.".localized
+    let noPhotosFound = "No Pages Found".localized
+    
+    let Language = "Language".localized
+    let ShareApp = "Share App".localized
+    let RateUs = "Rate Us".localized
+    let PrivacyPolicy = "Privacy Policy".localized
+    let TermsofUse = "Terms of Use".localized
+    let EULA = "EULA".localized
 }

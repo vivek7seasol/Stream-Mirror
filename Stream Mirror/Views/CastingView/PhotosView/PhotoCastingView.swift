@@ -34,6 +34,7 @@ struct PhotoCastingView: View {
     @State private var timerSeconds: Int = 7
     @State private var isPlaying = false
     
+    let images: [UIImage]
     var assets: [PHAsset] = []
     var imageURLs: [String] = []
     var selectedIndex: Int
@@ -97,11 +98,12 @@ struct PhotoCastingView: View {
                         
                         CircleButton(icon: "previous2", size2: 44) {
                             
-                            guard !assets.isEmpty else { return }
+                            let count = !images.isEmpty ? images.count : assets.count
+                            guard count > 0 else { return }
                             
                             currentIndex =
                             currentIndex == 0
-                            ? assets.count - 1
+                            ? count - 1
                             : currentIndex - 1
                             
                         }
@@ -125,10 +127,11 @@ struct PhotoCastingView: View {
                         
                         CircleButton(icon: "next2", size2: 44) {
 
-                            guard !assets.isEmpty else { return }
+                            let count = !images.isEmpty ? images.count : assets.count
+                            guard count > 0 else { return }
 
                             currentIndex =
-                            (currentIndex + 1) % assets.count
+                            (currentIndex + 1) % count
 
                         }
                     }
@@ -203,6 +206,7 @@ struct PhotoCastingView: View {
         }
         .appScreen()
         .onAppear {
+
             currentIndex = selectedIndex
             loadSelectedImage()
         }
@@ -274,14 +278,12 @@ struct PhotoCastingView: View {
 
             DispatchQueue.main.async {
 
-                guard !assets.isEmpty else { return }
-
-                currentIndex =
-                (currentIndex + 1) % assets.count
+                let count = !images.isEmpty ? images.count : assets.count
+                guard count > 0 else { return }
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    castCurrentImage()
-                }
+                currentIndex =
+                (currentIndex + 1) % count
+
             }
         }
     }
@@ -298,28 +300,39 @@ struct PhotoCastingView: View {
 extension PhotoCastingView {
     
     private func loadSelectedImage() {
-        
+
+        if !images.isEmpty {
+
+            guard images.indices.contains(currentIndex) else { return }
+
+            currentImage = images[currentIndex]
+
+            castCurrentImage()
+
+            return
+        }
+
         guard assets.indices.contains(currentIndex) else {
             return
         }
-        
+
         let asset = assets[currentIndex]
-        
+
         let options = PHImageRequestOptions()
         options.deliveryMode = .highQualityFormat
         options.resizeMode = .exact
         options.isNetworkAccessAllowed = true
-        
+
         PHImageManager.default().requestImage(
             for: asset,
             targetSize: PHImageManagerMaximumSize,
             contentMode: .aspectFit,
             options: options
         ) { image, _ in
-            
-            DispatchQueue.main.async {
-                self.currentImage = image
 
+            DispatchQueue.main.async {
+
+                self.currentImage = image
                 self.castCurrentImage()
             }
         }
@@ -327,5 +340,5 @@ extension PhotoCastingView {
 }
 
 #Preview {
-    PhotoCastingView(selectedIndex: 0)
+    PhotoCastingView(images: [], selectedIndex: 0)
 }

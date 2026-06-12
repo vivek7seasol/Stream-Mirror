@@ -65,11 +65,11 @@ struct FavMusicListView: View {
                                 )
                                 .onTapGesture {
                                     musicVM.setMusics(
-                                            musicVM.songs,
+                                            musicVM.favorites,
                                             startIndex: musicVM.favorites.firstIndex(of: song) ?? 0
                                         )
 
-                                        musicVM.showMusiccasting = true
+                                        musicVM.showMusiccasting2 = true
                                 }
                                 .padding(.horizontal,15)
                             }
@@ -83,7 +83,7 @@ struct FavMusicListView: View {
             }
         }
         .appScreen()
-        .navigationDestination(isPresented: $musicVM.showMusiccasting) {
+        .navigationDestination(isPresented: $musicVM.showMusiccasting2) {
             MusicCastingView(musicVM: musicVM)
         }
     }

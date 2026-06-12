@@ -43,6 +43,7 @@ class YoutubeViewModel: NSObject, ObservableObject {
     @Published var showConnectionView = false
     @Published var showPreview = false
     @Published var showDeviceList = false
+    
     @Published var player: AVPlayer?
     @Published var selectedVideo: VideoResolution?
     

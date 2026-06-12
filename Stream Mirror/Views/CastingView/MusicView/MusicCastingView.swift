@@ -10,6 +10,7 @@ internal import MediaPlayer
 
 struct MusicCastingView: View {
     
+    @EnvironmentObject var commonVM: CommonConnectionViewModel
     @ObservedObject var musicVM: MusicViewModel
     @Environment(\.dismiss) var dismiss
     var body: some View {
@@ -92,6 +93,7 @@ struct MusicCastingView: View {
                             
                             CircleButton(icon: "previous2") {
                                 musicVM.playPrevious()
+                                castMusic()
                             }
 
                             CircleButton(
@@ -109,6 +111,7 @@ struct MusicCastingView: View {
 
                             CircleButton(icon: "next2") {
                                 musicVM.playNext()
+                                castMusic()
                             }
                         }
                         
@@ -151,10 +154,31 @@ struct MusicCastingView: View {
 
             if !musicVM.isPlaying,
                let song = musicVM.currentlyPlaying {
-
+                
                 musicVM.play(song: song)
             }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                castMusic()
+            }
         }
+    }
+    
+    func castMusic() {
+        
+        guard let mediaItem = musicVM.currentlyPlaying?.mediaItem else {
+            return
+        }
+        
+        // Audio session
+        try? AVAudioSession.sharedInstance().setCategory(
+            .playback,
+            options: [.mixWithOthers]
+        )
+        
+        try? AVAudioSession.sharedInstance().setActive(true)
+        
+        // Cast to TV
+        commonVM.exportAndUploadMusic(track: mediaItem)
     }
 }
 

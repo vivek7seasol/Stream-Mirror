@@ -31,6 +31,7 @@ class MusicViewModel: ObservableObject {
     @Published var showFavMusicList = false
     @Published var selectedSong: Song?
     @Published var showMusiccasting = false
+    @Published var showMusiccasting2 = false
     @Published var showPlaceholder = false
     
     private let mediaQuery = MPMediaQuery.songs()

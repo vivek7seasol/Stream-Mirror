@@ -1,6 +1,15 @@
 {
-  "originHash" : "df0bb14c416f2f2e1a4fba93417a51ef9296ce60e6128f40f7b9cdd8d052794c",
+  "originHash" : "6db6d77401b341da3a07a4714c65419778df7ec211e48570d01ef578baaafb7d",
   "pins" : [
+    {
+      "identity" : "pdftron-apple-package?tab=readme-ov-file",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ApryseSDK/pdftron-apple-package?tab=readme-ov-file",
+      "state" : {
+        "revision" : "20f5ceae15992843224a0a872044d43426a82f96",
+        "version" : "11.13.30701"
+      }
+    },
     {
       "identity" : "starscream",
       "kind" : "remoteSourceControl",

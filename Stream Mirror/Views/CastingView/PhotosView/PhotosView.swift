@@ -71,7 +71,7 @@ struct PhotosView: View {
         }
         .navigationDestination(isPresented: $photoVM.showPhotoCasting) {
             PhotoCastingView(
-                assets: photoVM.assets,
+                images: [], assets: photoVM.assets,
                 selectedIndex: photoVM.selectedIndex
             )
         }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9392AF623134519A6B44EEA5 /* Pods_Stream_Mirror.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC80FCDC61AF20D0411533AE /* Pods_Stream_Mirror.framework */; };
+		FF750E8C2FDC1D4800E69928 /* PDFTron in Frameworks */ = {isa = PBXBuildFile; productRef = FF750E8B2FDC1D4800E69928 /* PDFTron */; };
 		FF86834D2FD941E4002462D0 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = FF86834C2FD941E4002462D0 /* Starscream */; };
 		FF8683502FD94218002462D0 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = FF86834F2FD94218002462D0 /* SwiftProtobuf */; };
 		FF8683522FD94218002462D0 /* SwiftProtobufPluginLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = FF8683512FD94218002462D0 /* SwiftProtobufPluginLibrary */; };
@@ -83,6 +84,7 @@
 				9392AF623134519A6B44EEA5 /* Pods_Stream_Mirror.framework in Frameworks */,
 				FF86834D2FD941E4002462D0 /* Starscream in Frameworks */,
 				FF8683502FD94218002462D0 /* SwiftProtobuf in Frameworks */,
+				FF750E8C2FDC1D4800E69928 /* PDFTron in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,6 +217,7 @@
 			packageReferences = (
 				FF86834B2FD941E4002462D0 /* XCRemoteSwiftPackageReference "Starscream" */,
 				FF86834E2FD94218002462D0 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+				FF750E8A2FDC1D4800E69928 /* XCRemoteSwiftPackageReference "pdftron-apple-package" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FF8680332FD937AB002462D0 /* Products */;
@@ -651,6 +654,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		FF750E8A2FDC1D4800E69928 /* XCRemoteSwiftPackageReference "pdftron-apple-package" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ApryseSDK/pdftron-apple-package?tab=readme-ov-file";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.13.30701;
+			};
+		};
 		FF86834B2FD941E4002462D0 /* XCRemoteSwiftPackageReference "Starscream" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/daltoniam/Starscream.git";
@@ -670,6 +681,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		FF750E8B2FDC1D4800E69928 /* PDFTron */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FF750E8A2FDC1D4800E69928 /* XCRemoteSwiftPackageReference "pdftron-apple-package" */;
+			productName = PDFTron;
+		};
 		FF86834C2FD941E4002462D0 /* Starscream */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = FF86834B2FD941E4002462D0 /* XCRemoteSwiftPackageReference "Starscream" */;
