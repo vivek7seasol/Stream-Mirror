@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Lottie
 
 struct connectDeviceCard: View {
     let action: () -> Void
@@ -17,9 +18,10 @@ struct connectDeviceCard: View {
             
             ZStack {
                 HStack {
-                    Image("link")
-                        .resizable()
-                        .frame(width: isIpad() ? 20 : 16, height: isIpad() ? 20 : 16)
+                    LottieFile2(animationFileName: MyLottieFiles.Cast2, loopMode: .loop)
+                        .frame(width: isIpad() ? 40 : 30, height: isIpad() ? 40 : 30)
+                        .rotationEffect(.degrees(0))
+                        
                     
                     Text(str.Connecttodevice)
                         .font(.system(size: isIpad() ? 18 : 12))

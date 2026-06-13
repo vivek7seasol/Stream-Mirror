@@ -23,6 +23,7 @@ struct HomeView: View {
     @State private var showFindImage: Bool = false
     @State private var showIPTV: Bool = false
     @State private var showMirror: Bool = false
+    @State private var showDrawing: Bool = false
     
     var body: some View {
         ZStack {
@@ -127,7 +128,7 @@ struct HomeView: View {
                                     }
                                     Spacer()
                                     castingCard(title: str.Drawing, image: "Drawing") {
-                                        
+                                        showDrawing = true
                                     }
                                     Spacer()
                                 }
@@ -173,6 +174,9 @@ struct HomeView: View {
         }
         .navigationDestination(isPresented: $showIPTV) {
             IPTVView()
+        }
+        .navigationDestination(isPresented: $showDrawing) {
+            SketchBoardListView()
         }
         .navigationDestination(isPresented: $showMirror) {
             MirrorView(broadcastManager: BroadCastPickerManager(commonVm: commonVM))

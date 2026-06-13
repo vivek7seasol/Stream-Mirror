@@ -78,6 +78,7 @@ struct IntroMainView: View {
                     }
                 }
                 .padding(.horizontal, 15)
+                .padding(.bottom,10)
             }
         }
         .appScreen()

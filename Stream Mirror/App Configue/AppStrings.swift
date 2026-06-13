@@ -32,6 +32,10 @@ struct AppStrings {
     
     static let rotateMirror = "rotateMirror"
    
+    static func fetchBroadcastStatus() -> Bool {
+        UserDefaults(suiteName: AppStrings.groupID)?.bool(forKey: "isBroadcasting") ?? false
+    }
+    
 }
 extension AppStrings {
     static let broadcastFinishedNotification = "com.sumit.remote"

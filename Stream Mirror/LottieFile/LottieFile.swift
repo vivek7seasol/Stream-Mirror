@@ -62,6 +62,7 @@ struct MyLottieFiles {
     static var Splash = "Splash"
     static var connecting = "connecting"
     static var Cast = "Cast"
+    static var Cast2 = "Cast2"
     static var WifiTv = "Wifi Tv"
     
 }

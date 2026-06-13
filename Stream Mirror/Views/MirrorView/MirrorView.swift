@@ -12,6 +12,10 @@ struct MirrorView: View {
     
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
+    @Environment(\.scenePhase) private var scenePhase
+    
+    @AppStorage(AppStrings.rotateMirror) private var isRotateOn: Bool = true
+    
     @State var broadcastManager: BroadCastPickerManager
     @State private var autoRotate = true
     @State private var soundEnabled = false
@@ -19,6 +23,18 @@ struct MirrorView: View {
     @State private var showDeviceList = false
     @State private var showAirPlayAlert = false
     @State var startMirroring = false
+    @State var stopMirroring = false
+    @State private var isBroadcasting: Bool = false
+    
+    private var UD: UserDefaults? {
+        UserDefaults(suiteName: AppStrings.groupID)
+    }
+    
+    
+    
+    private func fetchBroadcastStatus() {
+        isBroadcasting = AppStrings.fetchBroadcastStatus()
+    }
     
     var body: some View {
         ZStack {
@@ -64,7 +80,7 @@ struct MirrorView: View {
                         image: "rotate",
                         title: str.AutoRotate,
                         title2: str.Matchdeviceorientation,
-                        isOn: $autoRotate
+                        isOn: $isRotateOn
                     )
 
                     MirrorCard(
@@ -113,7 +129,7 @@ struct MirrorView: View {
                 
                 Spacer()
                 
-                commonButtonFile(text: str.StartMirroring) {
+                commonButtonFile(text: isBroadcasting ? str.StopMirroring : str.StartMirroring) {
                     if selectedTvType == .ANDROID || selectedTvType == .SAMSUNG {
                         if let userDefaults = UserDefaults(suiteName: AppStrings.groupID){
                             if userDefaults.bool(forKey: "isBroadcasting") == false {
@@ -130,8 +146,56 @@ struct MirrorView: View {
                 }
                 .padding()
             }
+            if TVRemoteVM.connectedTVType != .AIRPLAY {
+                BroadcastPickerViewModel(
+                    preferredExtension: AppStrings.appExtensionPackageName,
+                    startBroadcast: $startMirroring, stopBroadcast: $stopMirroring
+                )
+                .frame(width: 0, height: 0)
+                .frame(width: 1, height: 1)
+                .opacity(0.01)
+            }
         }
         .appScreen()
+        .onAppear {
+
+            autoRotate = UD?.object(forKey: AppStrings.rotateMirror) as? Bool ?? true
+
+            if let quality = UserDefaults(
+                suiteName: AppStrings.groupID
+            )?.string(forKey: "selectedQuality") {
+
+                switch quality {
+
+                case "Low":
+                    selectedQuality = .optimized
+
+                case "Medium":
+                    selectedQuality = .balanced
+
+                case "High":
+                    selectedQuality = .best
+
+                default:
+                    selectedQuality = .balanced
+                }
+            }
+        }
+        .onAppear {
+            fetchBroadcastStatus()
+        }
+        .onChange(of: scenePhase) { _ in
+            fetchBroadcastStatus()
+        }
+        .onChange(of: isRotateOn) { newValue in
+            UD?.set(newValue, forKey: AppStrings.rotateMirror)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            fetchBroadcastStatus()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+            fetchBroadcastStatus()
+        }
     }
     
     func startMirroringFlow() {
@@ -191,126 +255,6 @@ struct MirrorView: View {
         default:
             break
         }
-    }
-}
-
-struct MirrorCard: View {
-
-    let image: String
-    let title: String
-    let title2: String
-
-    @Binding var isOn: Bool
-
-    var body: some View {
-
-        ZStack {
-            
-            HStack(spacing: 10) {
-                
-                Image(image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: isIpad() ? 60 : 50,height: isIpad() ? 60 : 50)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    
-                    Text(title)
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.white)
-                    
-                    Text(title2)
-                        .font(.system(size: 12))
-                        .foregroundColor(AppColor.textColor)
-                }
-
-                Spacer()
-
-                Toggle("", isOn: $isOn)
-                    .labelsHidden()
-            }
-            .padding(.horizontal, 18)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical,15)
-        .modifier(GlassCardModifier(cornerRadius: 28))
-        .padding(.horizontal, 15)
-    }
-}
-
-enum QualityType: String, CaseIterable {
-    case optimized = "Optimized"
-    case balanced = "Balanced"
-    case best = "Best"
-}
-
-struct QualityCard: View {
-
-    @Binding var selectedQuality: QualityType
-
-    var body: some View {
-
-        HStack(spacing: 0) {
-
-            ForEach(QualityType.allCases, id: \.self) { quality in
-
-                Button {
-
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        selectedQuality = quality
-                    }
-
-                    if let userDefaults = UserDefaults(
-                        suiteName: AppStrings.groupID
-                    ) {
-
-                        switch quality {
-
-                        case .optimized:
-                            userDefaults.set("Low", forKey: "selectedQuality")
-
-                        case .balanced:
-                            userDefaults.set("Medium", forKey: "selectedQuality")
-
-                        case .best:
-                            userDefaults.set("High", forKey: "selectedQuality")
-                        }
-                    }
-
-                } label: {
-
-                    Text(quality.rawValue)
-                        .font(.system(size: isIpad() ? 20 : 16,
-                                      weight: .medium))
-                        .foregroundColor(
-                            selectedQuality == quality
-                            ? .black
-                            : .white
-                        )
-                        .frame(maxWidth: .infinity)
-                        .frame(height: isIpad() ? 70 : 55)
-                        .background {
-
-                            if selectedQuality == quality {
-
-                                Capsule()
-                                    .fill(.white)
-                                    .padding(4)
-                            }
-                        }
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .frame(maxWidth:.infinity)
-        .frame(height: isIpad() ? 70 : 55)
-        .background(.white.opacity(0.10))
-        .modifier(
-            GlassCardModifier(
-                cornerRadius: isIpad() ? 35 : 28
-            )
-        )
-//        .padding(.horizontal, 15)
     }
 }
 

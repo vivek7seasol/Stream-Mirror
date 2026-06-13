@@ -35,6 +35,35 @@ struct commonButtonFile: View {
     }
 }
 
+struct commonButtonFile2: View {
+    
+    var text: String
+    var action: () -> Void
+    
+    var body: some View {
+        Button {
+            action()
+        } label: {
+            
+            ZStack {
+                Text(text)
+                    .font(.system(size: isIpad() ? 22 : 16,weight: .medium))
+                    .foregroundStyle(AppColor.textColor2)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: isIpad() ? 70 : 50)
+            .background(
+                Image("btnBG2")
+                .resizable()
+                .scaledToFill()
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+
 struct singleButtonCard: View {
     
     let image: String

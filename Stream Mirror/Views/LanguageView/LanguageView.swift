@@ -50,11 +50,11 @@ struct LanguageView: View {
                 HStack {
                     VStack(alignment:.leading,spacing: 5) {
                         Text(str.SelectLanguage)
-                            .font(.system(size: 24,weight: .bold))
+                            .font(.system(size: isIpad() ? 35 : 24,weight: .bold))
                             .foregroundStyle(.white)
                         
                         Text(str.Selectyourpreferredlanguagebelow)
-                            .font(.system(size: 14))
+                            .font(.system(size: isIpad() ? 20 : 14))
                             .foregroundStyle(AppColor.textColor)
                     }
                     Spacer()
@@ -75,14 +75,14 @@ struct LanguageView: View {
                     } label: {
                         ZStack {
                             Text(str.Done)
-                                .font(.system(size: 14,weight: .medium))
+                                .font(.system(size: isIpad() ? 20 : 14,weight: .medium))
                                 .foregroundStyle(AppColor.textColor2)
                         }
                         .padding(.horizontal,15)
-                        .frame(height: 34)
+                        .frame(height: isIpad() ? 40 : 34)
                         .background(.white)
-                        .modifier(GlassCardModifier(cornerRadius: 17))
-                        .clipShape(RoundedRectangle(cornerRadius: 17))
+                        .modifier(GlassCardModifier(cornerRadius: isIpad() ? 20 : 17))
+                        .clipShape(RoundedRectangle(cornerRadius: isIpad() ? 20 : 17))
                     }
                     .buttonStyle(.plain)
                 }

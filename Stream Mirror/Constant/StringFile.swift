@@ -154,4 +154,19 @@ class StringFile {
     let Balanced = "Balanced".localized
     let Best = "Best".localized
     let StartMirroring = "Start Mirroring".localized
+    let StopMirroring = "Stop Mirroring".localized
+    
+    let StartNewDrawing = "Start New Drawing".localized
+    let addnewDrawing = "Add a new drawing and start creating instantly.".localized
+    let Share = "Share".localized
+    let Delete = "Delete".localized
+    
+    let ScreenRecoding = "Screen Recoding".localized
+    let ReadytoRecord = "Ready to Record".localized
+    let RecordinginProgress = "Recording in Progress".localized
+    let MyRecoding = "My Recoding".localized
+    let Microphone = "Microphone".localized
+    let StartRecoding = "Start Recoding".localized
+    let StopRecoding = "Stop Recoding".localized
+    let NoRecordingsYet = "No Recordings Yet".localized
 }
