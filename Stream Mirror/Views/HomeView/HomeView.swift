@@ -20,6 +20,9 @@ struct HomeView: View {
     @State private var showMusic: Bool = false
     @State private var showBrowser: Bool = false
     @State private var showFiles: Bool = false
+    @State private var showFindImage: Bool = false
+    @State private var showIPTV: Bool = false
+    @State private var showMirror: Bool = false
     
     var body: some View {
         ZStack {
@@ -47,7 +50,7 @@ struct HomeView: View {
                     }
                     
                     firstCard {
-                        
+                        showMirror = true
                     } YTAction: {
                         showYoutube = true
                     } FileAction: {
@@ -116,11 +119,11 @@ struct HomeView: View {
                                     }
                                     Spacer()
                                     castingCard(title: str.OnlineImage, image: "Online Image") {
-                                        
+                                        showFindImage = true
                                     }
                                     Spacer()
                                     castingCard(title: str.IPTV, image: "IPTV") {
-                                        
+                                        showIPTV = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Drawing, image: "Drawing") {
@@ -164,6 +167,17 @@ struct HomeView: View {
         }
         .navigationDestination(isPresented: $showFiles) {
             Filesview()
+        }
+        .navigationDestination(isPresented: $showFindImage) {
+            FindImageView(text: $text)
+        }
+        .navigationDestination(isPresented: $showIPTV) {
+            IPTVView()
+        }
+        .navigationDestination(isPresented: $showMirror) {
+            MirrorView(broadcastManager: BroadCastPickerManager(commonVm: commonVM))
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
         }
         
         

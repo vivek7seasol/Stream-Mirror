@@ -12,6 +12,7 @@ target 'Stream Mirror' do
   pod 'ShimmerSwift'
   pod 'Toast-Swift'
   pod 'lottie-ios'
+  pod 'SDWebImage'
   
   post_install do |installer|
      installer.generated_projects.each do |project|

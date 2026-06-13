@@ -132,4 +132,26 @@ class StringFile {
     let PrivacyPolicy = "Privacy Policy".localized
     let TermsofUse = "Terms of Use".localized
     let EULA = "EULA".localized
+    let Enterkeywordstosearch = "Enter keywords to search".localized
+    
+    let Countries = "Countries".localized
+    let Categories = "Categories".localized
+    let Live = "Live".localized
+    let Channels = "Channels".localized
+    let NoCountriesFound = "No Countries Found".localized
+    let NoCategoriesFound = "No Categories Found".localized
+    let NoChannelsAvailable = "No Channels Available".localized
+    
+    let MirrorYourDisplay = "Mirror Your Display".localized
+    let Instantlyconnectandcastyourdisplay = "Instantly connect and cast your display".localized
+    let AutoRotate = "Auto Rotate".localized
+    let Matchdeviceorientation = "Match device orientation".localized
+    let Sound = "Sound".localized
+    let StreamaudiotoTV = "Stream audio to TV".localized
+    let StreamQuality = "Stream Quality".localized
+    let Balancelatencyandclarity = "Balance latency and clarity".localized
+    let Optimized = "Optimized".localized
+    let Balanced = "Balanced".localized
+    let Best = "Best".localized
+    let StartMirroring = "Start Mirroring".localized
 }

@@ -10,6 +10,9 @@ PODS:
     - GoogleUserMessagingPlatform (>= 1.1)
   - GoogleUserMessagingPlatform (3.1.0)
   - lottie-ios (4.6.0)
+  - SDWebImage (5.21.7):
+    - SDWebImage/Core (= 5.21.7)
+  - SDWebImage/Core (5.21.7)
   - ShimmerSwift (2.1.1)
   - SVProgressHUD (2.3.1):
     - SVProgressHUD/Core (= 2.3.1)
@@ -22,6 +25,7 @@ DEPENDENCIES:
   - google-cast-sdk
   - Google-Mobile-Ads-SDK
   - lottie-ios
+  - SDWebImage
   - ShimmerSwift
   - SVProgressHUD
   - Toast-Swift
@@ -35,6 +39,7 @@ SPEC REPOS:
     - Google-Mobile-Ads-SDK
     - GoogleUserMessagingPlatform
     - lottie-ios
+    - SDWebImage
     - ShimmerSwift
     - SVProgressHUD
     - Toast-Swift
@@ -47,10 +52,11 @@ SPEC CHECKSUMS:
   Google-Mobile-Ads-SDK: f0365e190d66539c65cea8ded43e2c367abb5477
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
+  SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   ShimmerSwift: f7ed2daf9c246de8299dfd9e12c6ab465cba9842
   SVProgressHUD: 4837c74bdfe2e51e8821c397825996a8d7de6e22
   Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
 
-PODFILE CHECKSUM: 1eb034c74c3f1809853eb26ff51b0e16f52685bc
+PODFILE CHECKSUM: b33bf087d30efe601db87ed3bff038845eb2bc23
 
 COCOAPODS: 1.16.2

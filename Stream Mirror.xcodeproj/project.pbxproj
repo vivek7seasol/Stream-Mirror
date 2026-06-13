@@ -50,6 +50,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FF6F9EED2FDD2B7700C21665 /* Exceptions for "Stream Mirror" folder in "StreamMirrorBroadcast" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"App Configue/AppStrings.swift",
+			);
+			target = FF8684792FD98D21002462D0 /* StreamMirrorBroadcast */;
+		};
 		FF8684842FD98D22002462D0 /* Exceptions for "StreamMirrorBroadcast" folder in "StreamMirrorBroadcast" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -62,6 +69,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		FF8680342FD937AB002462D0 /* Stream Mirror */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FF6F9EED2FDD2B7700C21665 /* Exceptions for "Stream Mirror" folder in "StreamMirrorBroadcast" target */,
+			);
 			path = "Stream Mirror";
 			sourceTree = "<group>";
 		};
@@ -181,8 +191,6 @@
 				FF86847D2FD98D22002462D0 /* StreamMirrorBroadcast */,
 			);
 			name = StreamMirrorBroadcast;
-			packageProductDependencies = (
-			);
 			productName = StreamMirrorBroadcast;
 			productReference = FF86847A2FD98D21002462D0 /* StreamMirrorBroadcast.appex */;
 			productType = "com.apple.product-type.app-extension";

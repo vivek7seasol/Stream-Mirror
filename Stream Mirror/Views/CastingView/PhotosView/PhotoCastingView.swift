@@ -63,7 +63,7 @@ struct PhotoCastingView: View {
                         } else if imageURLs.indices.contains(currentIndex) {
                             
                             AsyncImage(
-                                url: URL(string: imageURLs[selectedIndex])
+                                url: URL(string: imageURLs[currentIndex])
                             ) { phase in
                                 
                                 switch phase {
@@ -98,7 +98,12 @@ struct PhotoCastingView: View {
                         
                         CircleButton(icon: "previous2", size2: 44) {
                             
-                            let count = !images.isEmpty ? images.count : assets.count
+                            let count =
+                            !images.isEmpty
+                            ? images.count
+                            : !imageURLs.isEmpty
+                            ? imageURLs.count
+                            : assets.count
                             guard count > 0 else { return }
                             
                             currentIndex =
@@ -127,7 +132,12 @@ struct PhotoCastingView: View {
                         
                         CircleButton(icon: "next2", size2: 44) {
 
-                            let count = !images.isEmpty ? images.count : assets.count
+                            let count =
+                            !images.isEmpty
+                            ? images.count
+                            : !imageURLs.isEmpty
+                            ? imageURLs.count
+                            : assets.count
                             guard count > 0 else { return }
 
                             currentIndex =
@@ -278,12 +288,16 @@ struct PhotoCastingView: View {
 
             DispatchQueue.main.async {
 
-                let count = !images.isEmpty ? images.count : assets.count
-                guard count > 0 else { return }
-                
-                currentIndex =
-                (currentIndex + 1) % count
+                let count =
+                !images.isEmpty
+                ? images.count
+                : !imageURLs.isEmpty
+                ? imageURLs.count
+                : assets.count
 
+                guard count > 0 else { return }
+
+                currentIndex = (currentIndex + 1) % count
             }
         }
     }
@@ -308,6 +322,29 @@ extension PhotoCastingView {
             currentImage = images[currentIndex]
 
             castCurrentImage()
+
+            return
+        }
+        
+        if imageURLs.indices.contains(currentIndex) {
+
+            guard let url = URL(string: imageURLs[currentIndex]) else {
+                return
+            }
+
+            URLSession.shared.dataTask(with: url) { data, _, _ in
+
+                guard let data,
+                      let image = UIImage(data: data) else {
+                    return
+                }
+
+                DispatchQueue.main.async {
+                    self.currentImage = image
+                    self.castCurrentImage()
+                }
+
+            }.resume()
 
             return
         }
