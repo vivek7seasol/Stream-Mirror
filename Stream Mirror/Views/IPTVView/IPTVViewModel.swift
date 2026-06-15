@@ -22,6 +22,7 @@ class IPTVViewModel: ObservableObject {
     @Published var selectedChannels: [Channel] = []
     @Published var selectedTitle: String = ""
     @Published var showChannelList = false
+    @Published var showDeviceList = false
     @Published var text: String = ""
     
     func fetchIPTVCategory() async {

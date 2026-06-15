@@ -9,6 +9,8 @@ import SwiftUI
 
 struct FindImageView: View {
     
+    @EnvironmentObject var commonVM: CommonConnectionViewModel
+    @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @StateObject private var imageVM = FindImageViewModel()
     @FocusState private var isSearchFocused: Bool
     @Binding var text: String
@@ -17,7 +19,7 @@ struct FindImageView: View {
         ZStack {
             VStack {
                 CommonStatusView(title: str.OnlineImage,onCast: {
-                    
+                    imageVM.showDeviceList = true
                 })
                 
                 ZStack {
@@ -91,7 +93,11 @@ struct FindImageView: View {
                 }
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $imageVM.showDeviceList) {
+            DeviceListview(isPresented: $imageVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
             if imageVM.isFirstAppear {
 
@@ -100,6 +106,15 @@ struct FindImageView: View {
 
                 imageVM.isFirstAppear = false
             }
+        }
+        .navigationDestination(
+            isPresented: $imageVM.showPhotoCasting
+        ) {
+            PhotoCastingView(
+                images: [],
+                imageURLs: imageVM.selectedImageURLs,
+                selectedIndex: imageVM.selectedIndex
+            )
         }
     }
 }
@@ -130,26 +145,36 @@ extension FindImageView {
             
             ForEach(imageVM.images, id: \.id) { item in
 
-                NavigationLink {
+                Button {
 
-                    let allImageURLs = imageVM.images.compactMap {
-                        $0.url ?? $0.thumbnail
+                    TVRemoteVM.handleDeviceAction {
+
+                    } onTV: {
+
+                        let allImageURLs = imageVM.images.compactMap {
+                            $0.url ?? $0.thumbnail
+                        }
+
+                        let selectedIndex = imageVM.images.firstIndex {
+                            $0.id == item.id
+                        } ?? 0
+
+                        imageVM.selectedIndex = selectedIndex
+                        imageVM.selectedImageURLs = allImageURLs
+                        imageVM.showPhotoCasting = true
+
+                    } onNoDevice: {
+
+                        imageVM.showDeviceList = true
                     }
 
-                    let selectedIndex = imageVM.images.firstIndex {
-                        $0.id == item.id
-                    } ?? 0
-
-                    PhotoCastingView(
-                        images: [],
-                        imageURLs: allImageURLs,
-                        selectedIndex: selectedIndex
-                    )
                 } label: {
+
                     OnlineImageCardView(item: item)
                         .frame(width: itemWidth, height: itemWidth)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+                .buttonStyle(.plain)
                 .onAppear {
                     // Last item dikhne par next page load karo
                     if item.id == imageVM.images.last?.id {

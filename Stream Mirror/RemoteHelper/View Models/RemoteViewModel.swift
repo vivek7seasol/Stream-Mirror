@@ -24,6 +24,8 @@ class RemoteViewModel: NSObject, ObservableObject {
     @Published var showCountdownAlert = false
     @Published var discoveredDevices: [ConnectableDevice] = []
     @Published var pinCode = ""
+    @Published var showAirPlayAlert = false
+    
     private var isDiscoveryConfigured = false
     private var isSwitchingDevice = false
     private var pendingDevice: ConnectableDevice?
@@ -90,13 +92,21 @@ class RemoteViewModel: NSObject, ObservableObject {
             .contains { $0.portType == .airPlay }
 
         if isAirPlayConnected {
-            onAirPlay()
+
+            DispatchQueue.main.async {
+                self.showAirPlayAlert = true
+            }
+
             return
         }
 
         if let type = connectedTVType {
             if type == .AIRPLAY {
-                onAirPlay()
+
+                DispatchQueue.main.async {
+                    self.showAirPlayAlert = true
+                }
+
             } else {
                 onTV()
             }

@@ -33,6 +33,7 @@ struct PhotoCastingView: View {
     @State private var slideTimer: Timer?
     @State private var timerSeconds: Int = 7
     @State private var isPlaying = false
+    @State private var showDeviceList = false
     
     let images: [UIImage]
     var assets: [PHAsset] = []
@@ -48,7 +49,9 @@ struct PhotoCastingView: View {
                 
                 CommonStatusView(
                     title: str.Photo,
-                    onCast: {}
+                    onCast: {
+                        showDeviceList = true
+                    }
                 )
                 
                 ZStack {
@@ -214,7 +217,11 @@ struct PhotoCastingView: View {
                 .padding(.horizontal, 15)
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $showDeviceList) {
+            DeviceListview(isPresented: $showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
 
             currentIndex = selectedIndex

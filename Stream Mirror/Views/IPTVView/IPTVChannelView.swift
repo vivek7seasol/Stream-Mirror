@@ -14,6 +14,7 @@ struct IPTVChannelView: View {
     @FocusState private var isSearchFocused: Bool
     @State private var text: String = ""
     @State private var showCastingView = false
+    @State private var showDeviceList = false
     @State private var selectedChannel: Channel?
     
     var title: String
@@ -40,7 +41,7 @@ struct IPTVChannelView: View {
         ZStack {
             VStack {
                 CommonStatusView(title: str.IPTV,onCast: {
-                    
+                    showDeviceList = true
                 })
                 
                 ZStack {
@@ -87,8 +88,15 @@ struct IPTVChannelView: View {
                                     title: channel.name ?? "Channel",
                                     isURLImage: true
                                 ) {
-                                    selectedChannel = channel
-                                    showCastingView = true
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        selectedChannel = channel
+                                        showCastingView = true
+                                    } onNoDevice: {
+                                        showDeviceList = true
+                                    }
+
                                 }
                             }
                         }
@@ -99,7 +107,11 @@ struct IPTVChannelView: View {
                 
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $showDeviceList) {
+            DeviceListview(isPresented: $showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onTapGesture {
             hideKeyboard()
         }

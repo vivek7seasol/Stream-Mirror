@@ -21,9 +21,7 @@ struct SketchBoardListView: View {
     var body: some View {
         ZStack {
             VStack {
-                CommonStatusView(title: str.Drawing,onCast: {
-                    
-                })
+                CommonStatusView(title: str.Drawing,isCastingShow: false)
                 
                 if sketchVM.drawings.isEmpty {
                     

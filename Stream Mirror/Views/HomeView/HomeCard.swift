@@ -24,7 +24,7 @@ struct connectDeviceCard: View {
                         
                     
                     Text(str.Connecttodevice)
-                        .font(.system(size: isIpad() ? 18 : 12))
+                        .font(.system(size: isIpad() ? 18 : 12,weight: .medium))
                         .foregroundStyle(.white)
                     Spacer()
                     Image(systemName: "chevron.right")

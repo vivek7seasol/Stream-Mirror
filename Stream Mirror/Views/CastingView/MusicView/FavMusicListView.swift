@@ -10,6 +10,8 @@ internal import MediaPlayer
 
 struct FavMusicListView: View {
     
+    @EnvironmentObject var commonVM: CommonConnectionViewModel
+    @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @ObservedObject var musicVM = MusicViewModel()
     
     var body: some View {
@@ -64,12 +66,20 @@ struct FavMusicListView: View {
                                     }
                                 )
                                 .onTapGesture {
-                                    musicVM.setMusics(
-                                            musicVM.favorites,
-                                            startIndex: musicVM.favorites.firstIndex(of: song) ?? 0
-                                        )
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        
+                                        musicVM.setMusics(
+                                                musicVM.favorites,
+                                                startIndex: musicVM.favorites.firstIndex(of: song) ?? 0
+                                            )
 
-                                        musicVM.showMusiccasting2 = true
+                                            musicVM.showMusiccasting2 = true
+                                    } onNoDevice: {
+                                       musicVM.showDeviceList = true
+                                    }
+
                                 }
                                 .padding(.horizontal,15)
                             }
@@ -82,7 +92,11 @@ struct FavMusicListView: View {
                 Spacer()
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $musicVM.showDeviceList) {
+            DeviceListview(isPresented: $musicVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .navigationDestination(isPresented: $musicVM.showMusiccasting2) {
             MusicCastingView(musicVM: musicVM)
         }

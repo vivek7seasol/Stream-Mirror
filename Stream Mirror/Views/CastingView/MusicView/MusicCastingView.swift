@@ -11,6 +11,7 @@ internal import MediaPlayer
 struct MusicCastingView: View {
     
     @EnvironmentObject var commonVM: CommonConnectionViewModel
+    @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @ObservedObject var musicVM: MusicViewModel
     @Environment(\.dismiss) var dismiss
     var body: some View {
@@ -22,7 +23,7 @@ struct MusicCastingView: View {
                         musicVM.stop()
                         dismiss()
                     }, onCast: {
-                        
+                        musicVM.showDeviceList = true
                     }
                 )
                 if let song = musicVM.currentlyPlaying {
@@ -149,7 +150,11 @@ struct MusicCastingView: View {
                 .padding(.horizontal, 15)
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $musicVM.showDeviceList) {
+            DeviceListview(isPresented: $musicVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
 
             if !musicVM.isPlaying,

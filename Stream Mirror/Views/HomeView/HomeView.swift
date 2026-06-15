@@ -13,7 +13,7 @@ struct HomeView: View {
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     
     @State private var text: String = ""
-    @State private var showDeviceList: Bool = false
+    @Binding var showDeviceList: Bool
     @State private var showYoutube: Bool = false
     @State private var showPhotos: Bool = false
     @State private var showVideos: Bool = false
@@ -38,7 +38,7 @@ struct HomeView: View {
                     } label: {
                         Image("premium")
                             .resizable()
-                            .frame(width: isIpad() ?30 : 26, height: isIpad() ? 30 : 26)
+                            .frame(width: isIpad() ? 30 : 26, height: isIpad() ? 30 : 26)
                     }
                     .buttonStyle(.plain)
                     
@@ -144,11 +144,6 @@ struct HomeView: View {
             }
         }
         .appScreen()
-        .navigationDestination(isPresented: $showDeviceList) {
-            DeviceListview()
-                .environmentObject(TVRemoteVM)
-                .environmentObject(commonVM)
-        }
         .navigationDestination(isPresented: $showYoutube) {
             YTView(isOpenFromYT: true, initialURL: "https://www.youtube.com/")
                 .environmentObject(TVRemoteVM)
@@ -189,7 +184,7 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(showDeviceList: .constant(false))
         .environmentObject(RemoteViewModel())
         .environmentObject(CommonConnectionViewModel())
 }

@@ -21,7 +21,7 @@ struct IntroMainView: View {
     @State private var showTabbar: Bool = false
     @State private var dragOffset: CGFloat = 0
     @AppStorage(SessionKeys.intro3) var intro3 = false
-    
+    @StateObject private var tabBarManager = TabBarManager()
     let introItems = [
         IntroItem(image: "intro1", image2: "intro1_1", title: str.intro1, subtitle: str.intro1_1, indicator: "pager1"),
         IntroItem(image: "intro2", image2: "intro2_2", title: str.intro2, subtitle: str.intro2_2, indicator: "pager2"),
@@ -84,6 +84,7 @@ struct IntroMainView: View {
         .appScreen()
         .navigationDestination(isPresented: $showTabbar) {
             TabbarView()
+                .environmentObject(tabBarManager)
         }
     }
 }

@@ -19,6 +19,7 @@ final class PlayerViewModel: ObservableObject {
     @Published var totalDuration: Double = 1
     @Published var sliderValue: Double = 0
     @Published var isDragging = false
+    @Published var showDeviceList = false
 
     // MARK: - Properties
     @Published private(set) var player: AVPlayer?

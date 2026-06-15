@@ -40,7 +40,7 @@ struct MirrorView: View {
         ZStack {
             VStack {
                 CommonStatusView(title: str.MirrorScreen,onCast: {
-                    
+                    showDeviceList = true
                 })
                 
                 ZStack {
@@ -130,18 +130,26 @@ struct MirrorView: View {
                 Spacer()
                 
                 commonButtonFile(text: isBroadcasting ? str.StopMirroring : str.StartMirroring) {
-                    if selectedTvType == .ANDROID || selectedTvType == .SAMSUNG {
-                        if let userDefaults = UserDefaults(suiteName: AppStrings.groupID){
-                            if userDefaults.bool(forKey: "isBroadcasting") == false {
-                                if commonVM.castViewModel.isCastingSessionGoing() {
-                                    commonVM.castViewModel.stopCastingSession()
-                                    commonVM.StopCasting()
+                    
+                    TVRemoteVM.handleDeviceAction(onAirPlay: {
+                        
+                    }, onTV: {
+                        if selectedTvType == .ANDROID || selectedTvType == .SAMSUNG {
+                            if let userDefaults = UserDefaults(suiteName: AppStrings.groupID){
+                                if userDefaults.bool(forKey: "isBroadcasting") == false {
+                                    if commonVM.castViewModel.isCastingSessionGoing() {
+                                        commonVM.castViewModel.stopCastingSession()
+                                        commonVM.StopCasting()
+                                    }
                                 }
                             }
                         }
-                    }
-                    
-                    startMirroringFlow()
+                        
+                        startMirroringFlow()
+                        
+                    }, onNoDevice: {
+                        showDeviceList = true
+                    })
                     
                 }
                 .padding()
@@ -156,7 +164,11 @@ struct MirrorView: View {
                 .opacity(0.01)
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $showDeviceList) {
+            DeviceListview(isPresented: $showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
 
             autoRotate = UD?.object(forKey: AppStrings.rotateMirror) as? Bool ?? true

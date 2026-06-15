@@ -19,7 +19,9 @@ struct PhotosView: View {
             VStack {
                 CommonStatusView(
                     title: str.Photo,
-                    onCast: {}
+                    onCast: {
+                        photoVM.showDeviceList = true
+                    }
                 )
                 
                 if photoVM.isLoading && !photoVM.showPlaceholder {
@@ -56,7 +58,11 @@ struct PhotosView: View {
                 Spacer()
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $photoVM.showDeviceList) {
+            DeviceListview(isPresented: $photoVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
             
             photoVM.requestPhotoAccess()
@@ -76,7 +82,7 @@ struct PhotosView: View {
             )
         }
         .fullScreenCover(isPresented: $photoVM.showDeviceList) {
-            DeviceListview()
+            DeviceListview(isPresented: $photoVM.showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }

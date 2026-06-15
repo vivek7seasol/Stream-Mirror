@@ -25,7 +25,9 @@ struct VideoCastingView: View {
                 
                 CommonStatusView(
                     title: str.Preview,
-                    onCast: {}
+                    onCast: {
+                        playerVM.showDeviceList = true
+                    }
                 )
                 
                 if let player = playerVM.player {
@@ -127,7 +129,11 @@ struct VideoCastingView: View {
                 .padding(.horizontal, 15)
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $playerVM.showDeviceList) {
+            DeviceListview(isPresented: $playerVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
 
             currentIndex = selectedIndex

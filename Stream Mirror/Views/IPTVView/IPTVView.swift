@@ -42,7 +42,7 @@ struct IPTVView: View {
         ZStack {
             VStack {
                 CommonStatusView(title: str.IPTV,onCast: {
-                    
+                    iptvVM.showDeviceList = true
                 })
                 
                 HStack(spacing:15) {
@@ -160,7 +160,11 @@ struct IPTVView: View {
                 }
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $iptvVM.showDeviceList) {
+            DeviceListview(isPresented: $iptvVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onTapGesture {
             hideKeyboard()
         }

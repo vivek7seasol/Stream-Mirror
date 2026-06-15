@@ -21,6 +21,7 @@ class FilesPageViewModel: ObservableObject {
     @Published var showConnectionView = false
     @Published var selectedIndex = 0
     @Published var showPreview = false
+    @Published var showDeviceList = false
     
     // MARK: - Public Entry Point
     func loadFile(url: URL, type: FileType) {

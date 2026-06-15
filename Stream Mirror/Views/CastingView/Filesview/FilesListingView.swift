@@ -9,6 +9,8 @@ import SwiftUI
 
 struct FilesListingView: View {
     
+    @EnvironmentObject var commonVM: CommonConnectionViewModel
+    @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @ObservedObject var filesVM: FilesViewModel
     
     var body: some View {
@@ -16,15 +18,15 @@ struct FilesListingView: View {
             VStack {
                 if filesVM.selectedType == .PDF {
                     CommonStatusView(title: str.PDFFiles,onCast: {
-                        
+                        filesVM.showDeviceList = true
                     })
                 } else if filesVM.selectedType == .DOC {
                     CommonStatusView(title: str.WordDocuments,onCast: {
-                        
+                        filesVM.showDeviceList = true
                     })
                 } else {
                     CommonStatusView(title: str.PPTFiles,onCast: {
-                        
+                        filesVM.showDeviceList = true
                     })
                 }
                 
@@ -62,7 +64,11 @@ struct FilesListingView: View {
                 Spacer()
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $filesVM.showDeviceList) {
+            DeviceListview(isPresented: $filesVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
             filesVM.loadSelectedFiles(openFrom: filesVM.selectedType)
         }

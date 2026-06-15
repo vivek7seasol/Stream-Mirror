@@ -19,7 +19,9 @@ struct VideosView: View {
             VStack {
                 CommonStatusView(
                     title: str.Video,
-                    onCast: {}
+                    onCast: {
+                        photoVM.showDeviceList = true
+                    }
                 )
                 
                 if photoVM.isLoading && !photoVM.showPlaceholder {
@@ -70,7 +72,7 @@ struct VideosView: View {
             }
         }
         .fullScreenCover(isPresented: $photoVM.showDeviceList) {
-            DeviceListview()
+            DeviceListview(isPresented: $photoVM.showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }
@@ -106,26 +108,26 @@ extension VideosView {
 
                 Button {
 
-//                    TVRemoteVM.handleDeviceAction(
-//                        onAirPlay: {
-//
-//                            if photoVM.videoAssets.indices.contains(index) {
-//                                // ImageAirplayVM.shared.playPHAssetImage(photoVM.assets[index])
-//                            }
-//
-//                            photoVM.selectedIndex = index
-//                        },
-//                        onTV: {
+                    TVRemoteVM.handleDeviceAction(
+                        onAirPlay: {
+
+                            if photoVM.videoAssets.indices.contains(index) {
+                                // ImageAirplayVM.shared.playPHAssetImage(photoVM.assets[index])
+                            }
+
+                            photoVM.selectedIndex = index
+                        },
+                        onTV: {
 
                             photoVM.selectedVideoIndex = index
                             photoVM.showVideoCasting = true
 
-//                        },
-//                        onNoDevice: {
-//
-//                            photoVM.showDeviceList = true
-//                        }
-//                    )
+                        },
+                        onNoDevice: {
+
+                            photoVM.showDeviceList = true
+                        }
+                    )
 
                 } label: {
 

@@ -13,13 +13,15 @@ enum FileType {
 
 struct Filesview: View {
     
+    @EnvironmentObject var commonVM: CommonConnectionViewModel
+    @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @StateObject private var filesVM = FilesViewModel()
     
     var body: some View {
         ZStack {
             VStack {
                 CommonStatusView(title: str.FileLibrary,onCast: {
-                    
+                    filesVM.showDeviceList = true
                 })
                 
                 VStack(spacing:15) {
@@ -43,7 +45,11 @@ struct Filesview: View {
                 Spacer()
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $filesVM.showDeviceList) {
+            DeviceListview(isPresented: $filesVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .navigationDestination(isPresented: $filesVM.showFileListView) {
             FilesListingView(filesVM: filesVM)
         }

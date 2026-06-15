@@ -120,7 +120,7 @@ struct YouTubePreviewView: View {
             }
         }
         .fullScreenCover(isPresented: $YTVM.showDeviceList) {
-            DeviceListview()
+            DeviceListview(isPresented: $YTVM.showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }

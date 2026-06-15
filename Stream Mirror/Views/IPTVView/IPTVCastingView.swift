@@ -19,7 +19,7 @@ struct IPTVCastingView: View {
         ZStack {
             VStack {
                 CommonStatusView(title: str.IPTV,onCast: {
-                    
+                    playerVM.showDeviceList = true
                 })
                 
                 ZStack(alignment:.topTrailing) {
@@ -114,7 +114,11 @@ struct IPTVCastingView: View {
                 .padding(.horizontal, 15)
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $playerVM.showDeviceList) {
+            DeviceListview(isPresented: $playerVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
 
             guard let urlString = channel.url,

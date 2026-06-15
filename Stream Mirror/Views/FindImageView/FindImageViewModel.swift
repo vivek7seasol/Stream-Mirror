@@ -19,10 +19,16 @@ class FindImageViewModel: ObservableObject {
     @Published var showPreview = false
     @Published var showFavImage = false
     @Published var isFirstAppear = true
+    @Published var showDeviceList = true
 
     @Published var selectedURL : String?
     @Published var cachedImages: [String: UIImage] = [:]
     @Published var searchTask: DispatchWorkItem?
+    
+    @Published var showPhotoCasting = false
+    @Published var selectedIndex = 0
+    @Published var selectedImageURLs: [String] = []
+    
     private var currentPage = 1
     private var isLoadingMore = false
     private var currentQuery = ""

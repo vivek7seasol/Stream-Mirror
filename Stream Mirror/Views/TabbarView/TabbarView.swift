@@ -6,19 +6,36 @@
 //
 
 import SwiftUI
+import Combine
+
+final class TabBarManager: ObservableObject {
+    @Published var isHidden = false
+}
 
 struct TabbarView: View {
     
+    
+    @EnvironmentObject var commonVM: CommonConnectionViewModel
+    @EnvironmentObject var TVRemoteVM: RemoteViewModel
+    @EnvironmentObject var tabBarManager: TabBarManager
     @State private var selectedTab: Int = 0
+    @State private var keyboardVisible = false
+    @State private var showChannelView = false
+    @State private var showNumberPad = false
+    @State private var showDeviceList = false
     
     var body: some View {
         ZStack(alignment: .bottom) {
             
             Group {
                 if selectedTab == 0 {
-                    HomeView()
+                    HomeView(showDeviceList: $showDeviceList)
                 } else if selectedTab == 1 {
-                    RemoteView()
+                    RemoteView(
+                        showChannelView: $showChannelView,
+                        showNumberPad: $showNumberPad,
+                        showDeviceList: $showDeviceList
+                    )
                 } else if selectedTab == 2 {
                     RecordingView()
                 } else {
@@ -26,22 +43,82 @@ struct TabbarView: View {
                 }
             }
             
-            HStack {
-                tabItem(index: 0, icon: "Home", title: str.Home)
-                tabItem(index: 1, icon: "Remote", title: str.Remote)
-                tabItem(index: 2, icon: "Recoding", title: str.Recoding)
-                tabItem(index: 3, icon: "Settings", title: str.Settings)
+            if !keyboardVisible && !tabBarManager.isHidden {
+                HStack {
+                    tabItem(index: 0, icon: "Home", title: str.Home)
+                    tabItem(index: 1, icon: "Remote", title: str.Remote)
+                    tabItem(index: 2, icon: "Recoding", title: str.Recoding)
+                    tabItem(index: 3, icon: "Settings", title: str.Settings)
+                }
+                .padding(.bottom, 15)
+                .padding(.horizontal, 15)
+                .gradientBackground(
+                    colors: [Color("#222222"), Color("#111111")],
+                    start: .topLeading,
+                    end: .bottomTrailing
+                )
+                .modifier(GlassCardModifier(cornerRadius: 20))
+                .offset(y: 10)
             }
-            .padding(.bottom,15)
-            .padding(.horizontal, 15)
-            .gradientBackground(colors: [
-                Color("#222222"),
-                Color("#111111")
-            ],start: .topLeading,end: .bottomTrailing)
-            .modifier(GlassCardModifier(cornerRadius: 20))
-            .offset(y:10)
         }
         .ignoresSafeArea(edges: .bottom)
+        .overlay {
+            
+            if showChannelView {
+                ChannelView(
+                    isPresented: $showChannelView
+                ) { app in
+
+                    switch app {
+
+                    case .youtube:
+                        TVRemoteVM.launchApp(.youtube)
+
+                    case .netflix:
+                        TVRemoteVM.launchApp(.netflix)
+                    default:
+                        break
+                    }
+                }
+                .offset(y: 50)
+                .zIndex(1)
+            }
+            
+            if showNumberPad {
+                NumberPadView(
+                    isPresented: $showNumberPad,
+
+                    onNumberTap: { number in
+                        print("Tapped:", number)
+                        TVRemoteVM.sendNumber(number)
+                    },
+
+                    onClear: {
+                        TVRemoteVM.sendCommand(.BACK)
+                    },
+
+                    onDone: { value in
+                        print("Entered:", value)
+                        showNumberPad = false
+                    }
+                )
+                .offset(y: 50)
+                .zIndex(2)
+            }
+        }
+        .fullScreenCover(isPresented: $showDeviceList) {
+            DeviceListview(isPresented: $showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
+        .alert(
+            "AirPlay Connected",
+            isPresented: $TVRemoteVM.showAirPlayAlert
+        ) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("This feature is not available while using AirPlay.")
+        }
     }
     
     func tabItem(index: Int, icon: String, title: String) -> some View {
@@ -49,7 +126,7 @@ struct TabbarView: View {
             selectedTab = index
         } label: {
             ZStack {
-                VStack(spacing: 6) {
+                VStack {
                     
                     if selectedTab == index {
                         Image(icon)
@@ -66,32 +143,32 @@ struct TabbarView: View {
                     }
                     
                     Text(title.uppercased())
-                        .font(.system(size: isIpad() ? 16 : 10, weight: .semibold))
+                        .font(.system(size: isIpad() ? 16 : 8, weight: .semibold))
                     
                 }
                 .foregroundColor(selectedTab == index ? .white : AppColor.textColor)
             }
             .padding()
             .background(
-                    selectedTab == index ?
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.10),
-                            Color.white.opacity(0)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    : LinearGradient(
-                        colors: [.clear, .clear],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
+                selectedTab == index ?
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(0.10),
+                        Color.white.opacity(0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
+                : LinearGradient(
+                    colors: [.clear, .clear],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             .overlay(alignment: .top) {
                 if selectedTab == index {
                     Rectangle()
-                        .fill(.white) 
+                        .fill(.white)
                         .frame(height: isIpad() ? 4 : 2)
                 }
             }

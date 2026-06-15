@@ -23,7 +23,9 @@ struct MusicView: View {
                         musicVM.stop()
                         dismiss()
                     },
-                    onCast: {}
+                    onCast: {
+                        musicVM.showDeviceList = true
+                    }
                 ) {
                     singleButtonCard(image: "like") {
                         musicVM.showFavMusicList = true
@@ -87,12 +89,19 @@ struct MusicView: View {
                                     }, showPlayPause: true
                                 )
                                 .onTapGesture {
-                                    musicVM.setMusics(
-                                            musicVM.songs,
-                                            startIndex: musicVM.songs.firstIndex(of: song) ?? 0
-                                        )
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        musicVM.setMusics(
+                                                musicVM.songs,
+                                                startIndex: musicVM.songs.firstIndex(of: song) ?? 0
+                                            )
 
-                                        musicVM.showMusiccasting = true
+                                            musicVM.showMusiccasting = true
+                                    } onNoDevice: {
+                                        musicVM.showDeviceList = true
+                                    }
+                                   
                                 }
                                 .padding(.horizontal,15)
                             }
@@ -179,7 +188,11 @@ struct MusicView: View {
                 }
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $musicVM.showDeviceList) {
+            DeviceListview(isPresented: $musicVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
             musicVM.requestMusicAccessAndFetch()
         }

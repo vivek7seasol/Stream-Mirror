@@ -19,7 +19,7 @@ struct FilesPageView: View {
         ZStack {
             VStack {
                 CommonStatusView(title: file.name,onCast: {
-                    
+                    filesPageVM.showDeviceList = true
                 })
                 
                 if filesPageVM.isLoading {
@@ -56,8 +56,16 @@ struct FilesPageView: View {
                             ForEach(Array(filesPageVM.pages.enumerated()), id: \.offset) { index, image in
                                 
                                 Button {
-                                    filesPageVM.selectedIndex = index
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        filesPageVM.selectedIndex = index
                                         filesPageVM.showPreview = true
+                                    } onNoDevice: {
+                                        filesPageVM.showDeviceList = true
+                                    }
+                                    
+                                    
                                 } label: {
                                     VStack(spacing: 10) {
                                         
@@ -78,7 +86,11 @@ struct FilesPageView: View {
                 
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $filesPageVM.showDeviceList) {
+            DeviceListview(isPresented: $filesPageVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
             
             guard filesPageVM.pages.isEmpty else { return }

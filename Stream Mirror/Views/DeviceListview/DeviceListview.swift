@@ -21,6 +21,7 @@ struct DeviceListview: View {
     @State private var showDisconnectPopup = false
     @State private var pendingDevice: ConnectableDevice?
     @State private var showSwitchDevicePopup = false
+    @Binding var isPresented: Bool
     
     private var connectedDevices: [ConnectableDevice] {
         TVRemoteVM.discoveredDevices.filter {
@@ -42,7 +43,7 @@ struct DeviceListview: View {
             
             VStack {
                 singleButtonCard(image: "close") {
-                    dismiss()
+                    isPresented = false
                 }
                 .frame(maxWidth: .infinity,alignment: .trailing)
                 .padding(.trailing)
@@ -416,7 +417,7 @@ struct DeviceListview: View {
 }
 
 #Preview {
-    DeviceListview()
+    DeviceListview(isPresented: .constant(true))
         .environmentObject(RemoteViewModel())
         .environmentObject(CommonConnectionViewModel())
 }

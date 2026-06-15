@@ -28,7 +28,7 @@ struct SketchBoardView: View {
         ZStack {
             VStack {
                 CommonStatusView(title: str.Drawing,onCast: {
-                    
+                    recordingVM.showDeviceList = true
                 })
                 
                 PencilView(canvasView: .constant(sketchVM.canvasView))
@@ -75,13 +75,21 @@ struct SketchBoardView: View {
                         })
                         Spacer()
                         sketcboardButtons(image: sketchVM.isBroadcasting ? "stopDrawing" : "startDrawing", action: {
-                            commonVM.castViewModel.stopCastingSession()
-                            if commonVM.connectedTvType == .LG || commonVM.connectedTvType == .ROKU {
-                                if let url = TVMirrorServer.shared.serverURL{
-                                    commonVM.connectSDKDiscoveryModel.LGMirroring(mediaURL: url)
+                            TVRemoteVM.handleDeviceAction {
+                                
+                            } onTV: {
+                                
+                                commonVM.castViewModel.stopCastingSession()
+                                if commonVM.connectedTvType == .LG || commonVM.connectedTvType == .ROKU {
+                                    if let url = TVMirrorServer.shared.serverURL{
+                                        commonVM.connectSDKDiscoveryModel.LGMirroring(mediaURL: url)
+                                    }
                                 }
+                                recordingVM.toggleRecording()
+                            } onNoDevice: {
+                                recordingVM.showDeviceList = true
                             }
-                            recordingVM.toggleRecording()
+
                         })
                         Spacer()
                     }
@@ -95,7 +103,11 @@ struct SketchBoardView: View {
             }
             
         }
-        .appScreen()
+        .appScreen(isPresented: $recordingVM.showDeviceList) {
+            DeviceListview(isPresented: $recordingVM.showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
             sketchVM.fetchBroadcastStatus()
             sketchVM.setup(commonVm: commonVM)

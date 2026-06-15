@@ -21,34 +21,47 @@ enum ControlType: CaseIterable {
 }
 struct RemoteView: View {
     
+    @EnvironmentObject var tabBarManager: TabBarManager
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
-    
+    @StateObject private var viewModel = RemoteControlViewModel()
     @State private var controlType: ControlType = .remote
     @State private var text: String = ""
+    @Binding var showChannelView: Bool
+    @Binding var showNumberPad: Bool
+    @Binding var showDeviceList: Bool
     
     var body: some View {
         ZStack {
             VStack(spacing:isIpad() ? 25 : 15){
                 HStack {
-                    ZStack {
-                        HStack {
-                            Image("dot")
-                                .resizable()
-                                .frame(width: isIpad() ? 12 : 8,height:  isIpad() ? 12 : 8)
-                                .foregroundStyle(TVRemoteVM.connectedTVType != nil ? Color("#32F68C") : Color("#EF4444"))
-                            
-                            Text(((TVRemoteVM.connectedTVType != nil) ? TVRemoteVM.deviceName : str.ConnectTv) ?? "")
-                                .font(.system(size: 16))
-                                .foregroundStyle(.white)
+                    Button {
+                        showDeviceList = true
+                    } label: {
+                        
+                        ZStack {
+                            HStack {
+                                Image("dot")
+                                    .resizable()
+                                    .frame(width: isIpad() ? 12 : 8,height:  isIpad() ? 12 : 8)
+                                    .foregroundStyle(TVRemoteVM.connectedTVType != nil ? Color("#32F68C") : Color("#EF4444"))
+                                
+                                Text(((TVRemoteVM.connectedTVType != nil) ? TVRemoteVM.deviceName : str.ConnectTv) ?? "")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(.white)
+                            }
                         }
+                        .padding(.horizontal,15)
+                        .frame(height: isIpad() ? 50 : 42)
+                        .modifier(GlassCardModifier(cornerRadius: isIpad() ? 25 : 21))
                     }
-                    .padding(.horizontal,15)
-                    .frame(height: isIpad() ? 50 : 42)
-                    .modifier(GlassCardModifier(cornerRadius: isIpad() ? 25 : 21))
+                    .buttonStyle(.plain)
+                    
                     Spacer()
                     Button {
-                        TVRemoteVM.sendCommand(.POWER)
+                        handleDeviceSatus {
+                            TVRemoteVM.sendCommand(.POWER)
+                        }
                     } label: {
                         Image("power")
                             .resizable()
@@ -68,43 +81,74 @@ struct RemoteView: View {
                     if controlType == .remote {
                         controlTypeCard(
                             upAction: {
-                                TVRemoteVM.sendCommand(.DPAD_UP)
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.DPAD_UP)
+                                }
                             },
                             downAction: {
-                                TVRemoteVM.sendCommand(.DPAD_DOWN)
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.DPAD_DOWN)
+                                }
                             },
                             leftAction: {
-                                TVRemoteVM.sendCommand(.DPAD_LEFT)
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.DPAD_LEFT)
+                                }
                             },
                             rightAction: {
-                                TVRemoteVM.sendCommand(.DPAD_RIGHT)
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.DPAD_RIGHT)
+                                }
                             },
                             okAction: {
-                                TVRemoteVM.sendCommand(.OK)
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.OK)
+                                }
                             }
                         )
                     } else if controlType == .touchpad {
                         touchPadView(
-                            onSwipeUp: {
-                                TVRemoteVM.sendCommand(.DPAD_UP)
+                            viewModel: viewModel, onSwipeUp: {
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.DPAD_UP)
+                                }
                             },
                             onSwipeDown: {
-                                TVRemoteVM.sendCommand(.DPAD_DOWN)
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.DPAD_DOWN)
+                                }
                             },
                             onSwipeLeft: {
-                                TVRemoteVM.sendCommand(.DPAD_LEFT)
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.DPAD_LEFT)
+                                }
                             },
                             onSwipeRight: {
-                                TVRemoteVM.sendCommand(.DPAD_RIGHT)
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.DPAD_RIGHT)
+                                }
                             },
                             onTap: {
-                                TVRemoteVM.sendCommand(.OK)
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.OK)
+                                }
                             }
                         )
                     } else if controlType == .mouse {
-                        mouseView()
+                        mouseView(
+                            viewModel: viewModel, onMouseMove: { dx, dy, dt in
+                                handleDeviceSatus {
+                                    sendMovement(dx: dx, dy: dy, dt: dt)
+                                }
+                            },
+                            onMouseTap: {
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.OK)
+                                }
+                            }
+                        )
                     } else if controlType == .keyboard {
-                        KeyboardView(text: $text)
+                        KeyboardView(viewModel: viewModel, TVRemoteVM: TVRemoteVM, text: $text)
                     }
                 }
                 .animation(.easeInOut(duration: 0.25), value: controlType)
@@ -112,14 +156,20 @@ struct RemoteView: View {
                 HStack(spacing: isIpad() ? 40 : 20) {
                     
                     VolChButtonCard(image1: "plus", image2: "minus", title: str.VOL, action1: {
-                        TVRemoteVM.sendCommand(.VOLUMEUP)
+                        handleDeviceSatus {
+                            TVRemoteVM.sendCommand(.VOLUMEUP)
+                        }
                     }, action2: {
-                        TVRemoteVM.sendCommand(.VOLUMEDOWN)
+                        handleDeviceSatus {
+                            TVRemoteVM.sendCommand(.VOLUMEDOWN)
+                        }
                     })
                     
                     VStack(spacing:20) {
                         CircleButton(icon: "home2",size: 30,size2: 66, action: {
-                            TVRemoteVM.sendCommand(.HOME)
+                            handleDeviceSatus {
+                                TVRemoteVM.sendCommand(.HOME)
+                            }
                         })
                         
                         CircleButton(icon: "mic",size: 30,size2: 66, action: {
@@ -129,31 +179,43 @@ struct RemoteView: View {
                     
                     VStack(spacing:20) {
                         CircleButton(icon: "mute",size: 30,size2: 66, action: {
-                            TVRemoteVM.sendCommand(.MUTE)
+                            handleDeviceSatus {
+                                TVRemoteVM.sendCommand(.MUTE)
+                            }
                         })
                         
                         CircleButton(icon: "setting",size: 30,size2: 66, action: {
-                            TVRemoteVM.sendCommand(.SETTINGS)
+                            handleDeviceSatus {
+                                TVRemoteVM.sendCommand(.SETTINGS)
+                            }
                         })
                     }
                     
                     VolChButtonCard(image1: "chevron.up", image2: "chevron.down", title: str.CH, action1: {
-                        TVRemoteVM.sendCommand(.CHANNELUP)
+                        handleDeviceSatus {
+                            TVRemoteVM.sendCommand(.CHANNELUP)
+                        }
                     }, action2: {
-                        TVRemoteVM.sendCommand(.CHANNELDOWN)
+                        handleDeviceSatus {
+                            TVRemoteVM.sendCommand(.CHANNELDOWN)
+                        }
                     })
                     
                 }
-                .padding(.horizontal,20)
+                .padding(.horizontal,15)
                 
                 HStack(spacing: isIpad() ? 40 : 20) {
                     
                     CircleButton(icon: "back2",size: 30,size2: 66, action: {
-                        TVRemoteVM.sendCommand(.BACK)
+                        handleDeviceSatus {
+                            TVRemoteVM.sendCommand(.BACK)
+                        }
                     })
                     
                     Button {
-                        
+                        handleDeviceSatus {
+                            showNumberPad = true
+                        }
                     } label: {
                         ZStack {
                             Text("123")
@@ -168,28 +230,82 @@ struct RemoteView: View {
                     .buttonStyle(.plain)
                     
                     
-                    CircleButton(icon: "channel2",size: 30,size2: 66, action: {
-                        
-                    })
+                    CircleButton(icon: "channel2", size: 30, size2: 66) {
+                        handleDeviceSatus {
+                            showChannelView = true
+                        }
+                    }
                     
                 }
-                .padding(.horizontal,20)
+                .padding(.horizontal,15)
                 .padding(.vertical,10)
-                
-                Spacer()
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .appScreen()
         .onTapGesture {
             hideKeyboard()
         }
     }
+    
+    private func sendMovement(dx: CGFloat, dy: CGFloat, dt: TimeInterval) {
+        let vx = dt > 0 ? dx / dt : 0
+        let vy = dt > 0 ? dy / dt : 0
+        
+        let finalDX = Float((dx * 1.5) + (vx * 0.01))
+        let finalDY = Float((dy * 1.5) + (vy * 0.01))
+        
+        switch TVRemoteVM.connectedTVType {
+            
+        case .LG:
+            TVRemoteVM.moveCursor(dx: finalDX, dy: finalDY)
+            
+        case .SAMSUNG:
+            TVRemoteVM.moveCursor(dx: finalDX, dy: finalDY)
+            
+        default:
+            handleFallbackDPAD(dx: dx, dy: dy)
+        }
+    }
+    
+    private func handleFallbackDPAD(dx: CGFloat, dy: CGFloat) {
+        
+        let threshold: CGFloat = 8
+        
+        if abs(dx) > abs(dy) {
+            if dx > threshold {
+                TVRemoteVM.sendCommand(.DPAD_RIGHT)
+            } else if dx < -threshold {
+                TVRemoteVM.sendCommand(.DPAD_LEFT)
+            }
+        } else {
+            if dy > threshold {
+                TVRemoteVM.sendCommand(.DPAD_DOWN)
+            } else if dy < -threshold {
+                TVRemoteVM.sendCommand(.DPAD_UP)
+            }
+        }
+    }
+    
+    func handleDeviceSatus(_ action: () -> Void) {
+//        if isPro == true {
+            if TVRemoteVM.connectedTVType == nil {
+                
+                showDeviceList = true
+                return
+            }
+            
+            action()
+//        } else {
+//            showPremium = true
+//        }
+    }
 }
 
 #Preview {
-    RemoteView()
+    RemoteView(showChannelView: .constant(false), showNumberPad: .constant(false), showDeviceList: .constant(false))
         .environmentObject(CommonConnectionViewModel())
         .environmentObject(RemoteViewModel())
 }

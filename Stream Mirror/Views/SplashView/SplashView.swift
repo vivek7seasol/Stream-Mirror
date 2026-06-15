@@ -13,7 +13,8 @@ struct SplashView: View {
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @StateObject var vm = SplashViewModel()
-    
+    @StateObject private var tabBarManager = TabBarManager()
+
     var body: some View {
         ZStack {
             VStack {
@@ -43,6 +44,7 @@ struct SplashView: View {
         }
         .navigationDestination(isPresented: $vm.navigateToHome) {
             TabbarView()
+                .environmentObject(tabBarManager)
         }
         .navigationDestination(isPresented: $vm.navigateToLanguage) {
             LanguageView(isOpenFromSplash: true)
