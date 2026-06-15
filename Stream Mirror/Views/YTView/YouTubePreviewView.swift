@@ -184,6 +184,7 @@ struct CircleButton: View {
                     height: isIpad() ? size2 + 10 : size2
                 )
                 .modifier(GlassCardModifier(cornerRadius: size2 / 2))
+                .clipShape(RoundedRectangle(cornerRadius: size2 / 2))
         }
         .buttonStyle(.plain)
     }

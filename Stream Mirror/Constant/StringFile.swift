@@ -169,4 +169,13 @@ class StringFile {
     let StartRecoding = "Start Recoding".localized
     let StopRecoding = "Stop Recoding".localized
     let NoRecordingsYet = "No Recordings Yet".localized
+    
+    let ConnectTv = "Connect TV".localized
+    let SmoothTouchNavigation = "Smooth Touch Navigation".localized
+    let SmoothCursorControl = "Smooth Cursor Control".localized
+    let StartTypingHere = "Start Typing Here......".localized
+    let VOL = "VOL".localized
+    let CH = "CH".localized
+    let SelectChannel = "Select Channel".localized
+    let Chooseachanneltostartwatching = "Choose a channel to start watching.".localized
 }

@@ -55,18 +55,18 @@ struct TabbarView: View {
                         Image(icon)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 24, height: 24)
+                            .frame(width: isIpad() ? 34 : 24, height: isIpad() ? 34 : 24)
                             .foregroundStyle(.white)
                     } else {
                         Image(icon)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 24, height: 24)
+                            .frame(width: isIpad() ? 34 : 24, height: isIpad() ? 34 : 24)
                             .foregroundStyle(AppColor.textColor)
                     }
                     
                     Text(title.uppercased())
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.system(size: isIpad() ? 16 : 10, weight: .semibold))
                     
                 }
                 .foregroundColor(selectedTab == index ? .white : AppColor.textColor)
@@ -92,7 +92,7 @@ struct TabbarView: View {
                 if selectedTab == index {
                     Rectangle()
                         .fill(.white) 
-                        .frame(height: 2)
+                        .frame(height: isIpad() ? 4 : 2)
                 }
             }
         }
