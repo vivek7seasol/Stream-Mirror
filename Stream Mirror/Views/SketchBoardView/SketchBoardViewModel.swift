@@ -268,6 +268,17 @@ class SketchBoardViewModel: NSObject, ObservableObject, PKCanvasViewDelegate {
         
         return image
     }
+    
+    func hideToolPicker() {
+
+        if let window = UIApplication.shared.connectedScenes
+            .compactMap({ ($0 as? UIWindowScene)?.keyWindow }).first,
+           let toolPicker = PKToolPicker.shared(for: window) {
+
+            toolPicker.setVisible(false, forFirstResponder: canvasView)
+            canvasView.resignFirstResponder()
+        }
+    }
 }
 
 struct PencilView: UIViewRepresentable {

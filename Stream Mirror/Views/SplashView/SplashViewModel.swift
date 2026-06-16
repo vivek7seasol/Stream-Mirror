@@ -102,11 +102,11 @@ class SplashViewModel: ObservableObject {
 
                 if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                     
-//                    appopenId = json["appopenId"] as? String ?? ""
-//                    bannerId = json["bannerId"] as? String ?? ""
-//                    nativeId = json["nativeId"] as? String ?? ""
-//                    interstialId = json["interstialId"] as? String ?? ""
-//                    rewardId = json["rewardId"] as? String ?? ""
+                    appopenId = json["appopenId"] as? String ?? ""
+                    bannerId = json["bannerId"] as? String ?? ""
+                    nativeId = json["nativeId"] as? String ?? ""
+                    interstialId = json["interstialId"] as? String ?? ""
+                    rewardId = json["rewardId"] as? String ?? ""
                     addButtonColor = json["addButtonColor"] as? String ?? ""
                     
                     if let extraFields = json["extraFields"] as? [String: Any] {

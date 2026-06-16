@@ -19,7 +19,7 @@ struct connectDeviceCard: View {
             ZStack {
                 HStack {
                     LottieFile2(animationFileName: MyLottieFiles.Cast2, loopMode: .loop)
-                        .frame(width: isIpad() ? 40 : 30, height: isIpad() ? 40 : 30)
+                        .frame(width: isIpad() ? 50 : 30, height: isIpad() ? 50 : 30)
                         .rotationEffect(.degrees(0))
                         
                     
@@ -33,9 +33,9 @@ struct connectDeviceCard: View {
                 .padding(.horizontal,15)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: isIpad() ? 50 : 44)
-            .modifier(GlassCardModifier(cornerRadius: isIpad() ? 25 : 22))
-            .padding(.horizontal,20)
+            .frame(height: isIpad() ? 60 : 44)
+            .modifier(GlassCardModifier(cornerRadius: isIpad() ? 30 : 22))
+            .padding(.horizontal, isIpad() ? 30 : 15)
         }
         .buttonStyle(.plain)
     }
@@ -65,11 +65,13 @@ struct firstCard: View {
                         
                         Image("mirror")
                             .resizable()
-                            .scaledToFit()
+                            .frame(width: isIpad() ? 200 : 130)
+                            .frame(maxWidth: .infinity)
                     }
                 }
+                .padding(.horizontal,15)
                 .frame(maxWidth: .infinity)
-                .frame(height: isIpad() ? 230 : 210)
+                .frame(height: isIpad() ? 275 : 210)
                 .gradientBackground(colors: [Color("#00D9F8"),Color("#6733FF")],start: .topLeading,end: .bottomTrailing,cornerRadius: 25)
             }
             .buttonStyle(.plain)
@@ -99,7 +101,7 @@ struct firstCard: View {
                         .padding(.horizontal)
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: isIpad() ? 120 : 100)
+                    .frame(height: isIpad() ? 130 : 100)
                     .gradientBackground(colors: [Color("#FF716E"),Color("#E82725")],start: .topLeading,end: .bottomTrailing,cornerRadius: 25)
                 }
                 .buttonStyle(.plain)
@@ -129,15 +131,15 @@ struct firstCard: View {
                         .padding(.horizontal)
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: isIpad() ? 120 : 100)
+                    .frame(height: isIpad() ? 130 : 100)
                     .gradientBackground(colors: [Color("#FFB235"),Color("#FF7406")],start: .topLeading,end: .bottomTrailing,cornerRadius: 25)
                 }
                 .buttonStyle(.plain)
             }
 
         }
-        .padding(.horizontal,15)
-        .padding(.vertical,15)
+        .padding(.horizontal, isIpad() ? 30 : 15)
+        .padding(.top,15)
     }
 }
 
@@ -154,7 +156,7 @@ struct castingCard: View {
             VStack {
                 Image(image)
                     .resizable()
-                    .frame(width: isIpad() ? 58 : 54,height: isIpad() ? 58 : 54)
+                    .frame(width: isIpad() ? 64 : 54,height: isIpad() ? 64 : 54)
                 
                 Text(title)
                     .font(.system(size: isIpad() ? 18 : 12,weight: .medium))

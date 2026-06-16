@@ -28,6 +28,7 @@ struct SketchBoardView: View {
         ZStack {
             VStack {
                 CommonStatusView(title: str.Drawing,onCast: {
+                    sketchVM.hideToolPicker()
                     recordingVM.showDeviceList = true
                 })
                 
@@ -98,7 +99,7 @@ struct SketchBoardView: View {
                 .frame(height: isIpad() ? 80 : 60)
                 .modifier(GlassCardModifier(cornerRadius: isIpad() ? 40 : 30))
                 .padding(.horizontal,15)
-                .padding(.bottom,100 )
+                .padding(.bottom, isIpad() ? 130 : 100)
                 
             }
             
@@ -121,6 +122,7 @@ struct SketchBoardView: View {
             }
         }
         .onDisappear() {
+            sketchVM.hideToolPicker()
             sketchVM.showCanvas = false
             print("🛑 Stop mirroring")
             
@@ -132,6 +134,13 @@ struct SketchBoardView: View {
         }
         .onChange(of: scenePhase) { _ in
             sketchVM.fetchBroadcastStatus()
+        }
+        .onChange(of: recordingVM.showDeviceList) { isPresented in
+
+            if !isPresented {
+
+                sketchVM.showToolPicker(colorScheme: colorScheme)
+            }
         }
     }
 }
@@ -146,7 +155,7 @@ struct sketcboardButtons: View {
         } label: {
             Image(image)
                 .resizable()
-                .frame(width: isIpad() ? 30 : 24,height: 24)
+                .frame(width: isIpad() ? 30 : 24,height: isIpad() ? 30 : 24)
         }
         .buttonStyle(.plain)
 

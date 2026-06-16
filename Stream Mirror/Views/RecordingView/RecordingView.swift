@@ -27,14 +27,14 @@ struct RecordingView: View {
                     VStack {
                         Image("Ready to Record")
                             .resizable()
-                            .frame(width: isIpad() ? 130 : 110,height:  isIpad() ? 130 : 110)
+                            .frame(width: isIpad() ? 150 : 110,height:  isIpad() ? 150 : 110)
                         
                         Text(recordingVM.recordingTime)
-                            .font(.system(size: 30,weight: .medium))
+                            .font(.system(size: isIpad() ? 36 : 30,weight: .medium))
                             .foregroundStyle(.white)
                         
                         Text(recordingVM.isRecording ? str.RecordinginProgress : str.ReadytoRecord)
-                            .font(.system(size: 12))
+                            .font(.system(size: isIpad() ? 18 : 12))
                             .foregroundStyle(AppColor.textColor)
                             .padding(.vertical,1)
                     }
@@ -109,15 +109,20 @@ struct RecordingView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: isIpad() ? 70 : 50)
                     .background(
-                        Image(recordingVM.isRecording ? "btnBG2" : "btnBG")
+                        Image(
+                            isIpad()
+                            ? (recordingVM.isRecording ? "IpadbtnBG2" : "IpadbtnBG")
+                            : (recordingVM.isRecording ? "btnBG2" : "btnBG")
+                        )
                         .resizable()
                         .scaledToFill()
                     )
                     .contentShape(Rectangle())
+                    .cornerRadius(isIpad() ? 35 : 25)
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal,15)
-                .padding(.bottom,100)
+                .padding(.bottom,isIpad() ? 110 : 100)
             }
         }
         .appScreen()

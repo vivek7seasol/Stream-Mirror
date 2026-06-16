@@ -28,8 +28,9 @@ struct PhotosView: View {
 
                     Spacer()
 
-                    ProgressView()
-                        .scaleEffect(1.3)
+                    ProgressView("Loading Photos...")
+                        .tint(.white)
+                        .foregroundColor(.white)
 
                     Spacer()
 

@@ -48,7 +48,7 @@ struct MirrorView: View {
                         ZStack {
                             Image("lottieBG")
                                 .resizable()
-                                .frame(width: isIpad() ? 100 : 95,height:  isIpad() ? 100 : 95)
+                                .frame(width: isIpad() ? 130 : 100,height:  isIpad() ? 130 : 100)
                             
                             LottieFile(animationFileName: MyLottieFiles.Cast, loopMode: .loop)
                                 .frame(width: isIpad() ? 60 :  40, height: isIpad() ? 60 :  40)
@@ -56,16 +56,16 @@ struct MirrorView: View {
                         }
                         
                         Text(str.MirrorYourDisplay)
-                            .font(.system(size: 20,weight: .semibold))
+                            .font(.system(size: isIpad() ? 26 : 20,weight: .semibold))
                             .foregroundStyle(.white)
                         
                         Text(str.Instantlyconnectandcastyourdisplay)
-                            .font(.system(size: 12))
+                            .font(.system(size: isIpad() ? 18 : 12))
                             .foregroundStyle(AppColor.textColor)
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical,30)
+                .padding(.vertical, isIpad() ? 60 : 30)
                 .background(
                     Image("mirrorBG")
                     .resizable()
@@ -92,7 +92,7 @@ struct MirrorView: View {
                 }
                 
                 ZStack {
-                    VStack {
+                    VStack(spacing: isIpad() ? 30 : 15) {
                         HStack {
                             Image("quality")
                                 .resizable()
@@ -102,11 +102,11 @@ struct MirrorView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 
                                 Text(str.StreamQuality)
-                                    .font(.system(size: 18, weight: .medium))
+                                    .font(.system(size: isIpad() ? 24 : 18, weight: .medium))
                                     .foregroundColor(.white)
                                 
                                 Text(str.Balancelatencyandclarity)
-                                    .font(.system(size: 12))
+                                    .font(.system(size: isIpad() ? 18 : 12))
                                     .foregroundColor(AppColor.textColor)
                             }
                         }
@@ -121,10 +121,10 @@ struct MirrorView: View {
                     
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical,15)
+                .padding(.vertical, isIpad() ? 35 : 15)
                 .modifier(GlassCardModifier(cornerRadius: 28))
                 .padding(.horizontal, 15)
-                .padding(.vertical, 10)
+                .padding(.vertical, isIpad() ? 20 : 10)
                 
                 
                 Spacer()

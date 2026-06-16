@@ -102,16 +102,16 @@ struct placeholderView: View {
             
             Image(image)
                 .resizable()
-                .frame(width: isIpad() ? width : width, height: isIpad() ? height : height)
+                .frame(width: isIpad() ? width + 20 : width, height: isIpad() ? height + 20 : height)
             
             VStack(alignment:.center,spacing: 5) {
                 Text(title)
-                    .font(.system(size: 16))
+                    .font(.system(size: isIpad() ? 22 : 16))
                     .foregroundStyle(.white)
                 
                 if isTitle2 {
                     Text(title2)
-                        .font(.system(size: 12))
+                        .font(.system(size: isIpad() ? 18 : 12))
                         .foregroundStyle(AppColor.textColor)
                         .padding(.horizontal,15)
                         .lineLimit(nil)

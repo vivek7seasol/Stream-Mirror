@@ -159,6 +159,9 @@ enum TVApps {
     case netflix
     case prime
     case hotstar
+    case spotify
+    case disney
+    case paramount
     
     var deepLinkURL: String {
         switch self {
@@ -166,6 +169,9 @@ enum TVApps {
         case .netflix: return "https://www.netflix.com/title"
         case .prime: return "https://www.primevideo.com/"
         case .hotstar: return "https://www.hotstar.com/in"
+        case .spotify: return "https://open.spotify.com/"
+        case .disney: return "https://www.disneyplus.com/"
+        case .paramount: return "https://www.paramountplus.com/"
         }
     }
     
@@ -175,6 +181,9 @@ enum TVApps {
         case .netflix: return "com.netflix.ninja"
         case .prime: return "com.amazon.avod"
         case .hotstar: return "in.startv.hotstar"
+        case .spotify: return "com.spotify.tv.android"
+        case .disney: return "com.disney.disneyplus"
+        case .paramount: return "com.cbs.app"
         }
     }
     
@@ -184,6 +193,9 @@ enum TVApps {
         case .netflix: return "12"
         case .prime: return ""
         case .hotstar: return ""
+        case .spotify: return "22297"
+        case .disney: return "291097"
+        case .paramount: return "31440"
         }
     }
     
@@ -193,6 +205,9 @@ enum TVApps {
         case .netflix: return .netflix()
         case .prime: return .primeVideo()
         case .hotstar: return .disnep()
+        case .spotify: return .spotify()
+        case .disney: return .disnep()
+        case .paramount: return .paramountPlus()
         }
     }
     
@@ -202,6 +217,9 @@ enum TVApps {
         case .netflix: return "Netflix"
         case .prime: return "Prime Video"
         case .hotstar: return "Disney+"
+        case .spotify: return "Spotify"
+        case .disney: return "Disney+"
+        case .paramount: return "Paramount+"
         }
     }
 }

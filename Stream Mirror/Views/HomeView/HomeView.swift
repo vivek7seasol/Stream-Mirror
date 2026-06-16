@@ -24,6 +24,7 @@ struct HomeView: View {
     @State private var showIPTV: Bool = false
     @State private var showMirror: Bool = false
     @State private var showDrawing: Bool = false
+    @State private var showCamera: Bool = false
     
     var body: some View {
         ZStack {
@@ -43,7 +44,7 @@ struct HomeView: View {
                     .buttonStyle(.plain)
                     
                 }
-                .padding(.horizontal,15)
+                .padding(.horizontal, isIpad() ? 30 : 15)
                 
                 ScrollView(.vertical,showsIndicators: false) {
                     connectDeviceCard {
@@ -57,6 +58,9 @@ struct HomeView: View {
                     } FileAction: {
                         showFiles = true
                     }
+                    
+                    NativeAd7()
+                        .padding(.top,15)
                     
                     VStack(spacing:15) {
                         ZStack {
@@ -76,7 +80,7 @@ struct HomeView: View {
                                 HStack {
                                     Spacer()
                                     castingCard(title: str.Camera, image: "Camera") {
-                                        
+                                        showCamera = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Photo, image: "Photo") {
@@ -95,9 +99,9 @@ struct HomeView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical,20)
+                        .padding(.vertical, isIpad() ? 40 : 20)
                         .modifier(GlassCardModifier(cornerRadius: 30))
-                        .padding(.horizontal,15)
+                        .padding(.horizontal, isIpad() ? 30 : 15)
                         
                         ZStack {
                             VStack(spacing:20) {
@@ -135,12 +139,14 @@ struct HomeView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical,20)
+                        .padding(.vertical, isIpad() ? 40 : 20)
                         .modifier(GlassCardModifier(cornerRadius: 30))
-                        .padding(.horizontal,15)
+                        .padding(.horizontal, isIpad() ? 30 : 15)
                         
                     }
+                    .padding(.top,15)
                 }
+                .padding(.bottom,100)
             }
         }
         .appScreen()
@@ -172,6 +178,9 @@ struct HomeView: View {
         }
         .navigationDestination(isPresented: $showDrawing) {
             SketchBoardListView()
+        }
+        .navigationDestination(isPresented: $showCamera) {
+            CameraView()
         }
         .navigationDestination(isPresented: $showMirror) {
             MirrorView(broadcastManager: BroadCastPickerManager(commonVm: commonVM))

@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import Speech
 
 enum ControlType: CaseIterable {
-    case remote, touchpad, mouse, keyboard
+    case mouse, remote, touchpad, keyboard
 
     var icon: String {
         switch self {
@@ -25,8 +26,9 @@ struct RemoteView: View {
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @StateObject private var viewModel = RemoteControlViewModel()
-    @State private var controlType: ControlType = .remote
+    @State private var controlType: ControlType = .mouse
     @State private var text: String = ""
+    @State private var refreshID = UUID()
     @Binding var showChannelView: Bool
     @Binding var showNumberPad: Bool
     @Binding var showDeviceList: Bool
@@ -175,6 +177,40 @@ struct RemoteView: View {
                         CircleButton(icon: "mic",size: 30,size2: 66, action: {
                             
                         })
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.2)
+                                .onEnded { _ in
+                                    
+                                    handleDeviceSatus {
+                                        
+                                        let speechStatus = SFSpeechRecognizer.authorizationStatus()
+                                        let micStatus = AVAudioSession.sharedInstance().recordPermission
+                                        
+                                        if speechStatus != .authorized || micStatus != .granted {
+                                            
+                                            viewModel.requestMicPermissionAndStart()
+                                            
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                                viewModel.stopLiveRecognition()
+                                                viewModel.isRecording = false
+                                            }
+                                        }
+                                        
+                                        if !viewModel.isRecording {
+                                            viewModel.recognizedText = "Hold and Speak"
+                                            viewModel.showRecognizedView = true
+                                            
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                if !viewModel.isRecording {
+                                                    viewModel.showRecognizedView = false
+                                                }
+                                            }
+                                        }
+                                        
+                                        viewModel.micTouchDown()
+                                    }
+                                }
+                        )
                     }
                     
                     VStack(spacing:20) {
@@ -245,8 +281,16 @@ struct RemoteView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .appScreen()
+        .id(refreshID)
         .onTapGesture {
             hideKeyboard()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIDevice.orientationDidChangeNotification
+            )
+        ) { _ in
+            refreshID = UUID()
         }
     }
     

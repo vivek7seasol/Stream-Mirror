@@ -24,11 +24,11 @@ struct BrowserView: View {
                 
                 VStack(alignment: .center, spacing: 8) {
                     Text(str.OnlineBrowser)
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.system(size: isIpad() ? 26 : 20, weight: .semibold))
                         .foregroundStyle(.white)
                     
                     Text(str.Browsewebsitesquicklyandsecurely)
-                        .font(.system(size: 12))
+                        .font(.system(size: isIpad() ? 18 : 12))
                         .foregroundStyle(AppColor.textColor)
                 }
                 
@@ -37,11 +37,12 @@ struct BrowserView: View {
                         Image(systemName: "magnifyingglass")
                             .resizable()
                             .foregroundStyle(AppColor.textColor)
-                            .frame(width: 18, height: 18)
+                            .frame(width: isIpad() ? 24 : 18, height: isIpad() ? 24 : 18)
                         
                         ZStack(alignment: .leading) {
                             if text.isEmpty {
                                 Text(str.Search)
+                                    .font(.system(size:  isIpad() ? 20 : 14))
                                     .foregroundColor(AppColor.textColor)
                                     .padding(.leading, 2)
                             }
@@ -82,7 +83,7 @@ struct BrowserView: View {
                             navigateToBrowser = true
                         }
                         Spacer()
-                        webRow(title: str.Google, image: "Instagram") {
+                        webRow(title: str.Instagram, image: "Instagram") {
                             selectedURL = "https://www.instagram.com/"
                             navigateToBrowser = true
                         }
@@ -141,18 +142,18 @@ struct webRow: View {
         } label: {
             
             ZStack {
-                VStack {
+                VStack(spacing: isIpad() ? 10 : 5) {
                     Image(image)
                         .resizable()
                         .frame(width: isIpad() ? 60 : 40, height: isIpad() ? 60 : 40)
                     
                     Text(title)
-                        .font(.system(size: 14,weight: .medium))
+                        .font(.system(size: isIpad() ? 20 : 14,weight: .medium))
                         .foregroundStyle(.white)
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: isIpad() ? 130 : 100)
+            .frame(height: isIpad() ? 150 : 100)
             .modifier(GlassCardModifier(cornerRadius: 25))
         }
         .buttonStyle(.plain)

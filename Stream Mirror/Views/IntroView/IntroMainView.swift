@@ -34,20 +34,20 @@ struct IntroMainView: View {
                 Image(introItems[selectedTab].image2)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 66,height: 66)
+                    .frame(width: isIpad() ? 88 : 66,height: isIpad() ? 88 : 66)
                 
                 VStack(spacing:8) {
                     Text(introItems[selectedTab].title)
-                        .font(.system(size: 28,weight: .bold))
+                        .font(.system(size: isIpad() ? 34 : 28,weight: .bold))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
                     
                     Text(introItems[selectedTab].subtitle)
-                        .font(.system(size: 14))
+                        .font(.system(size: isIpad() ? 20 : 14))
                         .foregroundStyle(AppColor.textColor)
                 }
                 .padding(.horizontal,30)
-                .frame(height: 100)
+                .frame(height: isIpad() ? 130 : 100)
                 
                 TabView(selection: $selectedTab) {
                     ForEach(Array(introItems.enumerated()), id: \.offset) { index, item in
@@ -62,7 +62,7 @@ struct IntroMainView: View {
                 
                 Image(introItems[selectedTab].indicator)
                     .resizable()
-                    .frame(width: 55,height: 15)
+                    .frame(width: isIpad() ? 77 : 55,height: isIpad() ? 25 : 15)
                     .padding(.vertical,15)
                 
                 commonButtonFile(

@@ -24,16 +24,17 @@ struct VideosView: View {
                     }
                 )
                 
-                if photoVM.isLoading && !photoVM.showPlaceholder {
+                if photoVM.isLoading {
 
                     Spacer()
 
-                    ProgressView()
-                        .scaleEffect(1.3)
+                    ProgressView("Loading Videos...")
+                        .tint(.white)
+                        .foregroundColor(.white)
 
                     Spacer()
 
-                } else if photoVM.videoAssets.isEmpty && photoVM.showPlaceholder {
+                } else if photoVM.videoAssets.isEmpty {
 
                     Spacer()
 
@@ -63,13 +64,6 @@ struct VideosView: View {
             
             photoVM.requestVideoAccess()
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                
-                if photoVM.assets.isEmpty {
-                    photoVM.isLoading = false
-                    photoVM.showPlaceholder = true
-                }
-            }
         }
         .fullScreenCover(isPresented: $photoVM.showDeviceList) {
             DeviceListview(isPresented: $photoVM.showDeviceList)
@@ -108,26 +102,26 @@ extension VideosView {
 
                 Button {
 
-                    TVRemoteVM.handleDeviceAction(
-                        onAirPlay: {
-
-                            if photoVM.videoAssets.indices.contains(index) {
-                                // ImageAirplayVM.shared.playPHAssetImage(photoVM.assets[index])
-                            }
-
-                            photoVM.selectedIndex = index
-                        },
-                        onTV: {
+//                    TVRemoteVM.handleDeviceAction(
+//                        onAirPlay: {
+//
+//                            if photoVM.videoAssets.indices.contains(index) {
+//                                // ImageAirplayVM.shared.playPHAssetImage(photoVM.assets[index])
+//                            }
+//
+//                            photoVM.selectedIndex = index
+//                        },
+//                        onTV: {
 
                             photoVM.selectedVideoIndex = index
                             photoVM.showVideoCasting = true
 
-                        },
-                        onNoDevice: {
-
-                            photoVM.showDeviceList = true
-                        }
-                    )
+//                        },
+//                        onNoDevice: {
+//
+//                            photoVM.showDeviceList = true
+//                        }
+//                    )
 
                 } label: {
 

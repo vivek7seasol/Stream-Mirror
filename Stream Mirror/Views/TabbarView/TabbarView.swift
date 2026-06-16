@@ -76,6 +76,18 @@ struct TabbarView: View {
 
                     case .netflix:
                         TVRemoteVM.launchApp(.netflix)
+                        
+                    case .disney:
+                        TVRemoteVM.launchApp(.disney)
+                        
+                    case .prime:
+                        TVRemoteVM.launchApp(.prime)
+                        
+                    case .spotify:
+                        TVRemoteVM.launchApp(.spotify)
+                        
+                    case .paramount:
+                        TVRemoteVM.launchApp(.paramount)
                     default:
                         break
                     }

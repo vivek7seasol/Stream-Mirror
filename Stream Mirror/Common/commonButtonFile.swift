@@ -19,15 +19,16 @@ struct commonButtonFile: View {
             
             ZStack {
                 Text(text)
-                    .font(.system(size: isIpad() ? 22 : 16,weight: .medium))
+                    .font(.system(size: isIpad() ? 25 : 16,weight: .medium))
                     .foregroundStyle(AppColor.textColor2)
             }
             .frame(maxWidth: .infinity)
             .frame(height: isIpad() ? 70 : 50)
             .background(
-                Image("btnBG")
+                Image(isIpad() ? "IpadbtnBG" : "btnBG")
                 .resizable()
-                .scaledToFill()
+//                .scaledToFit()
+                .cornerRadius(isIpad() ? 35 : 25)
             )
             .contentShape(Rectangle())
         }
@@ -75,10 +76,10 @@ struct singleButtonCard: View {
         } label: {
             Image(image)
                 .resizable()
-                .frame(width: isIpad() ? 28 : 24, height: isIpad() ? 28 : 24)
-                .frame(width: isIpad() ? 44 : 40, height: isIpad() ? 44 : 40)
-                .modifier(GlassCardModifier(cornerRadius: isIpad() ? 22 : 20))
-                .clipShape(RoundedRectangle(cornerRadius: isIpad() ? 22 : 20))
+                .frame(width: isIpad() ? 30 : 24, height: isIpad() ? 30 : 24)
+                .frame(width: isIpad() ? 46 : 40, height: isIpad() ? 46 : 40)
+                .modifier(GlassCardModifier(cornerRadius: isIpad() ? 23 : 20))
+                .clipShape(RoundedRectangle(cornerRadius: isIpad() ? 23 : 20))
         }
         .buttonStyle(.plain)
     }

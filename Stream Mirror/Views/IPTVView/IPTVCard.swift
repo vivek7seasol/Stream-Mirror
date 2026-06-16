@@ -44,14 +44,14 @@ struct IPTVChannelCard: View {
                     }
                     
                     Text(title)
-                        .font(.system(size: 14,weight: .medium))
+                        .font(.system(size: isIpad() ? 20 : 14,weight: .medium))
                         .foregroundStyle(.white)
                         .lineLimit(1)
                         .padding(.horizontal,3)
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: isIpad() ? 130 : 110)
+            .frame(height: isIpad() ? 150 : 110)
             .modifier(GlassCardModifier(cornerRadius: 20))
         }
         .buttonStyle(.plain)
@@ -77,7 +77,7 @@ struct catCountryCard: View {
                             .foregroundStyle(.white)
                         
                         Text(channel + " " + str.Channels)
-                            .font(.system(size: 12))
+                            .font(.system(size: isIpad() ? 18 : 12))
                             .foregroundStyle(AppColor.textColor)
                     }
                     Spacer()

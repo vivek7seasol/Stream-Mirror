@@ -29,11 +29,11 @@ struct MirrorCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     
                     Text(title)
-                        .font(.system(size: 18, weight: .medium))
+                        .font(.system(size: isIpad() ? 24 : 18, weight: .medium))
                         .foregroundColor(.white)
                     
                     Text(title2)
-                        .font(.system(size: 12))
+                        .font(.system(size: isIpad() ? 18 : 12))
                         .foregroundColor(AppColor.textColor)
                 }
 
@@ -91,26 +91,28 @@ struct QualityCard: View {
                     }
 
                 } label: {
-
-                    Text(quality.rawValue)
-                        .font(.system(size: isIpad() ? 20 : 16,
-                                      weight: .medium))
-                        .foregroundColor(
-                            selectedQuality == quality
-                            ? .black
-                            : .white
-                        )
-                        .frame(maxWidth: .infinity)
-                        .frame(height: isIpad() ? 70 : 55)
-                        .background {
-
-                            if selectedQuality == quality {
-
-                                Capsule()
-                                    .fill(.white)
-                                    .padding(4)
+                    ZStack {
+                        Text(quality.rawValue)
+                            .font(.system(size: isIpad() ? 20 : 16,
+                                          weight: .medium))
+                            .foregroundColor(
+                                selectedQuality == quality
+                                ? .black
+                                : .white
+                            )
+                            .frame(maxWidth: .infinity)
+                            .frame(height: isIpad() ? 70 : 55)
+                            .background {
+                                
+                                if selectedQuality == quality {
+                                    
+                                    Capsule()
+                                        .fill(.white)
+                                        .padding(4)
+                                }
                             }
-                        }
+                    }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }

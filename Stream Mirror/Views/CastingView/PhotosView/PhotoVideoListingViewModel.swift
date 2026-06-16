@@ -166,14 +166,12 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
     }
     
     func fetchVideos() {
-
-//        videoAssets.removeAll()
-        if videoAssets.isEmpty {
-            isLoading = true
-        }
-
+        
+        isLoading = true
+        showPlaceholder = false
+        
         let fetchOptions = PHFetchOptions()
-
+        
         fetchOptions.predicate = NSPredicate(
             format: "mediaType == %d",
             PHAssetMediaType.video.rawValue
@@ -192,18 +190,18 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
         }
 
         DispatchQueue.main.async {
-
+            
             let oldIDs = self.videoAssets.map(\.localIdentifier)
             let newIDs = tempAssets.map(\.localIdentifier)
 
             if oldIDs != newIDs {
-
                 withAnimation(.none) {
                     self.videoAssets = tempAssets
                 }
             }
 
             self.isLoading = false
+            self.showPlaceholder = tempAssets.isEmpty
         }
     }
 }

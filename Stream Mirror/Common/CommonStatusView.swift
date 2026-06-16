@@ -37,7 +37,7 @@ struct CommonStatusView<Trailing: View>: View {
         ZStack {
 
             Text(title)
-                .font(.system(size: 22, weight: .semibold))
+                .font(.system(size: isIpad() ? 28 : 22, weight: .semibold))
                 .foregroundStyle(.white)
 
             HStack {

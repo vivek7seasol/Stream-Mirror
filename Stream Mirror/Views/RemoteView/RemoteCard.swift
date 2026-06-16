@@ -117,7 +117,7 @@ struct controlTypeCard: View {
                 .buttonStyle(.plain)
             }
         }
-        .frame(width: isIpad() ? cardSize + 50 : cardSize, height: isIpad() ? cardSize + 50 : cardSize)
+        .frame(width: isIpad() ? cardSize + 50 : cardSize, height: isIpad() ? cardSize + 30 : cardSize)
         .modifier(GlassCardModifier(cornerRadius: 50))
         .clipShape(RoundedRectangle(cornerRadius: 50))
     }
@@ -156,7 +156,7 @@ struct touchPadView: View {
                     .foregroundStyle(AppColor.textColor)
             }
         }
-        .frame(maxWidth: isIpad() ? DeviceHelper.width * 0.55 : .infinity, minHeight: cardHeight)
+        .frame(maxWidth: isIpad() ? DeviceHelper.width * 0.55 : .infinity, minHeight: isIpad() ? cardHeight + 30 : cardHeight)
         .modifier(GlassCardModifier(cornerRadius: 50))
         .clipShape(RoundedRectangle(cornerRadius: 50))
         .padding(.horizontal, 15)
@@ -211,7 +211,7 @@ struct mouseView: View {
                     .foregroundStyle(AppColor.textColor)
             }
         }
-        .frame(maxWidth: isIpad() ? DeviceHelper.width * 0.55 : .infinity, minHeight: cardHeight)
+        .frame(maxWidth: isIpad() ? DeviceHelper.width * 0.55 : .infinity, minHeight: isIpad() ? cardHeight + 30 : cardHeight)
         .modifier(GlassCardModifier(cornerRadius: 50))
         .clipShape(RoundedRectangle(cornerRadius: 50))
         .padding(.horizontal, 15)
@@ -271,42 +271,48 @@ struct KeyboardView: View {
     private var cardHeight: CGFloat {
         min(DeviceHelper.width * 0.55, DeviceHelper.height * 0.25)
     }
+    
+    private var editorHeight: CGFloat {
+        isIpad() ? cardHeight + 30 : cardHeight
+    }
     var body: some View {
-        ZStack {
-            VStack(spacing: 15) {
-                
-                ZStack(alignment: .topLeading) {
-                    
-                    if text.isEmpty {
-                        Text(str.StartTypingHere)
-                            .foregroundStyle(AppColor.textColor.opacity(0.6))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 14)
-                            .allowsHitTesting(false)
-                    }
-                    
-                    TextEditor(text: $text)
-                        .scrollContentBackground(.hidden)
-                        .foregroundStyle(.white)
-                        .font(.system(size: 16))
-                        .padding(8)
-                        .onChange(of: text) { newValue in
-                            viewModel.handleTextChange(
-                                newValue,
-                                tvVM: TVRemoteVM
-                            )
-                        }
+        
+        ZStack(alignment: .topLeading) {
+            
+            TextEditor(text: $text)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .foregroundColor(.white)
+                .font(.system(size: 16))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .onChange(of: text) { newValue in
+                    viewModel.handleTextChange(
+                        newValue,
+                        tvVM: TVRemoteVM
+                    )
                 }
-                .frame(height: isIpad() ? 180 : 140)
+                .padding(.horizontal, 15)
+            
+            if text.isEmpty {
+                Text(str.StartTypingHere)
+                    .foregroundColor(AppColor.textColor)
+                    .font(.system(size: 16))
+                    .padding(.leading, 18)
+                    .padding(.top, 18)
+                    .allowsHitTesting(false)
+                    .padding(.horizontal, 15)
             }
+            
         }
-        .frame(maxWidth: isIpad() ? DeviceHelper.width * 0.55 : .infinity, minHeight: cardHeight)
+        .frame(
+            maxWidth: isIpad() ? DeviceHelper.width * 0.55 : .infinity,
+            minHeight: editorHeight,
+            maxHeight: editorHeight
+        )
         .modifier(GlassCardModifier(cornerRadius: 50))
         .clipShape(RoundedRectangle(cornerRadius: 50))
         .padding(.horizontal, 15)
-        //        .onAppear {
-        //            isKeyboardFocused = true
-        //        }
     }
 }
 
@@ -357,18 +363,17 @@ struct VolChButtonCard: View {
     }
 }
 
-enum TVAppChannel {
-    case youtube
-    case netflix
-}
-
 struct ChannelView: View {
     
     @Binding var isPresented: Bool
-    var onChannelSelected: (TVAppChannel) -> Void
-    let channels: [(image: String, title: String, app: TVAppChannel)] = [
+    var onChannelSelected: (TVApps) -> Void
+    let channels: [(image: String, title: String, app: TVApps)] = [
         ("Youtube2", "Youtube",.youtube),
-        ("Netflix", "Netflix",.netflix)
+        ("Netflix", "Netflix",.netflix),
+        ("Prime", "Prime",.prime),
+        ("Spotify", "Spotify",.spotify),
+        ("Disney", "Disney",.disney),
+        ("Paramount", "Paramount",.paramount)
     ]
     
     let columns = [
@@ -469,7 +474,7 @@ struct ChannelCard: View {
             action()
         } label: {
             ZStack {
-                HStack(spacing: 15) {
+                HStack(spacing: 5) {
                     
                     Image(image)
                         .resizable()
@@ -485,7 +490,7 @@ struct ChannelCard: View {
                 }
                 
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 15)
             .frame(height: isIpad() ? 75 : 55)
             .modifier(GlassCardModifier(cornerRadius: isIpad() ? 37.5 : 27.5))
         }

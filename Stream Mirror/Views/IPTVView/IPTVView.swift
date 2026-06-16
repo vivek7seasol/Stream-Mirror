@@ -51,7 +51,7 @@ struct IPTVView: View {
                     } label: {
                         ZStack {
                             Text(str.Countries)
-                                .font(.system(size: 14,weight: .medium))
+                                .font(.system(size: isIpad() ? 20 : 14,weight: .medium))
                                 .foregroundStyle(iptvVM.selectedType == .country ? AppColor.textColor2 : .white)
                         }
                         .padding(.horizontal,30)
@@ -66,7 +66,7 @@ struct IPTVView: View {
                     } label: {
                         ZStack {
                             Text(str.Categories)
-                                .font(.system(size: 14,weight: .medium))
+                                .font(.system(size: isIpad() ? 20 : 14,weight: .medium))
                                 .foregroundStyle(iptvVM.selectedType == .category ? AppColor.textColor2 : .white)
                         }
                         .padding(.horizontal,30)
@@ -83,9 +83,10 @@ struct IPTVView: View {
                         Image(systemName: "magnifyingglass")
                             .resizable()
                             .foregroundStyle(AppColor.textColor)
-                            .frame(width: 18, height: 18)
+                            .frame(width: isIpad() ? 24 : 18, height: isIpad() ? 24 : 18)
                         
                         TextField("", text: $iptvVM.text, prompt: Text(str.Search).foregroundColor(AppColor.textColor))
+                            .font(.system(size: isIpad() ? 20 : 14))
                             .foregroundColor(.white)
                             .focused($isSearchFocused)
                             .autocorrectionDisabled()

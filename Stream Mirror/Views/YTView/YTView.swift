@@ -60,7 +60,7 @@ struct YTView: View {
                         } label: {
                             ZStack {
                                 LottieFile2(animationFileName: MyLottieFiles.WifiTv, loopMode: .loop)
-                                    .frame(width: isIpad() ? 130 :  40, height: isIpad() ? 130 :  40)
+                                    .frame(width: isIpad() ? 60 :  40, height: isIpad() ? 60 :  40)
                                     .rotationEffect(.degrees(0))
                             }
                             .frame(width: isIpad() ? 70 : 56,height: isIpad() ? 70 : 56)
@@ -86,7 +86,7 @@ struct YTView: View {
                         } label: {
                             Image("back")
                                 .resizable()
-                                .frame(width: isIpad() ? 28 : 24,height: isIpad() ? 28 : 24)
+                                .frame(width: isIpad() ? 30 : 24,height: isIpad() ? 30 : 24)
                         }
                         .buttonStyle(.plain)
                         
@@ -98,7 +98,7 @@ struct YTView: View {
                         } label: {
                             Image("next")
                                 .resizable()
-                                .frame(width: isIpad() ? 28 : 24,height: isIpad() ? 28 : 24)
+                                .frame(width: isIpad() ? 30 : 24,height: isIpad() ? 30 : 24)
                         }
                         .buttonStyle(.plain)
                         
@@ -110,7 +110,7 @@ struct YTView: View {
                         } label: {
                             Image("home")
                                 .resizable()
-                                .frame(width: isIpad() ? 28 : 24,height: isIpad() ? 28 : 24)
+                                .frame(width: isIpad() ? 30 : 24,height: isIpad() ? 30 : 24)
                         }
                         .buttonStyle(.plain)
                         
@@ -120,7 +120,7 @@ struct YTView: View {
                         } label: {
                             Image("refresh")
                                 .resizable()
-                                .frame(width: isIpad() ? 28 : 24,height: isIpad() ? 28 : 24)
+                                .frame(width: isIpad() ? 30 : 24,height: isIpad() ? 30 : 24)
                         }
                         .buttonStyle(.plain)
                         Spacer()
@@ -128,9 +128,9 @@ struct YTView: View {
 
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: isIpad() ? 70 : 60)
-                .modifier(GlassCardModifier(cornerRadius: isIpad() ? 35 : 30))
-                .padding(.horizontal,15)
+                .frame(height: isIpad() ? 80 : 60)
+                .modifier(GlassCardModifier(cornerRadius: isIpad() ? 40 : 30))
+                .padding(.horizontal, isIpad() ? 30 : 15)
                 Spacer()
             }
         }

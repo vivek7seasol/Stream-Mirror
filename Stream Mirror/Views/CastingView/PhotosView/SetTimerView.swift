@@ -31,7 +31,7 @@ struct SetTimerView: View {
 
                 Spacer()
 
-                VStack(spacing: 20) {
+                VStack(spacing: isIpad() ? 40 : 20) {
 
                     // Close Button
                     HStack {
@@ -50,11 +50,11 @@ struct SetTimerView: View {
                     VStack(spacing: 8) {
 
                         Text(str.SetTimer)
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.system(size: isIpad() ? 28 : 20, weight: .semibold))
                             .foregroundColor(.white)
 
                         Text(str.SetTimer2)
-                            .font(.system(size: 12))
+                            .font(.system(size: isIpad() ? 20 : 12))
                             .foregroundColor(AppColor.textColor)
                             .multilineTextAlignment(.center)
                     }
@@ -66,11 +66,11 @@ struct SetTimerView: View {
 
                             Rectangle()
                                 .fill(.white)
-                                .frame(width: 4, height: 20)
+                                .frame(width: isIpad() ? 7 : 4, height: isIpad() ? 30 : 20)
                                 .cornerRadius(10)
 
                             Text(str.QuickPresets)
-                                .font(.system(size: 22, weight: .semibold))
+                                .font(.system(size: isIpad() ? 28 : 22, weight: .semibold))
                                 .foregroundColor(.white)
                         }
 
@@ -101,11 +101,11 @@ struct SetTimerView: View {
 
                             Rectangle()
                                 .fill(.white)
-                                .frame(width: 4, height: 20)
+                                .frame(width: isIpad() ? 7 : 4, height: isIpad() ? 30 : 20)
                                 .cornerRadius(10)
 
                             Text(str.EnterSeconds)
-                                .font(.system(size: 22, weight: .semibold))
+                                .font(.system(size: isIpad() ? 28 : 22, weight: .semibold))
                                 .foregroundColor(.white)
                         }
 
@@ -130,7 +130,7 @@ struct SetTimerView: View {
                                 .foregroundColor(.white.opacity(0.7))
                         }
                         .padding(.horizontal, 18)
-                        .frame(height: 52)
+                        .frame(height: isIpad() ? 60 : 52)
                         .background(.white.opacity(0.08))
                         .overlay {
                             Capsule()
@@ -144,20 +144,19 @@ struct SetTimerView: View {
                         HStack(spacing: 6) {
 
                             Image(systemName: "exclamationmark.circle.fill")
-                                .font(.system(size: 12))
+                                .font(.system(size: isIpad() ? 18 : 12))
 
                             Text(str.Minimum5secondsrequired)
-                                .font(.system(size: 12))
+                                .font(.system(size: isIpad() ? 20 : 12))
                                 .foregroundColor(
                                     showValidationError ? .red : .white.opacity(0.7)
                                 )
                         }
                         .foregroundColor(.white.opacity(0.7))
                     }
-
-                    // Start Button
-                    Button {
-
+                    
+                    commonButtonFile(text: str.StartTimer) {
+                        
                         let value = Int(seconds) ?? selectedPreset ?? 7
 
                         guard value >= 5 && value <= 30 else {
@@ -177,21 +176,10 @@ struct SetTimerView: View {
 
                         isPresented = false
 
-                    } label: {
-
-                        Text(str.StartTimer)
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(.white)
-                            .clipShape(Capsule())
                     }
-                    .buttonStyle(.plain)
-                    .padding(.top, 10)
-                    .padding(.bottom,50)
+                    .padding(.bottom,40)
                 }
-                .padding(24)
+                .padding( isIpad() ? 30 : 24)
                 .background(
                     DeviceListBG()
                     
@@ -223,10 +211,10 @@ struct SetTimerView: View {
         } label: {
 
             Text(title)
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: isIpad() ? 24 : 16, weight: .medium))
                 .foregroundColor(selected ? .black : .white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 48)
+                .frame(height: isIpad() ? 58 : 48)
                 .background(
                     selected
                     ? AnyView(

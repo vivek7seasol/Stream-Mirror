@@ -67,7 +67,7 @@ struct DeviceListingRow: View {
                 
                 VStack(alignment:.leading,spacing: 5) {
                     Text(deviceName)
-                        .font(.system(size: 16,weight: .medium))
+                        .font(.system(size: isIpad() ? 22 : 16,weight: .medium))
                         .foregroundStyle(.white)
                     
                     Text(status.localizedTitle)
@@ -80,14 +80,14 @@ struct DeviceListingRow: View {
                 if status == .connected {
                     Image("connect")
                         .resizable()
-                        .frame(width: isIpad() ? 18 : 14, height: isIpad() ? 18 : 14)
+                        .frame(width: isIpad() ? 20 : 14, height: isIpad() ? 20 : 14)
                 } else if status == .connecting {
                     LottieFile2(animationFileName: MyLottieFiles.connecting, loopMode: .loop)
                         .frame(width: isIpad() ? 50 :  35, height: isIpad() ? 50 :  35)
                         .rotationEffect(.degrees(0))
                 } else {
                     Image(systemName: "chevron.right")
-                        .frame(width: 20,height: 20)
+                        .frame(width: isIpad() ? 40 : 20,height: isIpad() ? 40 : 20)
                         .foregroundStyle(.white)
                 }
             }
@@ -113,45 +113,45 @@ struct stepCard: View {
                 HStack {
                     ZStack {
                         Text("1")
-                            .font(.system(size: 14,weight: .medium))
+                            .font(.system(size: isIpad() ? 20 : 14,weight: .medium))
                             .foregroundStyle(.white)
                     }
-                    .frame(width: 26,height: 26)
+                    .frame(width: isIpad() ? 32 : 26,height: isIpad() ? 32 : 26)
                     .background(.white.opacity(0.10))
-                    .cornerRadius(12)
+                    .cornerRadius( isIpad() ? 15 : 12)
                     
                     Text(str.Keepbothdevicesconnected)
-                        .font(.system(size: 14))
+                        .font(.system(size: isIpad() ? 20 : 14))
                         .foregroundStyle(.white)
                 }
                 
                 HStack {
                     ZStack {
                         Text("2")
-                            .font(.system(size: 14,weight: .medium))
+                            .font(.system(size: isIpad() ? 20 : 14,weight: .medium))
                             .foregroundStyle(.white)
                     }
-                    .frame(width: 26,height: 26)
+                    .frame(width: isIpad() ? 32 : 26,height: isIpad() ? 32 : 26)
                     .background(.white.opacity(0.10))
-                    .cornerRadius(12)
+                    .cornerRadius( isIpad() ? 15 : 12)
                     
                     Text(str.TurnofanyVPNorproxyconnections)
-                        .font(.system(size: 14))
+                        .font(.system(size: isIpad() ? 20 : 14))
                         .foregroundStyle(.white)
                 }
                 
                 HStack {
                     ZStack {
                         Text("3")
-                            .font(.system(size: 14,weight: .medium))
+                            .font(.system(size: isIpad() ? 20 : 14,weight: .medium))
                             .foregroundStyle(.white)
                     }
-                    .frame(width: 26,height: 26)
+                    .frame(width: isIpad() ? 32 : 26,height: isIpad() ? 32 : 26)
                     .background(.white.opacity(0.10))
-                    .cornerRadius(12)
+                    .cornerRadius( isIpad() ? 15 : 12)
                     
                     Text(str.RestartyourTVandtryagain)
-                        .font(.system(size: 14))
+                        .font(.system(size: isIpad() ? 20 : 14))
                         .foregroundStyle(.white)
                 }
             }
@@ -186,15 +186,15 @@ struct PopupCard: View {
 
             Image(image)
                 .resizable()
-                .frame(width: 150, height: 110)
+                .frame(width: isIpad() ? 170 : 150, height: isIpad() ? 130 : 110)
 
-            VStack(spacing: 5) {
+            VStack(spacing: isIpad() ? 15 : 5) {
                 Text(title)
-                    .font(.system(size: 20,weight: .semibold))
+                    .font(.system(size: isIpad() ? 26 : 20,weight: .semibold))
                     .foregroundStyle(.white)
                 
                 Text(subtitle)
-                    .font(.system(size: 12))
+                    .font(.system(size: isIpad() ? 18 : 12))
                     .foregroundStyle(AppColor.textColor)
             }
 
@@ -204,7 +204,7 @@ struct PopupCard: View {
             .padding()
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 20)
+        .padding(.vertical, isIpad() ? 40 : 20)
         .background(.black)
         .clipShape(
             CustomCorner(

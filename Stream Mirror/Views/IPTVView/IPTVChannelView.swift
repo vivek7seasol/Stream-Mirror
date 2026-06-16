@@ -20,11 +20,10 @@ struct IPTVChannelView: View {
     var title: String
     var channels: [Channel]
     
-    let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
+    let columns = Array(
+        repeating: GridItem(.flexible(), spacing: 12),
+        count: isIpad() ? 4 : 3
+    )
     var filteredChannels: [Channel] {
 
         if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {

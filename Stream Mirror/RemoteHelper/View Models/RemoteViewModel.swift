@@ -525,6 +525,12 @@ class RemoteViewModel: NSObject, ObservableObject {
             case .hotstar:
                 (currentTVManager as? LGTVManager)?
                     .LaunchApp(url: "com.disney.disneyplus")
+            case .spotify:
+                    (currentTVManager as? LGTVManager)?.LaunchApp(url: "spotify-beehive")
+            case .disney:
+                (currentTVManager as? LGTVManager)?.LaunchApp(url: "com.disney.disneyplus-prod")
+            case .paramount:
+                (currentTVManager as? LGTVManager)?.LaunchApp(url: "com.cbs.app")
             }
         case .AIRPLAY:
             break
