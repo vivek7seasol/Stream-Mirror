@@ -11,6 +11,7 @@ import AWSCore
 import UIKit
 import SwiftUI
 
+@MainActor
 class SplashViewModel: ObservableObject {
     
     @Published var navigateToLanguage = false
@@ -19,7 +20,9 @@ class SplashViewModel: ObservableObject {
     
     @AppStorage(SessionKeys.language) var language = false
     @AppStorage(SessionKeys.intro3) var intro3 = false
+    @AppStorage(SessionKeys.isPro) var isPro = false
     
+//    let subscriptionManager = checkSubscriptionManager.shared
     
     func requestTrackingPermission() {
         
@@ -37,8 +40,29 @@ class SplashViewModel: ObservableObject {
     private func handleStartupFlow() {
         
         fetchSplashData {
-            DispatchQueue.main.async { [self] in
-                navigateAfterSplash()
+            print("🔥 AppOpen ID:", appopenId)
+            
+            Task {
+//                await self.subscriptionManager.checkSubscriptionAtLaunch()
+                
+                print("✅ isPro after check:", self.isPro)
+                
+                if self.isPro {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        self.navigateAfterSplash()
+                    }
+                    return
+                }
+                
+                AdCountViewModel.sharedd.reloadAd()
+                
+                await AppOpenAdManager.shared.loadAd()
+                
+                AppOpenAdManager.shared.showAdIfAvailable {
+                    DispatchQueue.main.async {
+                        self.navigateAfterSplash()
+                    }
+                }
             }
         }
     }
@@ -57,49 +81,49 @@ class SplashViewModel: ObservableObject {
     }
     
     func fetchSplashData(completion: (() -> Void)? = nil) {
-
+        
         guard let url = URL(string: getJSON) else {
             print("❌ Invalid URL")
             completion?()
             return
         }
-
+        
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
-
+        
         let configuration = URLSessionConfiguration.default
         configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         configuration.urlCache = nil
-
+        
         let session = URLSession(configuration: configuration)
-
+        
         let task = session.dataTask(with: request) { data, response, error in
-
+            
             if let error = error {
-
+                
                 print("❌ API Error:", error.localizedDescription)
-
+                
                 DispatchQueue.main.async {
                     completion?()
                 }
-
+                
                 return
             }
-
+            
             guard let data = data else {
-
+                
                 print("❌ No Data Found")
-
+                
                 DispatchQueue.main.async {
                     completion?()
                 }
-
+                
                 return
             }
-
+            
             do {
-
+                
                 if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                     
                     appopenId = json["appopenId"] as? String ?? ""
@@ -110,50 +134,60 @@ class SplashViewModel: ObservableObject {
                     addButtonColor = json["addButtonColor"] as? String ?? ""
                     
                     if let extraFields = json["extraFields"] as? [String: Any] {
-//                        NewsAPI = extraFields["story"] as? String ?? ""
+                        
+                        androidBannerUrl = extraFields["splash_banner"] as? String ?? ""
+                        iapLifetime = extraFields["iapLifetime"] as? String ?? "true"
+                        iapYearlyPlan = extraFields["iapYearlyPlan"] as? String ?? "true"
+                        iapMonthlyPlan = extraFields["iapMonthlyPlan"] as? String ?? "true"
+                        isShowPremium = extraFields["isShowPremium"] as? String ?? "true"
+                        
+                        second_native = extraFields["second_native"] as? String ?? "true"
+                        second_appopen = extraFields["second_appopen"] as? String ?? "true"
+                        small_native = extraFields["small_native"] as? String ?? "true"
+                        pro_close_inter = extraFields["pro_close_inter"] as? String ?? "true"
                         
                     } else {
-
+                        
                         print("❌ extraFields not found")
                     }
-
+                    
                     let customInterstial = json["customInterstial"] as? Int ?? 0
-
+                    
                     if let countString = json["afterClick"] as? String,
                        let count = Int(countString) {
-
+                        
                         adsCount = count
-
+                        
                     } else {
-
+                        
                         adsCount = 4
                     }
-
-//                    DispatchQueue.main.async {
-//
-//                        AdCountViewModel.sharedd.afterClick = adsCount
-//                    }
-
+                    
+                    DispatchQueue.main.async {
+                        
+                        AdCountViewModel.sharedd.afterClick = adsCount
+                    }
+                    
                     adsPlus = customInterstial == 0
                     ? adsCount - 1
                     : adsCount
-
+                    
                 }
-
+                
                 DispatchQueue.main.async {
                     completion?()
                 }
-
+                
             } catch {
-
+                
                 print("❌ JSON Parse Error:", error.localizedDescription)
-
+                
                 DispatchQueue.main.async {
                     completion?()
                 }
             }
         }
-
+        
         task.resume()
     }
 }

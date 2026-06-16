@@ -133,6 +133,7 @@ struct IPTVCastingView: View {
             castIPTV()
         }
         .onDisappear {
+            commonVM.setTVPlaceHolder(connectedTvType: commonVM.connectedTvType ?? .ANDROID)
             playerVM.cleanup()
         }
     }

@@ -16,6 +16,9 @@ struct IPTVChannelView: View {
     @State private var showCastingView = false
     @State private var showDeviceList = false
     @State private var selectedChannel: Channel?
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
+    @State private var showPremium = false
     
     var title: String
     var channels: [Channel]
@@ -80,6 +83,10 @@ struct IPTVChannelView: View {
                     
                 } else {
                     ScrollView(showsIndicators: false) {
+                        if !isPro {
+                            NativeAd7()
+                                .padding(.top,15)
+                        }
                         LazyVGrid(columns: columns, spacing: 14) {
                             ForEach(filteredChannels, id: \.self) { channel in
                                 IPTVChannelCard(
@@ -87,15 +94,19 @@ struct IPTVChannelView: View {
                                     title: channel.name ?? "Channel",
                                     isURLImage: true
                                 ) {
-                                    TVRemoteVM.handleDeviceAction {
-                                        
-                                    } onTV: {
-                                        selectedChannel = channel
-                                        showCastingView = true
-                                    } onNoDevice: {
-                                        showDeviceList = true
+                                    if isPro {
+                                        TVRemoteVM.handleDeviceAction {
+                                            
+                                        } onTV: {
+                                            adVm.registerTap()
+                                            selectedChannel = channel
+                                            showCastingView = true
+                                        } onNoDevice: {
+                                            showDeviceList = true
+                                        }
+                                    } else {
+                                        showPremium = true
                                     }
-
                                 }
                             }
                         }
@@ -123,6 +134,13 @@ struct IPTVChannelView: View {
                 )
             }
         }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
 }
 

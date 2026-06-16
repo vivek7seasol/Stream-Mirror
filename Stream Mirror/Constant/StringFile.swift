@@ -178,4 +178,17 @@ class StringFile {
     let CH = "CH".localized
     let SelectChannel = "Select Channel".localized
     let Chooseachanneltostartwatching = "Choose a channel to start watching.".localized
+    
+    let Cancel = "Cancel".localized
+    var Photo_Access_Required = "Photo Access Required".localized
+    var photoAlertMsg = "Please allow photo access from Settings to view your photos.".localized
+    let ChangeSettings = "Change Settings".localized
+    let Manage = "Manage".localized
+    let SelectMorePhotosorvideos = "Select More Photos or videos".localized
+    let Youvegiven = "You've given ".localized
+    let accesstoselecofphotosorvideos = " access to a select number of photos or videos.".localized
+    let MusicPermissionRequired = "Music Permission Required".localized
+    let MusicAlertMsg = "Please allow Music Library access from Settings.".localized
+    var VideoAccessRequired = "Video Access Required".localized
+    var videoAlertMsg = "Please allow Video access from Settings to view your Videos.".localized
 }

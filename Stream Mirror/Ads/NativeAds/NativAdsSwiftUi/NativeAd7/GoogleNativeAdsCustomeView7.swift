@@ -46,10 +46,10 @@ class GoogleNativeAdsCustomeView7: UIView {
         
         (adView.iconView as? UIImageView)?.image = nativeAd.icon?.image
         (adView.headlineView as? UILabel)?.text = nativeAd.headline
-        (adView.headlineView as? UILabel)?.textColor = .black
+        (adView.headlineView as? UILabel)?.textColor = .white
         adView.mediaView?.mediaContent = nativeAd.mediaContent
         (adView.bodyView as? UILabel)?.text = nativeAd.body ?? ""
-        (adView.bodyView as? UILabel)?.textColor = .black
+        (adView.bodyView as? UILabel)?.textColor = hexStringToUIColor(hex: "#BDBDBD")
 //        (adView.callToActionView as? UIButton)?.backgroundColor = hexStringToUIColor(hex: SessionManager.shared.getSplashData()?.addButtonColor ?? "#000000")
         (adView.callToActionView as? UIButton)?.backgroundColor = hexStringToUIColor(hex: addButtonColor)
 

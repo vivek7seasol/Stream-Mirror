@@ -9,6 +9,9 @@ import SwiftUI
 
 struct SketchBoardListView: View {
     
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
+    @State private var showPremium = false
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
@@ -30,7 +33,10 @@ struct SketchBoardListView: View {
                     Spacer()
                 } else {
                     ScrollView(showsIndicators: false) {
-
+                        if !isPro {
+                            NativeAd7()
+                                .padding(.top,15)
+                        }
                         LazyVGrid(
                             columns: columns,
                             spacing: 12
@@ -50,6 +56,7 @@ struct SketchBoardListView: View {
                                         sketchVM.deleteDrawing(drawing)
                                     },
                                     buttonAction: {
+                                        adVm.registerTap()
                                         sketchVM.selectedDrawing = drawing
                                         sketchVM.showEditDrawing = true
                                     }
@@ -70,6 +77,7 @@ struct SketchBoardListView: View {
         .overlay(alignment: .bottomTrailing) {
             
             Button {
+                adVm.registerTap()
                 sketchVM.showSketchboardView = true
             } label: {
                 Image("Add")

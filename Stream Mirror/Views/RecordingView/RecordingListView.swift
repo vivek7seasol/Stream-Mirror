@@ -64,7 +64,6 @@ struct RecordingListView: View {
                                         )
                                     },
                                     buttonAction: {
-
                                         recordingVM.selectedRecording = recording
                                     }
                                 )

@@ -10,6 +10,9 @@ import Lottie
 
 struct MirrorView: View {
     
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @State private var showPremium = false
+    @EnvironmentObject var adVm : AdCountViewModel
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @Environment(\.scenePhase) private var scenePhase
@@ -130,27 +133,29 @@ struct MirrorView: View {
                 Spacer()
                 
                 commonButtonFile(text: isBroadcasting ? str.StopMirroring : str.StartMirroring) {
-                    
-                    TVRemoteVM.handleDeviceAction(onAirPlay: {
-                        
-                    }, onTV: {
-                        if selectedTvType == .ANDROID || selectedTvType == .SAMSUNG {
-                            if let userDefaults = UserDefaults(suiteName: AppStrings.groupID){
-                                if userDefaults.bool(forKey: "isBroadcasting") == false {
-                                    if commonVM.castViewModel.isCastingSessionGoing() {
-                                        commonVM.castViewModel.stopCastingSession()
-                                        commonVM.StopCasting()
+                    if isPro {
+                        TVRemoteVM.handleDeviceAction(onAirPlay: {
+                            
+                        }, onTV: {
+                            if selectedTvType == .ANDROID || selectedTvType == .SAMSUNG {
+                                if let userDefaults = UserDefaults(suiteName: AppStrings.groupID){
+                                    if userDefaults.bool(forKey: "isBroadcasting") == false {
+                                        if commonVM.castViewModel.isCastingSessionGoing() {
+                                            commonVM.castViewModel.stopCastingSession()
+                                            commonVM.StopCasting()
+                                        }
                                     }
                                 }
                             }
-                        }
-                        
-                        startMirroringFlow()
-                        
-                    }, onNoDevice: {
-                        showDeviceList = true
-                    })
-                    
+                            
+                            startMirroringFlow()
+                            
+                        }, onNoDevice: {
+                            showDeviceList = true
+                        })
+                    } else {
+                        showPremium = true
+                    }
                 }
                 .padding()
             }
@@ -208,6 +213,13 @@ struct MirrorView: View {
         .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
             fetchBroadcastStatus()
         }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
     
     func startMirroringFlow() {

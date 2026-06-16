@@ -9,12 +9,20 @@ import SwiftUI
 
 struct FilesPageView: View {
     
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
+    @State private var showPremium = false
+    
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @StateObject private var filesPageVM = FilesPageViewModel()
     var file: SelectedFile
     var openFrom: FileType
     
+    let columns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
     var body: some View {
         ZStack {
             VStack {
@@ -46,25 +54,28 @@ struct FilesPageView: View {
                     
                     ScrollView(showsIndicators: false) {
                         
-                        let columns = [
-                            GridItem(.flexible(), spacing: 12),
-                            GridItem(.flexible(), spacing: 12)
-                        ]
-                        
+                        if !isPro {
+                            NativeAd7()
+                                .padding(.top,15)
+                        }
                         LazyVGrid(columns: columns, spacing: 16) {
                             
                             ForEach(Array(filesPageVM.pages.enumerated()), id: \.offset) { index, image in
                                 
                                 Button {
-                                    TVRemoteVM.handleDeviceAction {
-                                        
-                                    } onTV: {
-                                        filesPageVM.selectedIndex = index
-                                        filesPageVM.showPreview = true
-                                    } onNoDevice: {
-                                        filesPageVM.showDeviceList = true
+                                    if isPro {
+                                        TVRemoteVM.handleDeviceAction {
+                                            
+                                        } onTV: {
+                                            adVm.registerTap()
+                                            filesPageVM.selectedIndex = index
+                                            filesPageVM.showPreview = true
+                                        } onNoDevice: {
+                                            filesPageVM.showDeviceList = true
+                                        }
+                                    } else {
+                                        showPremium = true
                                     }
-                                    
                                     
                                 } label: {
                                     VStack(spacing: 10) {
@@ -115,6 +126,13 @@ struct FilesPageView: View {
             .environmentObject(commonVM)
             .environmentObject(TVRemoteVM)
         }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
 }
 

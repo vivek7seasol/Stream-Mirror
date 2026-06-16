@@ -7,12 +7,16 @@
 
 import SwiftUI
 internal import Photos
+internal import PhotosUI
 
 struct PhotosView: View {
     
     @StateObject private var photoVM = PhotoVideoListingViewModel()
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
+    @State private var showPremium = false
     
     var body: some View {
         ZStack {
@@ -23,6 +27,8 @@ struct PhotosView: View {
                         photoVM.showDeviceList = true
                     }
                 )
+                
+                limitedAccessCard(photoVM: photoVM)
                 
                 if photoVM.isLoading && !photoVM.showPlaceholder {
 
@@ -51,6 +57,10 @@ struct PhotosView: View {
                     
                     // MARK: - Photo Grid
                     ScrollView(.vertical, showsIndicators: false) {
+                        if !isPro {
+                            NativeAd7()
+                                .padding(.top,15)
+                        }
                         photoGridView
                             .padding(.bottom, 16)
                         
@@ -87,6 +97,26 @@ struct PhotosView: View {
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }
+        .alert(str.Photo_Access_Required, isPresented: $photoVM.showSettingsAlert) {
+            
+            Button(str.Settings) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            
+            Button(str.Cancel, role: .cancel) { }
+            
+        } message: {
+            Text(str.photoAlertMsg)
+        }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
 }
 
@@ -110,27 +140,30 @@ extension PhotosView {
             ) { index, asset in
 
                 Button {
-
-                    TVRemoteVM.handleDeviceAction(
-                        onAirPlay: {
-
-                            if photoVM.assets.indices.contains(index) {
-                                // ImageAirplayVM.shared.playPHAssetImage(photoVM.assets[index])
+                    if isPro {
+                        TVRemoteVM.handleDeviceAction(
+                            onAirPlay: {
+                                
+                                if photoVM.assets.indices.contains(index) {
+                                    // ImageAirplayVM.shared.playPHAssetImage(photoVM.assets[index])
+                                }
+                                
+                                photoVM.selectedIndex = index
+                            },
+                            onTV: {
+                                adVm.registerTap()
+                                photoVM.selectedIndex = index
+                                photoVM.showPhotoCasting = true
+                                
+                            },
+                            onNoDevice: {
+                                
+                                photoVM.showDeviceList = true
                             }
-
-                            photoVM.selectedIndex = index
-                        },
-                        onTV: {
-
-                            photoVM.selectedIndex = index
-                            photoVM.showPhotoCasting = true
-
-                        },
-                        onNoDevice: {
-
-                            photoVM.showDeviceList = true
-                        }
-                    )
+                        )
+                    } else {
+                        showPremium = true
+                    }
 
                 } label: {
 
@@ -142,6 +175,49 @@ extension PhotosView {
             }
         }
         .padding(.horizontal, 16)
+    }
+}
+
+struct limitedAccessCard: View {
+    
+    @ObservedObject var photoVM: PhotoVideoListingViewModel
+    var body: some View {
+        if photoVM.isPremissionLimited {
+            HStack {
+                Text(str.Youvegiven + AppStrings.appName + str.accesstoselecofphotosorvideos)
+                    .foregroundStyle(AppColor.textColor)
+                    .font(.system(size: isIpad() ? 20 :  14))
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(nil)
+                
+                Spacer()
+                Button {
+                    photoVM.showPermissionAlert = true
+                } label: {
+                    Text(str.Manage)
+                        .foregroundStyle(.blue)
+                }
+                .confirmationDialog("", isPresented: $photoVM.showPermissionAlert, titleVisibility: .visible) {
+                    
+                    Button(str.SelectMorePhotosorvideos) {
+                        if let rootController = getTopViewController() {
+                            PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: rootController)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                photoVM.fetchImages()
+                            }
+                        }
+                    }
+                    Button(str.ChangeSettings) {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    
+                    Button(str.Cancel, role: .cancel) { }
+                }
+            }
+            .padding(.horizontal,10)
+        }
     }
 }
 

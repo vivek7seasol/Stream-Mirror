@@ -51,6 +51,9 @@
             ReferencedContainer = "container:Stream Mirror.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <StoreKitConfigurationFileReference
+         identifier = "../Stream Mirror/SphereAir : Screen Mirroring.storekit">
+      </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

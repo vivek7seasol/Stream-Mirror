@@ -13,6 +13,8 @@ struct IPTVView: View {
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @StateObject private var iptvVM = IPTVViewModel()
     @FocusState private var isSearchFocused: Bool
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
     
     var filteredCountries: [IPTVCountryModelElement] {
         
@@ -128,6 +130,10 @@ struct IPTVView: View {
                     Spacer()
                 } else {
                     ScrollView(.vertical,showsIndicators: false) {
+                        if !isPro {
+                            NativeAd7()
+                                .padding(.top,15)
+                        }
                         if iptvVM.selectedType == .country {
                             
                             ForEach(filteredCountries, id: \.self) { country in
@@ -135,6 +141,7 @@ struct IPTVView: View {
                                 catCountryCard(
                                     title: country.country ?? "Unknown",
                                     channel: "\(country.channels?.count ?? 0)", action: {
+                                        adVm.registerTap()
                                         iptvVM.selectedChannels = country.channels ?? []
                                         iptvVM.selectedTitle = country.country ?? "Channels"
                                         iptvVM.showChannelList = true
@@ -148,6 +155,7 @@ struct IPTVView: View {
                                     catCountryCard(
                                         title: category.category ?? "Unknown",
                                         channel: "\(category.channels?.count ?? 0)", action: {
+                                            adVm.registerTap()
                                             iptvVM.selectedChannels = category.channels ?? []
                                             iptvVM.selectedTitle = category.category ?? "Channels"
                                             iptvVM.showChannelList = true

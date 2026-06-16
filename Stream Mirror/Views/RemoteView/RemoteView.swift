@@ -22,6 +22,9 @@ enum ControlType: CaseIterable {
 }
 struct RemoteView: View {
     
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @State private var showPremium = false
+    @EnvironmentObject var adVm : AdCountViewModel
     @EnvironmentObject var tabBarManager: TabBarManager
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
@@ -292,6 +295,13 @@ struct RemoteView: View {
         ) { _ in
             refreshID = UUID()
         }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
     
     private func sendMovement(dx: CGFloat, dy: CGFloat, dt: TimeInterval) {
@@ -334,7 +344,7 @@ struct RemoteView: View {
     }
     
     func handleDeviceSatus(_ action: () -> Void) {
-//        if isPro == true {
+        if isPro {
             if TVRemoteVM.connectedTVType == nil {
                 
                 showDeviceList = true
@@ -342,9 +352,9 @@ struct RemoteView: View {
             }
             
             action()
-//        } else {
-//            showPremium = true
-//        }
+        } else {
+            showPremium = true
+        }
     }
 }
 

@@ -9,6 +9,9 @@ import SwiftUI
 
 struct HomeView: View {
     
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    
+    @EnvironmentObject var adVm : AdCountViewModel
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     
@@ -25,6 +28,8 @@ struct HomeView: View {
     @State private var showMirror: Bool = false
     @State private var showDrawing: Bool = false
     @State private var showCamera: Bool = false
+    @State private var showPremium = false
+    @State private var showPremium2 = false
     
     var body: some View {
         ZStack {
@@ -35,7 +40,7 @@ struct HomeView: View {
                         .foregroundStyle(.white)
                     Spacer()
                     Button {
-                        
+                        showPremium2 = true
                     } label: {
                         Image("premium")
                             .resizable()
@@ -52,15 +57,20 @@ struct HomeView: View {
                     }
                     
                     firstCard {
+                        adVm.registerTap()
                         showMirror = true
                     } YTAction: {
+                        adVm.registerTap()
                         showYoutube = true
                     } FileAction: {
+                        adVm.registerTap()
                         showFiles = true
                     }
                     
-                    NativeAd7()
-                        .padding(.top,15)
+                    if !isPro {
+                        NativeAd7()
+                            .padding(.top,15)
+                    }
                     
                     VStack(spacing:15) {
                         ZStack {
@@ -80,18 +90,22 @@ struct HomeView: View {
                                 HStack {
                                     Spacer()
                                     castingCard(title: str.Camera, image: "Camera") {
+                                        adVm.registerTap()
                                         showCamera = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Photo, image: "Photo") {
+                                        adVm.registerTap()
                                         showPhotos = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Video, image: "Video") {
+                                        adVm.registerTap()
                                         showVideos = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Music, image: "Music") {
+                                        adVm.registerTap()
                                         showMusic = true
                                     }
                                     Spacer()
@@ -120,18 +134,22 @@ struct HomeView: View {
                                 HStack {
                                     Spacer()
                                     castingCard(title: str.Browser, image: "Browser") {
+                                        adVm.registerTap()
                                         showBrowser = true
                                     }
                                     Spacer()
                                     castingCard(title: str.OnlineImage, image: "Online Image") {
+                                        adVm.registerTap()
                                         showFindImage = true
                                     }
                                     Spacer()
                                     castingCard(title: str.IPTV, image: "IPTV") {
+                                        adVm.registerTap()
                                         showIPTV = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Drawing, image: "Drawing") {
+                                        adVm.registerTap()
                                         showDrawing = true
                                     }
                                     Spacer()
@@ -150,6 +168,18 @@ struct HomeView: View {
             }
         }
         .appScreen()
+        .onAppear {
+            if isPro == false {
+                if isShowPremium == "true" {
+                    if !AppSession.shared.hasShownPremium {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            showPremium = true
+                            AppSession.shared.hasShownPremium = true
+                        }
+                    }
+                }
+            }
+        }
         .navigationDestination(isPresented: $showYoutube) {
             YTView(isOpenFromYT: true, initialURL: "https://www.youtube.com/")
                 .environmentObject(TVRemoteVM)
@@ -187,7 +217,12 @@ struct HomeView: View {
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }
-        
+        .fullScreenCover(isPresented: $showPremium) {
+            PremiumView()
+        }
+        .fullScreenCover(isPresented: $showPremium2) {
+            PremiumView()
+        }
         
     }
 }

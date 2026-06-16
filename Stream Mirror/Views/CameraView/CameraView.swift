@@ -19,6 +19,7 @@ struct CameraView: View {
     @StateObject private var recordingVM = ScreenRecordingViewModel()
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
+    @EnvironmentObject var adVm : AdCountViewModel
     
     @State private var showDeviceList = false
     @State private var permissionDenied = false
@@ -37,7 +38,7 @@ struct CameraView: View {
                 
                 CommonStatusView(title: str.Camera,isCastingShow: false) {
                     singleButtonCard(image: "startDrawing") {
-//                        if isPro == true {
+                        if isPro == true {
                             TVRemoteVM.handleDeviceAction(
                                 onAirPlay: {
                                     showAirplayDisconnectAlert = true
@@ -65,9 +66,9 @@ struct CameraView: View {
                                 onNoDevice: {
                                     showDeviceList = true
                                 })
-//                        } else {
-//                            showPremium = true
-//                        }
+                        } else {
+                            showPremium = true
+                        }
                     }
                 }
                 
@@ -120,6 +121,7 @@ struct CameraView: View {
                     }
                 }
                 .padding(.bottom, 35)
+                
             }
             BroadcastPickerViewModel(
                 preferredExtension: AppStrings.appExtensionPackageName,
@@ -165,6 +167,13 @@ struct CameraView: View {
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
     
     func checkCameraPermission() {

@@ -19,7 +19,7 @@ struct NativeAd6: View {
                 if let _ = nativeViewModel.smallNativeAd {
                     NativeAd6Container(nativeViewModel: nativeViewModel)
                         .frame(height: isIpad() ? 110 : 82)
-                        .background(Color.white.opacity(0.5))
+                        .background(Color.white.opacity(0.10))
                 }else if nativeViewModel.didFailToSmallLoad {
                     Color.clear
                         .frame(height: 0)

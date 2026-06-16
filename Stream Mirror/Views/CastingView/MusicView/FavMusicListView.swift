@@ -13,6 +13,9 @@ struct FavMusicListView: View {
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @ObservedObject var musicVM = MusicViewModel()
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
+    @State private var showPremium = false
     
     var body: some View {
         ZStack {
@@ -33,6 +36,10 @@ struct FavMusicListView: View {
                 } else {
                     
                     ScrollView(showsIndicators: false) {
+                        if !isPro {
+                            NativeAd7()
+                                .padding(.top,15)
+                        }
                         LazyVStack(spacing: 12) {
                             
                             ForEach(musicVM.favorites) { song in
@@ -66,20 +73,23 @@ struct FavMusicListView: View {
                                     }
                                 )
                                 .onTapGesture {
-                                    TVRemoteVM.handleDeviceAction {
-                                        
-                                    } onTV: {
-                                        
-                                        musicVM.setMusics(
+                                    if isPro {
+                                        TVRemoteVM.handleDeviceAction {
+                                            
+                                        } onTV: {
+                                            adVm.registerTap()
+                                            musicVM.setMusics(
                                                 musicVM.favorites,
                                                 startIndex: musicVM.favorites.firstIndex(of: song) ?? 0
                                             )
-
+                                            
                                             musicVM.showMusiccasting2 = true
-                                    } onNoDevice: {
-                                       musicVM.showDeviceList = true
+                                        } onNoDevice: {
+                                            musicVM.showDeviceList = true
+                                        }
+                                    } else {
+                                        showPremium = true
                                     }
-
                                 }
                                 .padding(.horizontal,15)
                             }
@@ -100,6 +110,13 @@ struct FavMusicListView: View {
         .navigationDestination(isPresented: $musicVM.showMusiccasting2) {
             MusicCastingView(musicVM: musicVM)
         }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
 }
 

@@ -13,6 +13,9 @@ struct VideosView: View {
     @StateObject private var photoVM = PhotoVideoListingViewModel()
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
+    @State private var showPremium = false
     
     var body: some View {
         ZStack {
@@ -23,6 +26,8 @@ struct VideosView: View {
                         photoVM.showDeviceList = true
                     }
                 )
+                
+                limitedAccessCard(photoVM: photoVM)
                 
                 if photoVM.isLoading {
 
@@ -51,6 +56,10 @@ struct VideosView: View {
                     
                     // MARK: - Photo Grid
                     ScrollView(.vertical, showsIndicators: false) {
+                        if !isPro {
+                            NativeAd7()
+                                .padding(.top,15)
+                        }
                         videoGridView
                             .padding(.bottom, 16)
                         
@@ -78,6 +87,26 @@ struct VideosView: View {
                 selectedIndex: photoVM.selectedVideoIndex
             )
         }
+        .alert(str.VideoAccessRequired, isPresented: $photoVM.showSettingsAlert) {
+            
+            Button(str.Settings) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            
+            Button(str.Cancel, role: .cancel) { }
+            
+        } message: {
+            Text(str.videoAlertMsg)
+        }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
 }
 
@@ -101,27 +130,30 @@ extension VideosView {
             ) { index, asset in
 
                 Button {
-
-//                    TVRemoteVM.handleDeviceAction(
-//                        onAirPlay: {
-//
-//                            if photoVM.videoAssets.indices.contains(index) {
-//                                // ImageAirplayVM.shared.playPHAssetImage(photoVM.assets[index])
-//                            }
-//
-//                            photoVM.selectedIndex = index
-//                        },
-//                        onTV: {
-
-                            photoVM.selectedVideoIndex = index
-                            photoVM.showVideoCasting = true
-
-//                        },
-//                        onNoDevice: {
-//
-//                            photoVM.showDeviceList = true
-//                        }
-//                    )
+                    if isPro {
+                        TVRemoteVM.handleDeviceAction(
+                            onAirPlay: {
+                                
+                                if photoVM.videoAssets.indices.contains(index) {
+                                    // ImageAirplayVM.shared.playPHAssetImage(photoVM.assets[index])
+                                }
+                                
+                                photoVM.selectedIndex = index
+                            },
+                            onTV: {
+                                adVm.registerTap()
+                                photoVM.selectedVideoIndex = index
+                                photoVM.showVideoCasting = true
+                                
+                            },
+                            onNoDevice: {
+                                
+                                photoVM.showDeviceList = true
+                            }
+                        )
+                    } else {
+                        showPremium = true
+                    }
 
                 } label: {
 

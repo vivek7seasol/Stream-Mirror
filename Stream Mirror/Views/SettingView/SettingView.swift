@@ -9,6 +9,8 @@ import SwiftUI
 
 struct SettingView: View {
     
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @State private var showPremium = false
     @State private var navigateToLanguage: Bool = false
     
     var body: some View {
@@ -55,6 +57,10 @@ struct SettingView: View {
                 }
                 
                 Spacer()
+                if !isPro {
+                    NativeAd7()
+                        .padding(.bottom,100)
+                }
             }
         }
         .appScreen()

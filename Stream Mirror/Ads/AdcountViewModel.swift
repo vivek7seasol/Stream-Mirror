@@ -52,7 +52,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-final class AdCountViewModel: NSObject {
+final class AdCountViewModel: NSObject,ObservableObject {
     @AppStorage(SessionKeys.isPro) var isPro = false
     @Published var tapCount: Int = 0
     @Published var afterClick: Int = 1

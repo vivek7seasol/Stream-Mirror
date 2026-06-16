@@ -35,8 +35,9 @@ class GoogleNativeAdsCustomeView6: UIView {
         adView?.mediaView?.mediaContent = nativeAd.mediaContent
         adView?.mediaView?.contentMode = .scaleAspectFill
         (adView?.headlineView as? UILabel)?.text = nativeAd.headline
-        (adView?.headlineView as? UILabel)?.textColor = .black
+        (adView?.headlineView as? UILabel)?.textColor = .white
         (adView?.bodyView as? UILabel)?.text = "\(nativeAd.body ?? "")"
+        (adView?.bodyView as? UILabel)?.textColor = hexStringToUIColor(hex: "#BDBDBD")
         (adView?.iconView as? UIImageView)?.clipsToBounds = true
         (adView?.iconView as? UIImageView)?.layer.cornerRadius = 5
         (adView?.iconView as? UIImageView)?.image = nativeAd.icon?.image

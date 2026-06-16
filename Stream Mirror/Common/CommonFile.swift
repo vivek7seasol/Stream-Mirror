@@ -234,3 +234,8 @@ func shareContent(_ text: String) {
     root.present(activityVC, animated: true)
 }
 
+class AppSession {
+    static let shared = AppSession()
+    
+    var hasShownPremium = false
+}

@@ -16,6 +16,8 @@ struct Filesview: View {
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @StateObject private var filesVM = FilesViewModel()
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
     
     var body: some View {
         ZStack {
@@ -26,16 +28,19 @@ struct Filesview: View {
                 
                 VStack(spacing:15) {
                     FileLibraryRow(lbl1: str.PDFFiles, lbl2: str.AllyourPDFfilesinoneplace, lbl3: str.OpenPDF, image: "PDF") {
+                        adVm.registerTap()
                         filesVM.selectedType = .PDF
                         filesVM.showFileListView = true
                     }
                     
                     FileLibraryRow(lbl1: str.WordDocuments, lbl2: str.Viewyourddocumentsanytime, lbl3: str.OpenDoc, image: "DOC") {
+                        adVm.registerTap()
                         filesVM.selectedType = .DOC
                         filesVM.showFileListView = true
                     }
                     
                     FileLibraryRow(lbl1: str.PPTFiles, lbl2: str.Quicklyaccessyourfilesanytime, lbl3: str.OpenPresentation, image: "PPT") {
+                        adVm.registerTap()
                         filesVM.selectedType = .PPT
                         filesVM.showFileListView = true
                     }
@@ -43,6 +48,10 @@ struct Filesview: View {
                 .padding(.horizontal,15)
                 
                 Spacer()
+                if !isPro {
+                    NativeAd7()
+                        .padding(.bottom,5)
+                }
             }
         }
         .appScreen(isPresented: $filesVM.showDeviceList) {

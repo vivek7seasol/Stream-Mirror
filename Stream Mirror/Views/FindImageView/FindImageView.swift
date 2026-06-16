@@ -14,6 +14,9 @@ struct FindImageView: View {
     @StateObject private var imageVM = FindImageViewModel()
     @FocusState private var isSearchFocused: Bool
     @Binding var text: String
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
+    @State private var showPremium = false
     
     var body: some View {
         ZStack {
@@ -81,6 +84,10 @@ struct FindImageView: View {
                 } else {
                     
                     ScrollView(showsIndicators: false) {
+                        if !isPro {
+                            NativeAd7()
+                                .padding(.top,15)
+                        }
                         photoGrid
                             .padding(.top, 20)
                             .padding(.bottom, 20)
@@ -116,6 +123,13 @@ struct FindImageView: View {
                 selectedIndex: imageVM.selectedIndex
             )
         }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
 }
 
@@ -146,26 +160,29 @@ extension FindImageView {
             ForEach(imageVM.images, id: \.id) { item in
 
                 Button {
-
-                    TVRemoteVM.handleDeviceAction {
-
-                    } onTV: {
-
-                        let allImageURLs = imageVM.images.compactMap {
-                            $0.url ?? $0.thumbnail
+                    if isPro {
+                        TVRemoteVM.handleDeviceAction {
+                            
+                        } onTV: {
+                            adVm.registerTap()
+                            let allImageURLs = imageVM.images.compactMap {
+                                $0.url ?? $0.thumbnail
+                            }
+                            
+                            let selectedIndex = imageVM.images.firstIndex {
+                                $0.id == item.id
+                            } ?? 0
+                            
+                            imageVM.selectedIndex = selectedIndex
+                            imageVM.selectedImageURLs = allImageURLs
+                            imageVM.showPhotoCasting = true
+                            
+                        } onNoDevice: {
+                            
+                            imageVM.showDeviceList = true
                         }
-
-                        let selectedIndex = imageVM.images.firstIndex {
-                            $0.id == item.id
-                        } ?? 0
-
-                        imageVM.selectedIndex = selectedIndex
-                        imageVM.selectedImageURLs = allImageURLs
-                        imageVM.showPhotoCasting = true
-
-                    } onNoDevice: {
-
-                        imageVM.showDeviceList = true
+                    } else {
+                        showPremium = true
                     }
 
                 } label: {

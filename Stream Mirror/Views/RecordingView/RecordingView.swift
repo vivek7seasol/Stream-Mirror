@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RecordingView: View {
     
+    @EnvironmentObject var adVm : AdCountViewModel
     @StateObject private var recordingVM = ScreenRecordingViewModel()
     @State private var videoEnabled: Bool = false
     @State private var microphoneEnabled: Bool = false
@@ -80,6 +81,7 @@ struct RecordingView: View {
                             isToggle: false,
                             isOn: .constant(false)
                         ) {
+                            adVm.registerTap()
                             recordingVM.showRecordingList = true
                         }
                     }

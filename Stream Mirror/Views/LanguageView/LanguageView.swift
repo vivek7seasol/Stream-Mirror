@@ -34,6 +34,7 @@ struct LanguageView: View {
     
     @AppStorage(SessionKeys.language) var language = false
     @AppStorage(SessionKeys.appLanguage) var appLanguage : String = "en"
+    @AppStorage(SessionKeys.isPro) var isPro = false
     @Environment(\.dismiss) var dismiss
     
     @State private var selectedLanguage: String = "en"
@@ -101,6 +102,10 @@ struct LanguageView: View {
                         }
                     }
                     .padding()
+                }
+                if !isPro {
+                    NativeAd7()
+                        .padding(.bottom,10)
                 }
             }
         }

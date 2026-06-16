@@ -292,10 +292,12 @@ struct DeviceListview: View {
                             
                             withAnimation(.spring()) {
                                 showConnectionPopup = false
+                                commonVM.setTVPlaceHolder(connectedTvType: commonVM.connectedTvType ?? .ANDROID)
                             }
                         } closeAction: {
                             withAnimation(.spring()) {
                                 showConnectionPopup = false
+                                commonVM.setTVPlaceHolder(connectedTvType: commonVM.connectedTvType ?? .ANDROID)
                             }
                         }
                     }

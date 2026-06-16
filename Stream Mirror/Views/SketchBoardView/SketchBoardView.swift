@@ -9,6 +9,9 @@ import SwiftUI
 
 struct SketchBoardView: View {
     
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @State private var showPremium = false
+    @EnvironmentObject var adVm : AdCountViewModel
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     @Environment(\.scenePhase) private var scenePhase
@@ -76,19 +79,24 @@ struct SketchBoardView: View {
                         })
                         Spacer()
                         sketcboardButtons(image: sketchVM.isBroadcasting ? "stopDrawing" : "startDrawing", action: {
-                            TVRemoteVM.handleDeviceAction {
-                                
-                            } onTV: {
-                                
-                                commonVM.castViewModel.stopCastingSession()
-                                if commonVM.connectedTvType == .LG || commonVM.connectedTvType == .ROKU {
-                                    if let url = TVMirrorServer.shared.serverURL{
-                                        commonVM.connectSDKDiscoveryModel.LGMirroring(mediaURL: url)
+                            if isPro {
+                                TVRemoteVM.handleDeviceAction {
+                                    
+                                } onTV: {
+                                    
+                                    commonVM.castViewModel.stopCastingSession()
+                                    if commonVM.connectedTvType == .LG || commonVM.connectedTvType == .ROKU {
+                                        if let url = TVMirrorServer.shared.serverURL{
+                                            commonVM.connectSDKDiscoveryModel.LGMirroring(mediaURL: url)
+                                        }
                                     }
+                                    recordingVM.toggleRecording()
+                                } onNoDevice: {
+                                    recordingVM.showDeviceList = true
                                 }
-                                recordingVM.toggleRecording()
-                            } onNoDevice: {
-                                recordingVM.showDeviceList = true
+                            } else {
+                                sketchVM.hideToolPicker()
+                                showPremium = true
                             }
 
                         })
@@ -141,6 +149,19 @@ struct SketchBoardView: View {
 
                 sketchVM.showToolPicker(colorScheme: colorScheme)
             }
+        }
+        .fullScreenCover(
+            isPresented: $showPremium,
+            onDismiss: {
+
+                sketchVM.showToolPicker(colorScheme: colorScheme)
+
+                if pro_close_inter == "true" {
+                    adVm.registerTap()
+                }
+            }
+        ) {
+            PremiumView()
         }
     }
 }

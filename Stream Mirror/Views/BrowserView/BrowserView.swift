@@ -12,7 +12,8 @@ struct BrowserView: View {
     @Binding var text: String
     @State private var navigateToBrowser = false
     @State private var selectedURL = ""
-    
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
     var body: some View {
         ZStack {
             VStack {
@@ -49,6 +50,7 @@ struct BrowserView: View {
                             
                             TextField("", text: $text, onCommit: {
                                 selectedURL = text
+                                adVm.registerTap()
                                 navigateToBrowser = true
                             })
                             .foregroundColor(AppColor.textColor)
@@ -79,16 +81,19 @@ struct BrowserView: View {
                     HStack(spacing: 5) {
                         Spacer()
                         webRow(title: str.Google, image: "Google") {
+                            adVm.registerTap()
                             selectedURL = "https://www.google.com/"
                             navigateToBrowser = true
                         }
                         Spacer()
                         webRow(title: str.Instagram, image: "Instagram") {
+                            adVm.registerTap()
                             selectedURL = "https://www.instagram.com/"
                             navigateToBrowser = true
                         }
                         Spacer()
                         webRow(title: str.Vimeo, image: "Vimeo") {
+                            adVm.registerTap()
                             selectedURL = "https://vimeo.com/"
                             navigateToBrowser = true
                         }
@@ -97,16 +102,19 @@ struct BrowserView: View {
                     HStack(spacing: 5) {
                         Spacer()
                         webRow(title: str.Youtube, image: "Youtube") {
+                            adVm.registerTap()
                             selectedURL = "https://www.youtube.com"
                             navigateToBrowser = true
                         }
                         Spacer()
                         webRow(title: str.Facebook, image: "Facebook") {
+                            adVm.registerTap()
                             selectedURL = "https://www.facebook.com"
                             navigateToBrowser = true
                         }
                         Spacer()
                         webRow(title: str.Telegram, image: "Telegram") {
+                            adVm.registerTap()
                             selectedURL = "https://web.telegram.org"
                             navigateToBrowser = true
                         }
@@ -116,6 +124,10 @@ struct BrowserView: View {
                 .padding(.horizontal, 10)
                 
                 Spacer()
+                if !isPro {
+                    NativeAd7()
+                        .padding(.bottom,5)
+                }
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)

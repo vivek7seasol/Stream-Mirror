@@ -166,6 +166,9 @@ struct MusicCastingView: View {
                 castMusic()
             }
         }
+        .onDisappear {
+            commonVM.setTVPlaceHolder(connectedTvType: commonVM.connectedTvType ?? .ANDROID)
+        }
     }
     
     func castMusic() {

@@ -1,0 +1,143 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "37D54375",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "49.99",
+      "familyShareable" : false,
+      "internalID" : "6780811238",
+      "localizations" : [
+        {
+          "description" : "Enjoy your for lifetime",
+          "displayName" : "Lifetime plan",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "Life_time_plan",
+      "referenceName" : "Life Time plan",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6773240889",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "9U4J395QST",
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 803301619.78006899,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "22160756",
+      "localizations" : [
+
+      ],
+      "name" : "Subscribe plan",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "12.99",
+              "displayPrice" : "12.99",
+              "internalID" : "6780779049_BILLED_UPFRONT",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "12.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6780779049",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Enjoy for one month",
+              "displayName" : "Month plan",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "Month_plan",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Month plan",
+          "subscriptionGroupID" : "22160756",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "24.99",
+              "displayPrice" : "24.99",
+              "internalID" : "6780779828_BILLED_UPFRONT",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "24.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6780779828",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Enjoy for one year",
+              "displayName" : "Year plan",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "Year_plan",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Year plan",
+          "subscriptionGroupID" : "22160756",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 5,
+    "minor" : 0
+  }
+}

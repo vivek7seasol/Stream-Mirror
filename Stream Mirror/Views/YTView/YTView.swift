@@ -11,6 +11,9 @@ internal import WebKit
 
 struct YTView: View {
     
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
+    @State private var showPremium = false
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @StateObject private var YTVM = YoutubeViewModel()
@@ -44,17 +47,21 @@ struct YTView: View {
                     
                     if isOpenFromYT {
                         Button {
-                            
-                            TVRemoteVM.handleDeviceAction {
-                                
-                            } onTV: {
-                                YTVM.selectedVideo = YTVM.videoList.first
-                                
-                                YTVM.preparePlayer()
-                                
-                                YTVM.showPreview = true
-                            } onNoDevice: {
-                                YTVM.showDeviceList = true
+                            if isPro {
+                                TVRemoteVM.handleDeviceAction {
+                                    
+                                } onTV: {
+                                    adVm.registerTap()
+                                    YTVM.selectedVideo = YTVM.videoList.first
+                                    
+                                    YTVM.preparePlayer()
+                                    
+                                    YTVM.showPreview = true
+                                } onNoDevice: {
+                                    YTVM.showDeviceList = true
+                                }
+                            } else {
+                                showPremium = true
                             }
                             
                         } label: {
@@ -132,6 +139,11 @@ struct YTView: View {
                 .modifier(GlassCardModifier(cornerRadius: isIpad() ? 40 : 30))
                 .padding(.horizontal, isIpad() ? 30 : 15)
                 Spacer()
+                if !isPro {
+                    NativeAd6()
+                        .padding(.top,15)
+                        .padding(.bottom,5)
+                }
             }
         }
         .appScreen()
@@ -153,6 +165,13 @@ struct YTView: View {
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
 }
 

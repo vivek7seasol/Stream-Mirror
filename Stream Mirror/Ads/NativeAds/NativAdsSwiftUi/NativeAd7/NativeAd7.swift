@@ -21,7 +21,7 @@ struct NativeAd7: View {
                 if let _ = nativeViewModel.nativeAd {
                     NativeAd7Container(nativeViewModel: nativeViewModel)
                         .frame(height: isIpad() ? 220 : 190)
-                        .background(Color.white.opacity(0.5))
+                        .background(Color.white.opacity(0.10))
                         .cornerRadius(8)
                         .transition(.opacity.combined(with: .scale))
                         .animation(.easeInOut(duration: 0.3), value: nativeViewModel.nativeAd)
@@ -81,8 +81,8 @@ struct ShimmerPlaceholderView: UIViewRepresentable {
         
         // Create a content UIView (could be skeleton UI: e.g., gray boxes)
         let content = UIView()
-        content.backgroundColor = .black
-        content.alpha = 0.1
+        content.backgroundColor = hexStringToUIColor(hex: "#BDBDBD")
+        content.alpha = 0.5
         content.layer.cornerRadius = 8
         
         shimmerView.contentView = content

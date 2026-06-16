@@ -19,7 +19,7 @@ class FindImageViewModel: ObservableObject {
     @Published var showPreview = false
     @Published var showFavImage = false
     @Published var isFirstAppear = true
-    @Published var showDeviceList = true
+    @Published var showDeviceList = false
 
     @Published var selectedURL : String?
     @Published var cachedImages: [String: UIImage] = [:]

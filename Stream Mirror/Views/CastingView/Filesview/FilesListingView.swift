@@ -12,7 +12,8 @@ struct FilesListingView: View {
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @ObservedObject var filesVM: FilesViewModel
-    
+    @AppStorage(SessionKeys.isPro) var isPro = false
+    @EnvironmentObject var adVm : AdCountViewModel
     var body: some View {
         ZStack {
             VStack {
@@ -36,6 +37,10 @@ struct FilesListingView: View {
                                         
                 } else {
                     ScrollView(showsIndicators: false) {
+                        if !isPro {
+                            NativeAd7()
+                                .padding(.top,15)
+                        }
                         LazyVStack(spacing: 12) {
                             
                             ForEach(filesVM.files) { file in
@@ -52,6 +57,7 @@ struct FilesListingView: View {
                                         )
                                     },
                                     buttonAction: {
+                                        adVm.registerTap()
                                         filesVM.selectedFile = file
                                         filesVM.showFilesPage = true
                                     }

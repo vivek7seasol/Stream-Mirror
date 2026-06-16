@@ -141,7 +141,7 @@ struct VideoCastingView: View {
             loadVideo()
         }
         .onDisappear {
-
+            commonVM.setTVPlaceHolder(connectedTvType: commonVM.connectedTvType ?? .ANDROID)
             playerVM.cleanup()
         }
     }

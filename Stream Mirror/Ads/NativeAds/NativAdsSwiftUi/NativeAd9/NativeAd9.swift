@@ -20,7 +20,7 @@ struct NativeAd9: View {
                 if let _ = nativeViewModel.secondNativeAd {
                     NativeAd9Container(nativeViewModel: nativeViewModel)
                         .frame(height: 190)
-                        .background(Color.white.opacity(0.5))
+                        .background(Color.white.opacity(0.10))
                         .cornerRadius(8)
                         .transition(.opacity.combined(with: .scale))
                         .animation(.easeInOut(duration: 0.3), value: nativeViewModel.secondNativeAd)

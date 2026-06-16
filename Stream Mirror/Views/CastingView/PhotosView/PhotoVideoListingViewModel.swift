@@ -22,7 +22,7 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
     @Published var showPhotoCasting = false
     @Published var showVideoCasting = false
     @Published var showDeviceList = false
-    
+    @Published var showPermissionAlert = false
     @Published var selectedVideoIndex = 0
     
     private var isReloading = false

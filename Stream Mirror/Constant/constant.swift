@@ -28,6 +28,7 @@ var second_native = ""
 var second_appopen = ""
 var small_native = ""
 var pro_close_inter = ""
+var smallNativeAd = ""
 
 var bannerId = ""
 var nativeId = ""

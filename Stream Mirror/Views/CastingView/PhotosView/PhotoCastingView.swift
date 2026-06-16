@@ -230,6 +230,9 @@ struct PhotoCastingView: View {
         .onChange(of: currentIndex) { _ in
             loadSelectedImage()
         }
+        .onDisappear {
+            commonVM.setTVPlaceHolder(connectedTvType: commonVM.connectedTvType ?? .ANDROID)
+        }
         .overlay {
             
             if showTimerView {

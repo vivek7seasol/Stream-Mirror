@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct Stream_MirrorApp: App {
     
+    let adCountViewModel = AdCountViewModel.sharedd
     @StateObject var commonVM = CommonConnectionViewModel()
     @StateObject var TVRemoteVM = RemoteViewModel()
     @StateObject private var webServer = TVCastServer.shared
@@ -26,6 +27,7 @@ struct Stream_MirrorApp: App {
             }
             .environmentObject(commonVM)
             .environmentObject(TVRemoteVM)
+            .environmentObject(adCountViewModel)
         }
         .onChange(of: scenePhase) { newPhase in
             
@@ -38,27 +40,21 @@ struct Stream_MirrorApp: App {
             case .active:
                 print("🔄 App became active")
                 
-                // ❗️ Sirf tab run kare jab actual background se aaye
                 guard wasInBackground else {
                     print("🚫 Not from background → skip AppOpen")
                     return
                 }
-                
                 wasInBackground = false
                 
-                // ✅ PRO USER → NO AD
                 if isPro {
                     print("🚫 Pro user → skip AppOpen ad")
                     return
                 }
-                
-                // ✅ अगर interstitial चल रही है → skip
                 if AdState.shared.isShowingInterstitial {
                     print("⛔ Interstitial running → skip AppOpen")
                     return
                 }
                 
-                // ✅ अगर already AppOpen चल रही है → skip
                 if AppOpenAdManager.shared.isShowingAd {
                     return
                 }
@@ -67,11 +63,11 @@ struct Stream_MirrorApp: App {
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     Task {
+                        AppOpenBackAdManager.shared.resetForForeground()
+                        
                         await AppOpenBackAdManager.shared.loadAd()
                         
-                        AppOpenAdManager.shared.showAdIfAvailable {
-                            print("✅ Foreground AppOpen finished")
-                        }
+                        AppOpenBackAdManager.shared.showAdIfAvailable()
                     }
                 }
                 
