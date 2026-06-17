@@ -14,7 +14,6 @@ final class TabBarManager: ObservableObject {
 
 struct TabbarView: View {
     
-    
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @EnvironmentObject var tabBarManager: TabBarManager
@@ -23,6 +22,8 @@ struct TabbarView: View {
     @State private var showChannelView = false
     @State private var showNumberPad = false
     @State private var showDeviceList = false
+    @State private var showTVInputList = false
+    @State private var refreshID = UUID()
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -34,7 +35,8 @@ struct TabbarView: View {
                     RemoteView(
                         showChannelView: $showChannelView,
                         showNumberPad: $showNumberPad,
-                        showDeviceList: $showDeviceList
+                        showDeviceList: $showDeviceList,
+                        showTVinputList: $showTVInputList
                     )
                 } else if selectedTab == 2 {
                     RecordingView()
@@ -61,6 +63,10 @@ struct TabbarView: View {
                 .offset(y: 10)
             }
         }
+        .id(refreshID)
+        .onAppear {
+            refreshID = UUID()
+        }
         .ignoresSafeArea(edges: .bottom)
         .overlay {
             
@@ -68,12 +74,12 @@ struct TabbarView: View {
                 ChannelView(
                     isPresented: $showChannelView
                 ) { app in
-
+                    
                     switch app {
-
+                        
                     case .youtube:
                         TVRemoteVM.launchApp(.youtube)
-
+                        
                     case .netflix:
                         TVRemoteVM.launchApp(.netflix)
                         
@@ -99,16 +105,16 @@ struct TabbarView: View {
             if showNumberPad {
                 NumberPadView(
                     isPresented: $showNumberPad,
-
+                    
                     onNumberTap: { number in
                         print("Tapped:", number)
                         TVRemoteVM.sendNumber(number)
                     },
-
+                    
                     onClear: {
                         TVRemoteVM.sendCommand(.BACK)
                     },
-
+                    
                     onDone: { value in
                         print("Entered:", value)
                         showNumberPad = false
@@ -117,6 +123,58 @@ struct TabbarView: View {
                 .offset(y: 50)
                 .zIndex(2)
             }
+            if showTVInputList {
+                
+                TVInputSourceView(
+                    isPresented: $showTVInputList,
+                    items: [
+                        
+                        TVInputItem(
+                            title: "AV",
+                            image: "av"
+                        ) {
+                            
+                        },
+                        
+                        TVInputItem(
+                            title: "AV1",
+                            image: "av"
+                        ) {
+                            
+                        },
+                        
+                        TVInputItem(
+                            title: "AV2",
+                            image: "av"
+                        ) {
+                            
+                        },
+                        
+                        TVInputItem(
+                            title: "HDMI1",
+                            image: "hdmi"
+                        ) {
+                            
+                        },
+                        
+                        TVInputItem(
+                            title: "HDMI2",
+                            image: "hdmi"
+                        ) {
+                           
+                        },
+                        
+                        TVInputItem(
+                            title: "HDMI3",
+                            image: "hdmi"
+                        ) {
+                            
+                        }
+                    ]
+                )
+                .zIndex(999)
+            }
+            
         }
         .fullScreenCover(isPresented: $showDeviceList) {
             DeviceListview(isPresented: $showDeviceList)
@@ -131,7 +189,9 @@ struct TabbarView: View {
         } message: {
             Text("This feature is not available while using AirPlay.")
         }
+        
     }
+    
     
     func tabItem(index: Int, icon: String, title: String) -> some View {
         Button {

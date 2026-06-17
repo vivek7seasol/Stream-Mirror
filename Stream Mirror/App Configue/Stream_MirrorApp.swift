@@ -20,6 +20,12 @@ struct Stream_MirrorApp: App {
     @State private var wasInBackground = false
     @AppStorage(SessionKeys.isPro) var isPro = false
     
+    init() {
+        let savedLang = UserDefaults.standard.string(forKey: SessionKeys.appLanguage) ?? "en"
+        LocalizationHelper.shared.setLanguage(code: savedLang)
+        
+        print("🌍 App Language Applied (Init):", savedLang)
+    }
     var body: some Scene {
         WindowGroup {
             NavigationStack {

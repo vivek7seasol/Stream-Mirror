@@ -223,3 +223,81 @@ enum TVApps {
         }
     }
 }
+
+enum LGTVApps {
+    case lgChannels
+    case netflix
+    case prime
+    case disney
+    case appleTV
+    case zeeFive
+    case youtube
+    case lgGamingPortal
+    case apps
+    case homeOffice
+    case music
+    case homeHub
+    case learning
+    case webBrowser
+    case mediaPlayer
+    
+    var image: String {
+        switch self {
+        case .lgChannels: return "LG_Channels"
+        case .netflix: return "LG_Netflix"
+        case .prime: return "LG_Prime"
+        case .disney: return "LG_Hotstar"
+        case .appleTV: return "LG_AppleTV"
+        case .zeeFive: return "LG_Zee"
+        case .youtube: return "LG_Youtube"
+        case .lgGamingPortal: return "LG_Gaming"
+        case .apps: return "LG_Apps"
+        case .homeOffice: return "LG_HomeOffice"
+        case .music: return "LG_Music"
+        case .homeHub: return "LG_HomeHub"
+        case .learning: return "LG_Learning"
+        case .webBrowser: return "LG_Browser"
+        case .mediaPlayer: return "LG_MediaPLayer"
+        }
+    }
+    
+    var name: String {
+        switch self {
+        case .lgChannels: return "LG Channels"
+        case .netflix: return "Netflix"
+        case .prime: return "Amazon Prime"
+        case .disney: return "Jio Hotstar"
+        case .appleTV: return "Apple TV"
+        case .zeeFive: return "Zee 5"
+        case .youtube: return "YouTube"
+        case .lgGamingPortal: return "Gaming Portal"
+        case .apps: return "Apps"
+        case .homeOffice: return "Home Office"
+        case .music: return "Music"
+        case .homeHub: return "Home Hub"
+        case .learning: return "Learning"
+        case .webBrowser: return "Browser"
+        case .mediaPlayer: return "Media Player"
+        }
+    }
+    
+    var launchID: String {
+        switch self {
+        case .lgChannels: return "com.webos.app.lgchannels"
+        case .netflix: return "netflix"
+        case .prime: return "amazon"
+        case .disney: return "hotstar"
+        case .appleTV: return "com.apple.appletv"
+        case .zeeFive: return "com.zee5.app"
+        case .youtube: return "youtube.leanback.v4"
+        case .lgGamingPortal: return "com.twin.app.gamingportal"
+        case .apps: return "com.webos.app.discovery"
+        case .homeOffice: return "com.webos.app.homeoffice"
+        case .music: return "com.webos.app.totalmusic"
+        case .homeHub: return "com.webos.app.homeconnect"
+        case .learning: return "com.webos.app.learning"
+        case .webBrowser: return "com.webos.app.browser"
+        case .mediaPlayer: return "com.webos.app.mediadiscovery"
+        }
+    }
+}

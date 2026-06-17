@@ -22,7 +22,7 @@ class SplashViewModel: ObservableObject {
     @AppStorage(SessionKeys.intro3) var intro3 = false
     @AppStorage(SessionKeys.isPro) var isPro = false
     
-//    let subscriptionManager = checkSubscriptionManager.shared
+    let subscriptionManager = checkSubscriptionManager.shared
     
     func requestTrackingPermission() {
         
@@ -43,7 +43,7 @@ class SplashViewModel: ObservableObject {
             print("🔥 AppOpen ID:", appopenId)
             
             Task {
-//                await self.subscriptionManager.checkSubscriptionAtLaunch()
+                await self.subscriptionManager.checkSubscriptionAtLaunch()
                 
                 print("✅ isPro after check:", self.isPro)
                 

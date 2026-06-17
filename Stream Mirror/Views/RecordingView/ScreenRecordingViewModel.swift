@@ -18,7 +18,6 @@ struct RecordingItem: Identifiable {
 
 class ScreenRecordingViewModel: ObservableObject {
     @Published var showConnectionView = false
-    @Published var showPremiumView = false
     @Published var showRecordingList = false
     @Published var showDeviceList = false
     

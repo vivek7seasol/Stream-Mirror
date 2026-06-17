@@ -222,18 +222,18 @@ struct DeviceListview: View {
             TVRemoteVM.showPinDialog = false
         }
         .alert(
-            "Enter PIN Code".localized,
+            str.EnterPINCode,
             isPresented: $TVRemoteVM.showPinDialog
         ) {
-            TextField("Enter PIN".localized, text: $TVRemoteVM.pinCode)
+            TextField(str.EnterPIN, text: $TVRemoteVM.pinCode)
             
-            Button("Cancel".localized, role: .cancel) {
+            Button(str.Cancel, role: .cancel) {
                 TVRemoteVM.pinCode = ""
                 TVRemoteVM.showPinDialog = false
                 TVRemoteVM.disconnectTV()
             }
             
-            Button("Submit".localized) {
+            Button(str.Submit) {
                 TVRemoteVM.submitPinCode()
                 TVRemoteVM.pinCode = ""
                 TVRemoteVM.showPinDialog = false
@@ -246,18 +246,18 @@ struct DeviceListview: View {
             }
             
         } message: {
-            Text("Please enter the PIN code displayed on your TV".localized)
+            Text(str.PleaseenterthePINcodedisplayedonyourTV)
         }
         
         // MARK: - Samsung Alert (unchanged)
         .alert(
-            "Samsung TV Permission Required".localized,
+            str.SamsungTVPermissionRequired,
             isPresented: $TVRemoteVM.showAllowInTVSettingsAlert
         ) {
-            Button("OK".localized, role: .cancel) { }
+            Button(str.OK, role: .cancel) { }
         } message: {
             Text(String(
-                format: "To connect your iPhone, please allow permission on your Samsung TV:\n\n1. Open Settings on your TV\n2. Go to Connections → External Device Manager\n3. Select Device Connection Manager\n4. Open Device List\n5. Find %@ and select it\n6. Set it to \"Allowed\"\n\nAfter allowing, try connecting again.".localized,
+                format: str.samsungFormat,
                 AppStrings.appName
             ))
         }

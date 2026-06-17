@@ -110,6 +110,17 @@ struct LanguageView: View {
             }
         }
         .appScreen()
+        .onAppear {
+            let savedLang = appLanguage
+
+            if arrLanguage.contains(where: { $0.code == savedLang }) {
+                selectedLanguage = savedLang
+            } else {
+                selectedLanguage = "en"
+            }
+
+            LocalizationHelper.shared.setLanguage(code: selectedLanguage)
+        }
         .navigationDestination(isPresented: $navigateToIntro) {
             IntroMainView()
         }
@@ -129,7 +140,7 @@ struct langaugeRow: View {
                         .font(.system(size: isIpad() ? 22 : 16,weight: .medium))
                         .foregroundStyle(.white)
                     
-                    Text(lang.lan)
+                    Text("(\(lang.lan))")
                         .font(.system(size: isIpad() ? 20 : 14,weight: .light))
                         .foregroundStyle(AppColor.textColor)
                 }

@@ -11,8 +11,8 @@ struct RecordingView: View {
     
     @EnvironmentObject var adVm : AdCountViewModel
     @StateObject private var recordingVM = ScreenRecordingViewModel()
-    @State private var videoEnabled: Bool = false
-    @State private var microphoneEnabled: Bool = false
+    @State private var videoEnabled: Bool = true
+    @State private var microphoneEnabled: Bool = true
     @Environment(\.scenePhase) private var scenePhase
     
     var body: some View {
@@ -130,6 +130,11 @@ struct RecordingView: View {
         .appScreen()
         .onAppear {
             recordingVM.checkBroadcastStatus()
+
+            let defaults = UserDefaults(suiteName: AppStrings.groupID)
+
+            videoEnabled = defaults?.bool(forKey: "isVideoEnabled") ?? true
+            microphoneEnabled = defaults?.bool(forKey: "isMicEnabled") ?? true
         }
         .onDisappear {
             if let defaults = UserDefaults(suiteName: AppStrings.groupID) {
@@ -141,8 +146,17 @@ struct RecordingView: View {
                 recordingVM.checkBroadcastStatus()
             }
         }
+        .onChange(of: videoEnabled) { value in
+            UserDefaults(suiteName: AppStrings.groupID)?
+                .set(value, forKey: "isVideoEnabled")
+        }
+
+        .onChange(of: microphoneEnabled) { value in
+            UserDefaults(suiteName: AppStrings.groupID)?
+                .set(value, forKey: "isMicEnabled")
+        }
         .navigationDestination(isPresented: $recordingVM.showRecordingList) {
-            RecordingListView(recordingVM: recordingVM) // ✅ already sahi tha pehle
+            RecordingListView(recordingVM: recordingVM) 
         }
     }
     

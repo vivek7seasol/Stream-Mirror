@@ -22,7 +22,8 @@ class SampleHandler: RPBroadcastSampleHandler {
     
     private let motionManager = CMMotionManager()
     private var currentOrientation: UIDeviceOrientation = .portrait
-
+    private var appAudioInput: AVAssetWriterInput?
+    private var micAudioInput: AVAssetWriterInput?
     // MARK: - Recording Properties (NEW)
     private var assetWriter: AVAssetWriter?
     private var videoInput: AVAssetWriterInput?
@@ -30,6 +31,7 @@ class SampleHandler: RPBroadcastSampleHandler {
     private var outputURL: URL?
     private var isMicEnabled: Bool = false
     private var shouldSaveRecording: Bool = false
+    private var isVideoEnabled = true
     
     // MARK: - Broadcast Lifecycle Methods
     override func broadcastStarted(withSetupInfo setupInfo: [String : NSObject]?) {
@@ -96,14 +98,49 @@ class SampleHandler: RPBroadcastSampleHandler {
 
     
     // MARK: - Sample Buffer Processing
-    override func processSampleBuffer(_ sampleBuffer: CMSampleBuffer, with sampleBufferType: RPSampleBufferType) {
+    override func processSampleBuffer(
+        _ sampleBuffer: CMSampleBuffer,
+        with sampleBufferType: RPSampleBufferType
+    ) {
         switch sampleBufferType {
+
         case .video:
+
+            guard isVideoEnabled else { return }
+
             handleVideoSampleBuffer(sampleBuffer)
-        case .audioApp, .audioMic:
-            break
+
+        case .audioApp:
+            writeAudioSampleBuffer(sampleBuffer, input: appAudioInput)
+
+        case .audioMic:
+            if isMicEnabled {
+                    writeAudioSampleBuffer(sampleBuffer, input: micAudioInput)
+                }
         @unknown default:
-            fatalError("Unknown type of sample buffer")
+            break
+        }
+    }
+    
+    private func writeAudioSampleBuffer(
+        _ sampleBuffer: CMSampleBuffer,
+        input: AVAssetWriterInput?
+    ) {
+        guard shouldSaveRecording else { return }
+
+        guard let writer = assetWriter,
+              let input = input else { return }
+
+        let time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+
+        if !isWritingStarted {
+            writer.startSession(atSourceTime: time)
+            isWritingStarted = true
+        }
+
+        if writer.status == .writing,
+           input.isReadyForMoreMediaData {
+            input.append(sampleBuffer)
         }
     }
     
@@ -312,7 +349,27 @@ class SampleHandler: RPBroadcastSampleHandler {
                 writer.add(input)
             }
             
+            let audioSettings: [String: Any] = [
+                AVFormatIDKey: kAudioFormatMPEG4AAC,
+                AVNumberOfChannelsKey: 2,
+                AVSampleRateKey: 44100,
+                AVEncoderBitRateKey: 128000
+            ]
+
+            micAudioInput = AVAssetWriterInput(
+                mediaType: .audio,
+                outputSettings: audioSettings
+            )
+
+            micAudioInput?.expectsMediaDataInRealTime = true
+
+            if let micAudioInput,
+               assetWriter?.canAdd(micAudioInput) == true {
+                assetWriter?.add(micAudioInput)
+            }
+            
             assetWriter?.startWriting()
+            
             print("Recording started: \(url)")
             
         } catch {
@@ -361,6 +418,12 @@ class SampleHandler: RPBroadcastSampleHandler {
 
     private func loadUserPreferences() {
             if let userDefaults = UserDefaults(suiteName: userDefaultsSuiteName) {
+                isVideoEnabled =
+                    userDefaults.bool(forKey: "isVideoEnabled")
+
+                isMicEnabled =
+                    userDefaults.bool(forKey: "isMicEnabled")
+                
                 videoQuality = userDefaults.string(forKey: "selectedQuality") ?? "Low"
                 print("Video Quality: \(videoQuality)")
                 shouldSaveRecording = userDefaults.bool(forKey: "shouldSaveRecording")

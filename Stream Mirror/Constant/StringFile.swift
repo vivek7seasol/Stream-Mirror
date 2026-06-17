@@ -191,4 +191,22 @@ class StringFile {
     let MusicAlertMsg = "Please allow Music Library access from Settings.".localized
     var VideoAccessRequired = "Video Access Required".localized
     var videoAlertMsg = "Please allow Video access from Settings to view your Videos.".localized
+    
+    let EnterPINCode = "Enter PIN Code".localized;
+    let EnterPIN = "Enter PIN".localized;
+    let Submit = "Submit".localized;
+    let PleaseenterthePINcodedisplayedonyourTV = "Please enter the PIN code displayed on your TV".localized;
+    let SamsungTVPermissionRequired = "Samsung TV Permission Required".localized;
+    let OK = "OK".localized;
+    let samsungFormat = "To connect your iPhone, please allow permission on your Samsung TV:\n\n1. Open Settings on your TV\n2. Go to Connections → External Device Manager\n3. Select Device Connection Manager\n4. Open Device List\n5. Find %@ and select it\n6. Set it to \"Allowed\"\n\nAfter allowing, try connecting again.".localized
+    
+    let micAlert = "Microphone Permission Required".localized
+    let micMsg = "Please allow Microphone access from Settings to use voice control.".localized
+    let speechAlert = "Speech Recognition Permission Required".localized
+    let speechMsg = "Please allow Speech Recognition access from Settings to use voice control.".localized
+    
+    var DoyoulikeourApp = "Do you like our App?".localized
+    var No = "No ❌".localized
+    var Yes = "Yes 👍".localized
+    var rateMsg = "Help us to improve app by answering this quick poll.".localized
 }

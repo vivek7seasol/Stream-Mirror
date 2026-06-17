@@ -12,6 +12,7 @@ struct SettingView: View {
     @AppStorage(SessionKeys.isPro) var isPro = false
     @State private var showPremium = false
     @State private var navigateToLanguage: Bool = false
+    @State private var refreshID = UUID()
     
     var body: some View {
         ZStack {
@@ -64,6 +65,10 @@ struct SettingView: View {
             }
         }
         .appScreen()
+        .id(refreshID)
+        .onAppear {
+            refreshID = UUID()
+        }
         .navigationDestination(isPresented: $navigateToLanguage) {
             LanguageView(isOpenFromSplash: false)
         }

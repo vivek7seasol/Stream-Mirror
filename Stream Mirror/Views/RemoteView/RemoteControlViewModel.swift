@@ -54,7 +54,7 @@ class RemoteControlViewModel: ObservableObject {
         previousTextInput = ""
     }
     
-    func handleTextChange(_ newValue: String, tvVM: RemoteViewModel) {
+    func handleTextInput(_ newValue: String, tvVM: RemoteViewModel) {
         
         if newValue.count < previousTextInput.count {
             
@@ -127,7 +127,7 @@ class RemoteControlViewModel: ObservableObject {
         }
         
         // First time request
-        requestMicPermissionAndStart()
+        requestMicPermission()
     }
     
     func micTouchUp(tvVM: RemoteViewModel) {
@@ -279,7 +279,7 @@ class RemoteControlViewModel: ObservableObject {
     
     // MARK: - Permissions
     
-    func requestMicPermissionAndStart() {
+    func requestMicPermission() {
         
         let session = AVAudioSession.sharedInstance()
         

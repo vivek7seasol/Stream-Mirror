@@ -17,14 +17,21 @@ struct SketchBoardView: View {
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
-    
+    @State var broadcastManager: BroadCastPickerManager
+    @State var startMirroring = false
     @StateObject private var sketchVM = SketchBoardViewModel()
     @StateObject private var recordingVM = ScreenRecordingViewModel()
-    
+    @State var stopMirroring = false
     var existingDrawingURL: URL? = nil
     
     init(existingDrawingURL: URL? = nil) {
         self.existingDrawingURL = existingDrawingURL
+
+        _broadcastManager = State(
+            initialValue: BroadCastPickerManager(
+                commonVm: CommonConnectionViewModel()
+            )
+        )
     }
     
     var body: some View {
@@ -84,14 +91,26 @@ struct SketchBoardView: View {
                                     
                                 } onTV: {
                                     
-                                    commonVM.castViewModel.stopCastingSession()
-                                    if commonVM.connectedTvType == .LG || commonVM.connectedTvType == .ROKU {
-                                        if let url = TVMirrorServer.shared.serverURL{
-                                            commonVM.connectSDKDiscoveryModel.LGMirroring(mediaURL: url)
+//                                    commonVM.castViewModel.stopCastingSession()
+//                                    if commonVM.connectedTvType == .LG || commonVM.connectedTvType == .ROKU {
+//                                        if let url = TVMirrorServer.shared.serverURL{
+//                                            commonVM.connectSDKDiscoveryModel.LGMirroring(mediaURL: url)
+//                                        }
+//                                    }
+                                    if selectedTvType == .ANDROID || selectedTvType == .SAMSUNG {
+                                        if let userDefaults = UserDefaults(suiteName: AppStrings.groupID){
+                                            if userDefaults.bool(forKey: "isBroadcasting") == false {
+                                                if commonVM.castViewModel.isCastingSessionGoing() {
+                                                    commonVM.castViewModel.stopCastingSession()
+                                                    commonVM.StopCasting()
+                                                }
+                                            }
                                         }
                                     }
-                                    recordingVM.toggleRecording()
+                                    startMirroringFlow()
+//                                    recordingVM.toggleRecording()
                                 } onNoDevice: {
+                                    sketchVM.hideToolPicker()
                                     recordingVM.showDeviceList = true
                                 }
                             } else {
@@ -109,6 +128,15 @@ struct SketchBoardView: View {
                 .padding(.horizontal,15)
                 .padding(.bottom, isIpad() ? 130 : 100)
                 
+            }
+            if TVRemoteVM.connectedTVType != .AIRPLAY {
+                BroadcastPickerViewModel(
+                    preferredExtension: AppStrings.appExtensionPackageName,
+                    startBroadcast: $startMirroring, stopBroadcast: $stopMirroring
+                )
+                .frame(width: 0, height: 0)
+                .frame(width: 1, height: 1)
+                .opacity(0.01)
             }
             
         }
@@ -162,6 +190,65 @@ struct SketchBoardView: View {
             }
         ) {
             PremiumView()
+        }
+    }
+    
+    func startMirroringFlow() {
+        
+        guard commonVM.isDeviceConnected else {
+            recordingVM.showDeviceList = true
+            return
+        }
+        
+        // ✅ SAFE CHECK (MOST IMPORTANT FIX)
+        guard let type = TVRemoteVM.connectedTVType,
+              TVRemoteVM.isConnectedSuccessfully else {
+            recordingVM.showDeviceList = true
+            return
+        }
+        
+        switch type {
+            
+        case .AIRPLAY:
+            if commonVM.isAirPlayConnected() {
+//                showAirPlayAlert = true
+            }
+            
+        case .ANDROID, .SAMSUNG:
+            print("🔥 Android Mirroring Start")
+            broadcastManager = BroadCastPickerManager(commonVm: commonVM)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                startMirroring = true
+            }
+            
+        case .LG:
+            
+            let lgModel = commonVM.connectSDKDiscoveryModel
+            
+            guard lgModel.isConnectedToLG else {
+                recordingVM.showDeviceList = true
+                return
+            }
+            
+            commonVM.castViewModel.stopCastingSession()
+            
+            guard let url = TVMirrorServer.shared.serverURL else {
+                print("❌ Mirroring URL is nil")
+                
+                recordingVM.showDeviceList = true
+                
+                return
+            }
+            
+            print("✅ Mirroring URL:", url)
+            
+            lgModel.LGMirroring(mediaURL: url)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                startMirroring = true
+            }
+        default:
+            break
         }
     }
 }

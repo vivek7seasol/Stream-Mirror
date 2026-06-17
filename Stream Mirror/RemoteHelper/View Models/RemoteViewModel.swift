@@ -34,6 +34,28 @@ class RemoteViewModel: NSObject, ObservableObject {
     var currentTVManager: AnyObject?
     private var discoveryManager: DiscoveryManager
     private var cancellables: Set<AnyCancellable> = []
+    var lgPorts: [AppInfo] {
+        guard let lgManager = currentTVManager as? LGTVManager else { return [] }
+        return lgManager.availableApps
+    }
+    let lgTVApps: [LGTVApps] = [
+        .lgChannels,
+        .netflix,
+        .prime,
+        .disney,
+        .appleTV,
+        .zeeFive,
+        .youtube,
+        .lgGamingPortal,
+        .apps,
+        .homeOffice,
+        .music,
+        .homeHub,
+        .learning,
+        .webBrowser,
+        .mediaPlayer
+    ]
+    
     @Published var isConnectedSuccessfully: Bool = false
     @Published var showAllowInTVSettingsAlert: Bool = false
     
@@ -55,22 +77,22 @@ class RemoteViewModel: NSObject, ObservableObject {
     
     // MARK: - Discovery Setup
     func configureDiscoveryIfNeeded() {
-
+        
         guard !isDiscoveryConfigured else { return }
-
+        
         print("📡 Configuring DiscoveryManager")
-
+        
         discoveryManager.delegate = self
         discoveryManager.pairingLevel = DeviceServicePairingLevelOn
-
+        
         discoveryManager.registerDeviceService(RokuService.self, withDiscovery: SSDPDiscoveryProvider.self)
         discoveryManager.registerDeviceService(WebOSTVService.self, withDiscovery: SSDPDiscoveryProvider.self)
         discoveryManager.registerDeviceService(DLNAService.self, withDiscovery: SSDPDiscoveryProvider.self)
         discoveryManager.registerDeviceService(DIALService.self, withDiscovery: SSDPDiscoveryProvider.self)
-
+        
         isDiscoveryConfigured = true
     }
-
+    
     func startDiscovery() {
         print("📡 Starting Discovery")
         discoveryManager.startDiscovery()
@@ -81,7 +103,7 @@ class RemoteViewModel: NSObject, ObservableObject {
         discoveryManager.stopDiscovery()
         isDiscoveryConfigured = false
     }
-
+    
     func handleDeviceAction(
         onAirPlay: () -> Void,
         onTV: () -> Void,
@@ -90,23 +112,23 @@ class RemoteViewModel: NSObject, ObservableObject {
         let isAirPlayConnected = AVAudioSession.sharedInstance()
             .currentRoute.outputs
             .contains { $0.portType == .airPlay }
-
+        
         if isAirPlayConnected {
-
+            
             DispatchQueue.main.async {
                 self.showAirPlayAlert = true
             }
-
+            
             return
         }
-
+        
         if let type = connectedTVType {
             if type == .AIRPLAY {
-
+                
                 DispatchQueue.main.async {
                     self.showAirPlayAlert = true
                 }
-
+                
             } else {
                 onTV()
             }
@@ -119,7 +141,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     func selectDevice(_ device: ConnectableDevice) {
         showProgress = true
         deviceName = device.friendlyName
-                
+        
         if let tvType = identifyTVType(from: device) {
             print("Identified by name: \(tvType), \(device.friendlyName)")
             connectToTV(type: tvType, device: device)
@@ -142,57 +164,57 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     func connect(to device: ConnectableDevice) {
-
+        
         // Prevent multiple taps while switching
         guard !isSwitchingDevice else {
             print("⚠️ Already switching device")
             return
         }
-
+        
         // ✅ CASE 1: User tapped SAME device → DISCONNECT (Toggle behavior)
         if connectedTVType != nil,
            deviceName == device.friendlyName {
-
+            
             print("🔌 Tapped connected device → Disconnecting")
             isSwitchingDevice = true
-
+            
             disconnectTV()
-
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.isSwitchingDevice = false
             }
-
+            
             return
         }
-
+        
         // ✅ CASE 2: Connected to different TV → SWITCH
         if connectedTVType != nil {
-
+            
             print("🔄 Switching TV connection...")
             isSwitchingDevice = true
             pendingDevice = device
-
+            
             disconnectTV()
-
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                 guard let self = self,
                       let newDevice = self.pendingDevice else { return }
-
+                
                 print("🔌 Connecting to new device...")
                 self.pendingDevice = nil
                 self.isSwitchingDevice = false
-
+                
                 self.selectDevice(newDevice)
             }
-
+            
             return
         }
-
+        
         // ✅ CASE 3: Fresh connection
         print("🔌 Connecting to device...")
         selectDevice(device)
     }
-
+    
     private func connectToTV(type: TVType, device: ConnectableDevice) {
         selectedTVType = type
         initializeTVManager(for: type, ipAddress: device.address)
@@ -258,7 +280,7 @@ class RemoteViewModel: NSObject, ObservableObject {
             }
             selectedTvType = .FIRE
             setSelectedTV(name: "Fire-\(device.friendlyName ?? "FireTV")")
-        case .ROKU: 
+        case .ROKU:
             (currentTVManager as? RokuTVManager)?.SelectRoku(device.address)
             selectedTvType = .ROKU
             setSelectedTV(name: "Roku-\(device.friendlyName ?? "RokuTV")")
@@ -318,15 +340,15 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     func disconnectTV() {
-
+        
         print("🛑 Disconnecting current TV")
-
+        
         (currentTVManager as? AndroidTVManager)?.terminateConnection()
         (currentTVManager as? SamsungTVManager)?.UserTappedDisconnect()
         (currentTVManager as? FireTVManager)?.Disconnect()
         (currentTVManager as? RokuTVManager)?.Disconnect()
         (currentTVManager as? LGTVManager)?.disconnectFromTV()
-
+        
         // Delay state reset slightly to allow SDK cleanup
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.connectedTVType = nil
@@ -348,42 +370,42 @@ class RemoteViewModel: NSObject, ObservableObject {
             print("❌ Cast device not found")
             return
         }
-
+        
         let castDevices = gcastDevice
-
+        
         print("📡 Available Cast Devices:", castDevices.map { $0.friendlyName ?? "" })
-
+        
         // ✅ Try match by IP FIRST
         if let currentIP = (currentTVManager as? AndroidTVManager)?.deviceIP,
            let match = castDevices.first(where: {
                $0.ipAddress == currentIP
            }) {
-
+            
             print("✅ Cast device linked via IP")
-
+            
             TVCastViewModel.shared.selectedDevice = match
             TVCastViewModel.shared.isConnected = true
             return
         }
-
+        
         // ✅ fallback name match
         if let tvName = deviceName,
            let match = castDevices.first(where: {
                ($0.friendlyName ?? "").lowercased().contains(tvName.lowercased())
            }) {
-
+            
             print("✅ Cast device linked via NAME")
-
+            
             TVCastViewModel.shared.selectedDevice = match
             TVCastViewModel.shared.isConnected = true
             return
         }
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.linkCastAfterAndroidConnected(retry: retry - 1)
         }
     }
-
+    
     func submitPinCode() {
         print("PIN Submitted")
         print("selectedTVType =", selectedTVType as Any)
@@ -485,8 +507,8 @@ class RemoteViewModel: NSObject, ObservableObject {
         
         AppUtils.instance.hapticFeedback()
     }
-
-
+    
+    
     
     func showSearchBar(isPro: Bool) {
         guard connectedTVType != nil else {
@@ -526,7 +548,7 @@ class RemoteViewModel: NSObject, ObservableObject {
                 (currentTVManager as? LGTVManager)?
                     .LaunchApp(url: "com.disney.disneyplus")
             case .spotify:
-                    (currentTVManager as? LGTVManager)?.LaunchApp(url: "spotify-beehive")
+                (currentTVManager as? LGTVManager)?.LaunchApp(url: "spotify-beehive")
             case .disney:
                 (currentTVManager as? LGTVManager)?.LaunchApp(url: "com.disney.disneyplus-prod")
             case .paramount:
@@ -540,20 +562,20 @@ class RemoteViewModel: NSObject, ObservableObject {
         
         AppUtils.instance.hapticFeedback()
     }
-
+    
     
     // MARK: - Helper Methods
-//    private func identifyTVType(from deviceName: String) -> TVType? {
-//        let lowercasedName = deviceName.lowercased()
-//        
-//        if lowercasedName.contains("lg") { return .LG }
-//        if lowercasedName.contains("android") { return .ANDROID }
-//        if lowercasedName.contains("fire") { return .FIRE }
-//        if lowercasedName.contains("samsung") { return .SAMSUNG }
-//        if lowercasedName.contains("roku") { return .ROKU }
-//        
-//        return nil
-//    }
+    //    private func identifyTVType(from deviceName: String) -> TVType? {
+    //        let lowercasedName = deviceName.lowercased()
+    //
+    //        if lowercasedName.contains("lg") { return .LG }
+    //        if lowercasedName.contains("android") { return .ANDROID }
+    //        if lowercasedName.contains("fire") { return .FIRE }
+    //        if lowercasedName.contains("samsung") { return .SAMSUNG }
+    //        if lowercasedName.contains("roku") { return .ROKU }
+    //
+    //        return nil
+    //    }
     
     private func identifyTVType(from deviceName: ConnectableDevice) -> TVType? {
         if let services = deviceName.services {
@@ -626,7 +648,7 @@ class RemoteViewModel: NSObject, ObservableObject {
                     print("[TV Remote View Model] Waiting for Code")
                     self?.showProgress = false
                     self?.showPinDialog = true
-                
+                    
                 case "Option Request Sent":
                     print("[TV Remote View Model] Option Request Sent")
                     self?.showProgress = false
@@ -645,9 +667,9 @@ class RemoteViewModel: NSObject, ObservableObject {
                     self?.showPinDialog = false
                     self?.showProgress = false
                     self?.isConnectedSuccessfully = true
-
+                    
                     print("✅ Android TV fully connected")
-
+                    
                     // 🔥 ADD THIS LINE
                     self?.linkCastAfterAndroidConnected()
                 }
@@ -658,17 +680,17 @@ class RemoteViewModel: NSObject, ObservableObject {
     private func monitorSamsungConnection() {
         guard let samsungManager = currentTVManager as? SamsungTVManager else { return }
         samsungManager.$authStatus
-                .sink { [weak self] authStatus in
-                    print("🔐 Auth Status:", authStatus)
-
-                    if authStatus == .denied {
-                        DispatchQueue.main.async {
-                            self?.showAllowInTVSettingsAlert = true
-                        }
+            .sink { [weak self] authStatus in
+                print("🔐 Auth Status:", authStatus)
+                
+                if authStatus == .denied {
+                    DispatchQueue.main.async {
+                        self?.showAllowInTVSettingsAlert = true
                     }
                 }
-                .store(in: &cancellables)
-
+            }
+            .store(in: &cancellables)
+        
         samsungManager.$isConnected
             .combineLatest(samsungManager.$authStatus)
             .map { isConnected, authStatus in
@@ -707,7 +729,12 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     private func monitorLGConnection() {
-        (currentTVManager as? LGTVManager)?.$connectionStatus
+        
+        guard let lgManager = currentTVManager as? LGTVManager else {
+            return
+        }
+        
+        lgManager.$connectionStatus
             .sink { [weak self] isConnected in
                 if isConnected {
                     self?.connectedTVType = .LG
@@ -715,7 +742,64 @@ class RemoteViewModel: NSObject, ObservableObject {
                 }
             }
             .store(in: &cancellables)
+        
+        lgManager.$availableApps
+            .receive(on: RunLoop.main)
+            .sink { [weak self] apps in
+                print("📱 LG Apps Count:", apps.count)
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
+    
+    func launchLGInstalledApp(_ app: LGTVApps) {
+        guard let lgManager = currentTVManager as? LGTVManager else {
+            print("⚠️ Operations targeting LG manager failed: Incompatible type.")
+            return
+        }
+        
+        guard let launcher = lgManager.selectedDevice?.launcher() else {
+            print("⚠️ App launcher reference missing on connectable hardware layout context.")
+            return
+        }
+        
+        let targetID = app.launchID
+        print("🚀 Attempting network handoff for WebOS package: \(targetID)")
+        
+        launcher.launchApp(targetID, success: { _ in
+            print("✅ Clean launch processed successfully for layout item ID: \(targetID)")
+        }, failure: { error in
+            print("❌ WebOS hardware interaction layout dropped: \(error?.localizedDescription ?? "Unknown Service Error")")
+        })
+        
+        AppUtils.instance.hapticFeedback()
+    }
+    
+    // MARK: - Input Port Operations
+    func switchToLGPort(_ port: AppInfo) {
+        guard let lgManager = currentTVManager as? LGTVManager else {
+            print("⚠️ Operations targeting LG manager failed: Incompatible manager type.")
+            return
+        }
+        
+        guard let launcher = lgManager.selectedDevice?.launcher() else {
+            print("⚠️ App launcher reference missing on hardware context.")
+            return
+        }
+        
+        guard let portID = port.id else { return }
+        print("🔌 Requesting port handoff to hardware node: \(portID)")
+        
+        launcher.launchApp(portID, success: { _ in
+            print("✅ Clean hardware switch executed successfully for: \(port.name ?? "Input")")
+        }, failure: { error in
+            print("❌ WebOS rejected hardware port switch framework handoff: \(error?.localizedDescription ?? "Unknown Error")")
+        })
+        
+        AppUtils.instance.hapticFeedback()
+    }
+    
+    
     
     // MARK: - Key Mapping (Keep your existing mapping functions)
     private func mapAndroidKey(_ key: RemoteKey) -> Key? {
@@ -919,9 +1003,9 @@ class RemoteViewModel: NSObject, ObservableObject {
 extension RemoteViewModel: DiscoveryManagerDelegate {
     func discoveryManager(_ manager: DiscoveryManager!, didFind device: ConnectableDevice!) {
         print("ConnectSDK Found:",
-                  device.friendlyName ?? "",
-                  device.address)
-
+              device.friendlyName ?? "",
+              device.address)
+        
         if !discoveredDevices.contains(where: { $0.address == device.address }) {
             discoveredDevices.append(device)
         }
@@ -940,129 +1024,129 @@ extension RemoteViewModel: DiscoveryManagerDelegate {
 }
 
 extension RemoteViewModel {
-
+    
     func handleVoiceCommands(_ rawText: String) {
-
+        
         let text = normalize(rawText)
         print("🎤 Normalized: \(text)")
-
+        
         // =========================
         // 🎬 APP LAUNCH (SMART)
         // =========================
-
+        
         if containsAny(text, ["youtube"]) {
             launchApp(.youtube)
             return
         }
-
+        
         if containsAny(text, ["netflix"]) {
             launchApp(.netflix)
             return
         }
-
+        
         if containsAny(text, ["prime", "amazon"]) {
             launchApp(.prime)
             return
         }
-
+        
         // =========================
         // 🔍 CONTENT SEARCH
         // =========================
-
+        
         if text.contains("search") || text.contains("play") || text.contains("watch") {
-
+            
             if text.contains("youtube") {
                 let query = extractSearchQuery(from: text, app: "youtube")
                 launchApp(.youtube)
-
+                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                     self.typeTextOnTV(query)
                 }
                 return
             }
-
+            
             if text.contains("netflix") {
                 let query = extractSearchQuery(from: text, app: "netflix")
                 launchApp(.netflix)
-
+                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                     self.typeTextOnTV(query)
                 }
                 return
             }
         }
-
+        
         // =========================
         // 🎮 REMOTE COMMANDS (SMART)
         // =========================
-
+        
         if containsAny(text, ["volume up", "increase volume", "louder", "raise volume"]) {
             sendCommand(.VOLUMEUP)
             return
         }
-
+        
         if containsAny(text, ["volume down", "decrease volume", "lower volume", "quieter"]) {
             sendCommand(.VOLUMEDOWN)
             return
         }
-
+        
         if containsAny(text, ["mute", "silence"]) {
             sendCommand(.MUTE)
             return
         }
-
+        
         if containsAny(text, ["home", "go home", "exit"]) {
             sendCommand(.HOME)
             return
         }
-
+        
         if containsAny(text, ["back", "go back", "previous"]) {
             sendCommand(.BACK)
             return
         }
-
+        
         if containsAny(text, ["up", "move up"]) {
             sendCommand(.DPAD_UP)
             return
         }
-
+        
         if containsAny(text, ["down", "move down"]) {
             sendCommand(.DPAD_DOWN)
             return
         }
-
+        
         if containsAny(text, ["left", "move left"]) {
             sendCommand(.DPAD_LEFT)
             return
         }
-
+        
         if containsAny(text, ["right", "move right"]) {
             sendCommand(.DPAD_RIGHT)
             return
         }
-
+        
         if containsAny(text, ["ok", "select", "confirm", "enter"]) {
             sendCommand(.OK)
             return
         }
-
+        
         if containsAny(text, ["play", "resume"]) {
             sendCommand(.PLAY)
             return
         }
-
+        
         if containsAny(text, ["pause", "stop"]) {
             sendCommand(.PAUSE)
             return
         }
-
+        
         print("⚠️ Unknown command: \(text)")
     }
-
+    
     private func containsAny(_ text: String, _ keywords: [String]) -> Bool {
         return keywords.first { text.contains($0) } != nil
     }
-
+    
     private func normalize(_ text: String) -> String {
         return text
             .lowercased()
@@ -1076,27 +1160,27 @@ extension RemoteViewModel {
             .replacingOccurrences(of: "start up", with: "start")
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
-
+    
     private func extractSearchQuery(from text: String, app: String) -> String {
         var cleaned = text
-
+        
         cleaned = cleaned
             .replacingOccurrences(of: "play", with: "")
             .replacingOccurrences(of: "watch", with: "")
             .replacingOccurrences(of: "search", with: "")
             .replacingOccurrences(of: "on \(app)", with: "")
-
+        
         return cleaned.trimmingCharacters(in: .whitespaces)
     }
-
+    
     func typeTextOnTV(_ text: String) {
         guard let type = connectedTVType else { return }
-
+        
         switch type {
-
+            
         case .ANDROID:
             (currentTVManager as? AndroidTVManager)?.sendText(text: text)
-
+            
         case .FIRE:
             //            (currentTVManager as? FireTVManager)?.sendText(text)
             break
@@ -1108,24 +1192,24 @@ extension RemoteViewModel {
             break
         case .SAMSUNG:
             sendTextViaDPAD(text) // ✅ fallback
-
+            
         default:
             break
         }
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.sendCommand(.OK)
         }
     }
-
+    
     private func sendTextViaDPAD(_ text: String) {
         print("⌨️ Samsung fallback typing: \(text)")
-
+        
         // NOTE: Samsung doesn't support direct typing
         // You can:
         // 1. Open keyboard UI
         // 2. Navigate (complex)
-
+        
         // For now → just log or skip
     }
 }

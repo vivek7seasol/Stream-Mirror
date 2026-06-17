@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
+import StoreKit
 
 struct HomeView: View {
     
     @AppStorage(SessionKeys.isPro) var isPro = false
-    
+    @AppStorage("hasShownHomeAlert") private var hasShownHomeAlert = false
     @EnvironmentObject var adVm : AdCountViewModel
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
@@ -30,6 +31,7 @@ struct HomeView: View {
     @State private var showCamera: Bool = false
     @State private var showPremium = false
     @State private var showPremium2 = false
+    @State private var showRateAlert = false
     
     var body: some View {
         ZStack {
@@ -169,14 +171,34 @@ struct HomeView: View {
         }
         .appScreen()
         .onAppear {
+
+            guard !hasShownHomeAlert else { return }
+
+            hasShownHomeAlert = true
+
             if isPro == false {
+
                 if isShowPremium == "true" {
+
                     if !AppSession.shared.hasShownPremium {
+
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             showPremium = true
                             AppSession.shared.hasShownPremium = true
                         }
                     }
+
+                } else {
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        showRateAlert = true
+                    }
+                }
+
+            } else {
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    showRateAlert = true
                 }
             }
         }
@@ -217,13 +239,45 @@ struct HomeView: View {
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }
-        .fullScreenCover(isPresented: $showPremium) {
+        .fullScreenCover(isPresented: $showPremium,onDismiss: {
+            showRateAlert = true
+        }) {
             PremiumView()
         }
         .fullScreenCover(isPresented: $showPremium2) {
             PremiumView()
         }
+        .alert(str.DoyoulikeourApp, isPresented: $showRateAlert) {
+            
+            Button(str.No, role: .cancel) { }
+            
+            Button(str.Yes) {
+                handlePostReviewLogic()
+            }
+            
+        } message: {
+            Text(str.rateMsg)
+        }
         
+    }
+    
+    func handlePostReviewLogic() {
+        let didAskForReview = UserDefaults.standard.bool(forKey: "didAskForReview")
+
+        if didAskForReview {
+            print("Review dialog was requested")
+            rateApp()
+        } else {
+            print("Review not requested")
+            showRateAlert = true
+        }
+    }
+    
+    func rateApp() {
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            UserDefaults.standard.set(true, forKey: "didAskForReview")
+            SKStoreReviewController.requestReview(in: scene)
+        }
     }
 }
 

@@ -131,6 +131,8 @@ struct PremiumView: View {
                             
                             
                             Text("Subscription options are available only through the App Store. Payment will be charged to your Apple ID account once your subscription starts. Subscriptions renew automatically at the same price and duration unless canceled at least 24 hours before the current period ends. You can manage or cancel your subscription anytime in your Apple ID account settings. By subscribing, you agree to our Privacy Policy and Terms.")
+                                .font(.system(size: isIpad() ? 20 : 14))
+                                .foregroundStyle(.white)
                         }
                         .padding(.horizontal,15)
                         
@@ -153,6 +155,8 @@ struct PremiumView: View {
                                 Text("3. Tap Subscriptions.")
                                 Text("4. Tap the subscription that you want to manage.")
                             }
+                            .font(.system(size: isIpad() ? 20 : 14))
+                            .foregroundStyle(.white)
                         }
                         .padding(.horizontal,15)
                         .padding(.vertical,15)

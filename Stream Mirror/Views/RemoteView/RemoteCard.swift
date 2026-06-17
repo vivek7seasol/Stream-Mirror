@@ -31,7 +31,7 @@ struct ControlBtn: View {
                             
                             Capsule()
                                 .fill(.white.opacity(0.10))
-                                .padding(6)
+                                .frame(width: 100)
                         }
                         
                         Image(type.icon)
@@ -43,7 +43,9 @@ struct ControlBtn: View {
                             )
                             .foregroundStyle(selectedType == type ? .white : AppColor.textColor)
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: isIpad() ? 0 : .infinity)
+                    .padding(.horizontal, isIpad() ? 50 : 0)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
@@ -287,7 +289,7 @@ struct KeyboardView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
                 .onChange(of: text) { newValue in
-                    viewModel.handleTextChange(
+                    viewModel.handleTextInput(
                         newValue,
                         tvVM: TVRemoteVM
                     )
@@ -627,5 +629,113 @@ struct NumberKey: View {
                 .padding(.horizontal,15)
         }
         .buttonStyle(.plain)
+    }
+}
+
+struct TVInputItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let image: String
+    let action: () -> Void
+}
+
+struct TVInputSourceView: View {
+
+    @Binding var isPresented: Bool
+
+    let items: [TVInputItem]
+
+    var body: some View {
+
+        ZStack {
+
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    isPresented = false
+                }
+
+            VStack(spacing: 0) {
+
+                Capsule()
+                    .fill(.gray.opacity(0.5))
+                    .frame(width: 50, height: 5)
+                    .padding(.top, 10)
+
+                HStack {
+
+                    Spacer()
+
+                    Text("Select TV Input Source")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    Spacer()
+
+                    Button {
+                        isPresented = false
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.white)
+                            .frame(width: 30, height: 30)
+                            .background(.white.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding()
+
+                ScrollView(showsIndicators: false) {
+
+                    VStack(spacing: 14) {
+
+                        ForEach(items) { item in
+
+                            Button {
+
+                                item.action()
+                                isPresented = false
+
+                            } label: {
+
+                                HStack {
+
+                                    ZStack {
+                                        Circle()
+                                            .fill(.white.opacity(0.08))
+                                            .frame(width: 44, height: 44)
+
+                                        Image(item.image)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 22,height: 22)
+                                    }
+
+                                    Text(item.title)
+                                        .foregroundColor(.white)
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.white)
+                                }
+                                .padding()
+                                .frame(height: 70)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 18)
+                                        .fill(.ultraThinMaterial)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 30)
+                    .fill(Color.black.opacity(0.9))
+            )
+            .padding()
+        }
     }
 }
