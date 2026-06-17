@@ -26,7 +26,7 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
     @Published var selectedVideoIndex = 0
     
     private var isReloading = false
-
+    
     
     override init() {
         super.init()
@@ -38,21 +38,23 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
     }
     
     func photoLibraryDidChange(_ changeInstance: PHChange) {
-
+        
         guard !isReloading else { return }
-
+        
         isReloading = true
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-
+            
             self.fetchImages()
             self.fetchVideos()
-
+            
             self.isReloading = false
         }
     }
     
     func requestPhotoAccess() {
+        isLoading = true
+            showPlaceholder = false
         // Pehle current status check karo — no dialog needed
         let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         
@@ -71,15 +73,21 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
                         if status == .authorized {
                             self.isPremissionLimited = false
                             self.fetchImages()
+
                         } else if status == .limited {
                             self.isPremissionLimited = true
                             self.fetchImages()
+
                         } else {
+                            self.isLoading = false
+                            self.showPlaceholder = true
                             self.showSettingsAlert = true
                         }
                     }
                 }
             case .denied, .restricted:
+                self.isLoading = false
+                self.showPlaceholder = true
                 self.showSettingsAlert = true
             @unknown default:
                 break
@@ -104,15 +112,21 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
                         if status == .authorized {
                             self.isPremissionLimited = false
                             self.fetchVideos()
+
                         } else if status == .limited {
                             self.isPremissionLimited = true
                             self.fetchVideos()
+
                         } else {
+                            self.isLoading = false
+                            self.showPlaceholder = true
                             self.showSettingsAlert = true
                         }
                     }
                 }
             case .denied, .restricted:
+                self.isLoading = false
+                self.showPlaceholder = true
                 self.showSettingsAlert = true
             @unknown default:
                 break
@@ -121,47 +135,43 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
     }
     
     func fetchImages() {
-
-//        assets.removeAll()
-        if assets.isEmpty {
-            isLoading = true
-        }
-
+        
+        isLoading = true
+        showPlaceholder = false
+        
         let fetchOptions = PHFetchOptions()
-
+        
         fetchOptions.predicate = NSPredicate(
             format: "mediaType == %d",
             PHAssetMediaType.image.rawValue
         )
-
+        
         fetchOptions.sortDescriptors = [
             NSSortDescriptor(
                 key: "creationDate",
                 ascending: false
             )
         ]
-
+        
         let fetchedAssets = PHAsset.fetchAssets(with: fetchOptions)
-
+        
         var tempAssets: [PHAsset] = []
-
+        
         fetchedAssets.enumerateObjects { asset, _, _ in
             tempAssets.append(asset)
         }
-
+        
         DispatchQueue.main.async {
-
+            
             let oldIDs = self.assets.map(\.localIdentifier)
             let newIDs = tempAssets.map(\.localIdentifier)
-
+            
             if oldIDs != newIDs {
-
-                withAnimation(.none) {
-                    self.assets = tempAssets
-                }
+                self.assets = tempAssets
             }
-
+            
             self.isLoading = false
+            self.showPlaceholder = tempAssets.isEmpty
         }
     }
     
@@ -176,30 +186,30 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
             format: "mediaType == %d",
             PHAssetMediaType.video.rawValue
         )
-
+        
         fetchOptions.sortDescriptors = [
             NSSortDescriptor(key: "creationDate", ascending: false)
         ]
-
+        
         let fetchedAssets = PHAsset.fetchAssets(with: fetchOptions)
-
+        
         var tempAssets: [PHAsset] = []
-
+        
         fetchedAssets.enumerateObjects { asset, _, _ in
             tempAssets.append(asset)
         }
-
+        
         DispatchQueue.main.async {
             
             let oldIDs = self.videoAssets.map(\.localIdentifier)
             let newIDs = tempAssets.map(\.localIdentifier)
-
+            
             if oldIDs != newIDs {
                 withAnimation(.none) {
                     self.videoAssets = tempAssets
                 }
             }
-
+            
             self.isLoading = false
             self.showPlaceholder = tempAssets.isEmpty
         }

@@ -12,11 +12,10 @@ struct VideoPlayerView: UIViewControllerRepresentable {
     let url: URL
 
     func makeUIViewController(context: Context) -> AVPlayerViewController {
-
         let controller = AVPlayerViewController()
         controller.player = AVPlayer(url: url)
+        controller.videoGravity = .resize
         controller.player?.play()
-
         return controller
     }
 
@@ -25,6 +24,8 @@ struct VideoPlayerView: UIViewControllerRepresentable {
         context: Context
     ) {}
 }
+
+
 struct RecordingLisRow: View {
     
     var image: String

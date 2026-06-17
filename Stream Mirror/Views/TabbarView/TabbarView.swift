@@ -64,6 +64,7 @@ struct TabbarView: View {
             }
         }
         .id(refreshID)
+        .appScreen(disableSwipeBack: true)
         .onAppear {
             refreshID = UUID()
         }
@@ -127,52 +128,10 @@ struct TabbarView: View {
                 
                 TVInputSourceView(
                     isPresented: $showTVInputList,
-                    items: [
-                        
-                        TVInputItem(
-                            title: "AV",
-                            image: "av"
-                        ) {
-                            
-                        },
-                        
-                        TVInputItem(
-                            title: "AV1",
-                            image: "av"
-                        ) {
-                            
-                        },
-                        
-                        TVInputItem(
-                            title: "AV2",
-                            image: "av"
-                        ) {
-                            
-                        },
-                        
-                        TVInputItem(
-                            title: "HDMI1",
-                            image: "hdmi"
-                        ) {
-                            
-                        },
-                        
-                        TVInputItem(
-                            title: "HDMI2",
-                            image: "hdmi"
-                        ) {
-                           
-                        },
-                        
-                        TVInputItem(
-                            title: "HDMI3",
-                            image: "hdmi"
-                        ) {
-                            
-                        }
-                    ]
+                    TVRemoteVM: TVRemoteVM
                 )
-                .zIndex(999)
+                .offset(y: 50)
+                .zIndex(2)
             }
             
         }

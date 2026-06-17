@@ -298,6 +298,11 @@ class AppOpenAdManager: NSObject, FullScreenContentDelegate {
     
     // MARK: - Show Ad with Completion
     func showAdIfAvailable(completion: @escaping () -> Void) {
+//        if !sholdShowAppOpenAd {
+//            print("⚠️ Some Other Content is showing.")
+//            return
+//        }
+        
         if isShowingAd {
             print("⚠️ App open ad is already showing.")
             completion()
@@ -410,6 +415,11 @@ class AppOpenBackAdManager: NSObject, FullScreenContentDelegate {
     
     // MARK: - Show Ad
     func showAdIfAvailable() {
+//        if !sholdShowAppOpenAd {
+//            print("⚠️ Some Other Content is showing.")
+//            return
+//        }
+//        
         if isShowingAd {
             print("⚠️ App open ad is already showing.")
             return

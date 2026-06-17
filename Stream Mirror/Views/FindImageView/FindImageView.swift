@@ -39,7 +39,7 @@ struct FindImageView: View {
                                     .padding(.leading, 2)
                             }
                             
-                            TextField(str.Search, text: $text)
+                            TextField("", text: $text)
                                 .foregroundStyle(AppColor.textColor)
                                 .focused($isSearchFocused)
                                 .onChange(of: text) { newValue in
@@ -78,7 +78,14 @@ struct FindImageView: View {
                     
                     Spacer()
                     
-                    placeholderView(image: "PhotoListPH", title: str.Enterkeywordstosearch, title2: "", isTitle2: false)
+                    placeholderView(
+                        image: "PhotoListPH",
+                        title: imageVM.hasSearched && imageVM.images.isEmpty
+                            ? str.Noimagesfound
+                            : str.Enterkeywordstosearch,
+                        title2: "",
+                        isTitle2: false
+                    )
                     Spacer()
                     
                 } else {
@@ -97,6 +104,7 @@ struct FindImageView: View {
                                 .padding(.bottom, 16)
                         }
                     }
+                    .scrollDismissesKeyboard(.immediately)
                 }
             }
         }
@@ -104,6 +112,9 @@ struct FindImageView: View {
             DeviceListview(isPresented: $imageVM.showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
+        }
+        .onTapGesture {
+            hideKeyboard()
         }
         .onAppear {
             if imageVM.isFirstAppear {

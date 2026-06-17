@@ -236,6 +236,7 @@ func shareContent(_ text: String) {
 
 class AppSession {
     static let shared = AppSession()
-    
+
     var hasShownPremium = false
+    var hasShownRateAlert = false
 }

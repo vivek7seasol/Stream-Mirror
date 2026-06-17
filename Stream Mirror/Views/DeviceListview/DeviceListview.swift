@@ -279,119 +279,119 @@ struct DeviceListview: View {
                 
                 VStack {
                     Spacer()
-                    
-                    // Connection Success Popup
-                    if showConnectionPopup {
-                        
-                        PopupCard(
-                            image: "connect2",
-                            title: "\(str.connect1) \(TVRemoteVM.deviceName ?? "")",
-                            subtitle: str.connect2,
-                            btnTitle: str.Connect
-                        ) {
-                            
-                            withAnimation(.spring()) {
-                                showConnectionPopup = false
-                                commonVM.setTVPlaceHolder(connectedTvType: commonVM.connectedTvType ?? .ANDROID)
-                            }
-                        } closeAction: {
-                            withAnimation(.spring()) {
-                                showConnectionPopup = false
-                                commonVM.setTVPlaceHolder(connectedTvType: commonVM.connectedTvType ?? .ANDROID)
-                            }
-                        }
-                    }
-                    
-                    // Disconnect Popup
-                    if showDisconnectPopup {
-                        
-                        PopupCard(
-                            image: "disconnect",
-                            title: str.disconnect1,
-                            subtitle: str.disconnect2 + "\(TVRemoteVM.deviceName ?? "")?",
-                            btnTitle: str.Disconnect
-                        ) {
-                            
-                            TVRemoteVM.disconnectTV()
-                            
-                            withAnimation(.spring()) {
-                                showDisconnectPopup = false
-                            }
-                            
-                        } closeAction: {
-                            
-                            withAnimation(.spring()) {
-                                showDisconnectPopup = false
-                            }
-                        }
-                    }
-                    
-                    if showSwitchDevicePopup {
-                        
-                        PopupCard(
-                            image: "disconnectCurrentDevice",
-                            title: str.DisconnectCurrentDevice1,
-                            subtitle: str.DisconnectCurrentDevice2,
-                            btnTitle: str.Disconnect
-                        ) {
-                            
-                            guard let device = pendingDevice else { return }
-                            
-                            TVRemoteVM.disconnectTV()
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                                TVRemoteVM.connect(to: device)
-                            }
-                            
-                            pendingDevice = nil
-                            
-                            withAnimation(.spring()) {
-                                showSwitchDevicePopup = false
-                            }
-                            
-                        } closeAction: {
-                            
-                            pendingDevice = nil
-                            
-                            withAnimation(.spring()) {
-                                showSwitchDevicePopup = false
-                            }
-                        }
-                    }
-                    
+
+                    // 1. WIFI POPUP (Highest Priority)
                     if permissionVM.showNoNetworkPopup {
-                        
+
                         PopupCard(
                             image: "WIFI",
                             title: str.WIFI1,
                             subtitle: str.WIFI2,
                             btnTitle: str.WIFI3
                         ) {
-                            
                             if let url = URL(string: UIApplication.openSettingsURLString) {
                                 UIApplication.shared.open(url)
                             }
-                            
                         } closeAction: {
-                            
                             permissionVM.showNoNetworkPopup = false
                         }
+
                     }
-                    if permissionVM.showLocalNetworkPopup {
-                        
+
+                    // 2. LOCAL NETWORK POPUP
+                    else if permissionVM.showLocalNetworkPopup {
+
                         PopupCard(
                             image: "Network",
                             title: str.localNetwork1,
                             subtitle: str.localNetwork2,
                             btnTitle: str.localNetwork3
                         ) {
-                            
                             if let url = URL(string: UIApplication.openSettingsURLString) {
                                 UIApplication.shared.open(url)
                             }
-                            
                         } closeAction: {
                             permissionVM.showLocalNetworkPopup = false
+                        }
+
+                    }
+
+                    // 3. CONNECTION SUCCESS POPUP
+                    else if showConnectionPopup {
+
+                        PopupCard(
+                            image: "connect2",
+                            title: "\(str.connect1) \(TVRemoteVM.deviceName ?? "")",
+                            subtitle: str.connect2,
+                            btnTitle: str.Connect
+                        ) {
+                            withAnimation(.spring()) {
+                                showConnectionPopup = false
+                                commonVM.setTVPlaceHolder(
+                                    connectedTvType: commonVM.connectedTvType ?? .ANDROID
+                                )
+                            }
+                        } closeAction: {
+                            withAnimation(.spring()) {
+                                showConnectionPopup = false
+                            }
+                        }
+
+                    }
+
+                    // 4. DISCONNECT POPUP
+                    else if showDisconnectPopup {
+
+                        PopupCard(
+                            image: "disconnect",
+                            title: str.disconnect1,
+                            subtitle: str.disconnect2 + "\(TVRemoteVM.deviceName ?? "")?",
+                            btnTitle: str.Disconnect
+                        ) {
+                            TVRemoteVM.disconnectTV()
+
+                            withAnimation(.spring()) {
+                                showDisconnectPopup = false
+                            }
+                        } closeAction: {
+                            withAnimation(.spring()) {
+                                showDisconnectPopup = false
+                            }
+                        }
+
+                    }
+
+                    // 5. SWITCH DEVICE POPUP (Lowest Priority)
+                    else if showSwitchDevicePopup {
+
+                        PopupCard(
+                            image: "disconnectCurrentDevice",
+                            title: str.DisconnectCurrentDevice1,
+                            subtitle: str.DisconnectCurrentDevice2,
+                            btnTitle: str.Disconnect
+                        ) {
+
+                            guard let device = pendingDevice else { return }
+
+                            TVRemoteVM.disconnectTV()
+
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                                TVRemoteVM.connect(to: device)
+                            }
+
+                            pendingDevice = nil
+
+                            withAnimation(.spring()) {
+                                showSwitchDevicePopup = false
+                            }
+
+                        } closeAction: {
+
+                            pendingDevice = nil
+
+                            withAnimation(.spring()) {
+                                showSwitchDevicePopup = false
+                            }
                         }
                     }
                 }

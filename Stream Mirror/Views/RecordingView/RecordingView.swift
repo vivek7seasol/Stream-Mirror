@@ -34,7 +34,13 @@ struct RecordingView: View {
                             .font(.system(size: isIpad() ? 36 : 30,weight: .medium))
                             .foregroundStyle(.white)
                         
-                        Text(recordingVM.isRecording ? str.RecordinginProgress : str.ReadytoRecord)
+                        Text(
+                            recordingVM.isRecording
+                            ? str.RecordinginProgress
+                            : recordingVM.isWaitingForBroadcast
+                                ? "Waiting for confirmation..."
+                                : str.ReadytoRecord
+                        )
                             .font(.system(size: isIpad() ? 18 : 12))
                             .foregroundStyle(AppColor.textColor)
                             .padding(.vertical,1)
@@ -77,7 +83,7 @@ struct RecordingView: View {
                         
                         RecordingSettingCard(
                             image: "My Recoding",
-                            title: str.Recoding,
+                            title: str.MyRecoding,
                             isToggle: false,
                             isOn: .constant(false)
                         ) {
@@ -127,7 +133,7 @@ struct RecordingView: View {
                 .padding(.bottom,isIpad() ? 110 : 100)
             }
         }
-        .appScreen()
+        .appScreen(disableSwipeBack: true)
         .onAppear {
             recordingVM.checkBroadcastStatus()
 
@@ -135,6 +141,16 @@ struct RecordingView: View {
 
             videoEnabled = defaults?.bool(forKey: "isVideoEnabled") ?? true
             microphoneEnabled = defaults?.bool(forKey: "isMicEnabled") ?? true
+            
+            DispatchQueue.main.async {
+                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let nav = scene.windows.first(where: { $0.isKeyWindow })?
+                    .rootViewController?
+                    .findNavigationController() {
+                    
+                    nav.interactivePopGestureRecognizer?.delegate = SwipeBackDisabler.shared
+                }
+            }
         }
         .onDisappear {
             if let defaults = UserDefaults(suiteName: AppStrings.groupID) {

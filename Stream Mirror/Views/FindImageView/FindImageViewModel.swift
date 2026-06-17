@@ -20,7 +20,8 @@ class FindImageViewModel: ObservableObject {
     @Published var showFavImage = false
     @Published var isFirstAppear = true
     @Published var showDeviceList = false
-
+    @Published var hasSearched = false
+    
     @Published var selectedURL : String?
     @Published var cachedImages: [String: UIImage] = [:]
     @Published var searchTask: DispatchWorkItem?
@@ -45,16 +46,18 @@ class FindImageViewModel: ObservableObject {
     
     func searchOnlineImages(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+
         guard !trimmedQuery.isEmpty else {
+            hasSearched = false
             clearResults()
             return
         }
-        
+
         currentQuery = trimmedQuery
         currentPage = 1
         totalPages = 1
         images.removeAll()
+
         fetchOnlineImages(query: trimmedQuery, page: 1)
     }
     
@@ -99,13 +102,16 @@ class FindImageViewModel: ObservableObject {
                 
                 do {
                     let result = try JSONDecoder().decode(ModelFindImage.self, from: data)
-                    
+
                     if page == 1 {
                         self.images = result.results
+
+                        // 👇 Yaha set karo
+                        self.hasSearched = true
                     } else {
                         self.images.append(contentsOf: result.results)
                     }
-                    
+
                     self.totalPages = result.pageCount
                     self.currentPage = result.page
                     self.isLoading = false

@@ -78,13 +78,6 @@ struct PhotosView: View {
             
             photoVM.requestPhotoAccess()
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                
-                if photoVM.assets.isEmpty {
-                    photoVM.isLoading = false
-                    photoVM.showPlaceholder = true
-                }
-            }
         }
         .navigationDestination(isPresented: $photoVM.showPhotoCasting) {
             PhotoCastingView(

@@ -112,6 +112,7 @@ struct IPTVChannelView: View {
                         }
                         .padding()
                     }
+                    .scrollDismissesKeyboard(.immediately)
                 }
                 
                 

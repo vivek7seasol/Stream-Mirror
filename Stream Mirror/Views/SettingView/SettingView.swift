@@ -64,10 +64,20 @@ struct SettingView: View {
                 }
             }
         }
-        .appScreen()
+        .appScreen(disableSwipeBack: true)
         .id(refreshID)
         .onAppear {
             refreshID = UUID()
+            
+            DispatchQueue.main.async {
+                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let nav = scene.windows.first(where: { $0.isKeyWindow })?
+                    .rootViewController?
+                    .findNavigationController() {
+                    
+                    nav.interactivePopGestureRecognizer?.delegate = SwipeBackDisabler.shared
+                }
+            }
         }
         .navigationDestination(isPresented: $navigateToLanguage) {
             LanguageView(isOpenFromSplash: false)

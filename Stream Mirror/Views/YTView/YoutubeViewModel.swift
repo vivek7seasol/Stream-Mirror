@@ -195,6 +195,11 @@ class YoutubeViewModel: NSObject, ObservableObject {
             print("🎬 Status: \(item.status.rawValue) | Error: \(String(describing: item.error))")
         }
     }
+    
+    func updateNavigationState() {
+        canGoBack = webView.canGoBack
+        canGoForward = webView.canGoForward
+    }
 }
 
 extension String {
@@ -210,90 +215,124 @@ extension String {
 
 
 struct YoutubePreview: UIViewRepresentable {
-    
+
     @Binding var webView: WKWebView
     @Binding var isLoading: Bool
-    var onVideoDetected: ((URL?) -> Void)?   // ✅ optional
-    
+
+    var viewModel: YoutubeViewModel
+    var onVideoDetected: ((URL?) -> Void)?
+
     func makeUIView(context: Context) -> WKWebView {
+
         webView.navigationDelegate = context.coordinator
+
         context.coordinator.onVideoDetected = onVideoDetected
-        
+        context.coordinator.viewModel = viewModel
+
         webView.addObserver(
             context.coordinator,
             forKeyPath: "URL",
             options: [.new],
             context: nil
         )
-        
+
         return webView
     }
-    
+
     func updateUIView(_ uiView: WKWebView, context: Context) {}
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
-        // ✅ VERY IMPORTANT (prevents crash)
         uiView.removeObserver(coordinator, forKeyPath: "URL")
     }
-    
-    // MARK: - Coordinator
+
     class Coordinator: NSObject, WKNavigationDelegate {
-        
+
         var parent: YoutubePreview
         var onVideoDetected: ((URL?) -> Void)?
-        
+        weak var viewModel: YoutubeViewModel?
+
         init(_ parent: YoutubePreview) {
             self.parent = parent
         }
-        
-        // ✅ Detect URL change instantly (SPA FIX)
+
         override func observeValue(
             forKeyPath keyPath: String?,
             of object: Any?,
             change: [NSKeyValueChangeKey : Any]?,
             context: UnsafeMutableRawPointer?
         ) {
+
             guard keyPath == "URL",
                   let webView = object as? WKWebView,
                   let url = webView.url else { return }
-            
+
             DispatchQueue.main.async {
+
+                self.viewModel?.updateNavigationState()
+
                 if self.isValidYouTubeVideo(url: url) {
-                    self.onVideoDetected?(url)   // ✅ ENABLE BUTTON
+                    self.onVideoDetected?(url)
                 } else {
-                    self.onVideoDetected?(nil)   // ✅ DISABLE BUTTON
+                    self.onVideoDetected?(nil)
                 }
             }
         }
-        
-        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+
+        func webView(_ webView: WKWebView,
+                     didStartProvisionalNavigation navigation: WKNavigation!) {
+
             DispatchQueue.main.async {
                 self.parent.isLoading = true
+                self.viewModel?.updateNavigationState()
             }
         }
-        
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+
+        func webView(_ webView: WKWebView,
+                     didFinish navigation: WKNavigation!) {
+
             DispatchQueue.main.async {
                 self.parent.isLoading = false
+                self.viewModel?.updateNavigationState()
             }
-            
+
             injectBlockingJS(webView)
         }
-        
-        // ✅ BETTER VALIDATION
-        private func isValidYouTubeVideo(url: URL) -> Bool {
-            guard let host = url.host else { return false }
-            
-            return host.contains("youtube.com") &&
-                   (url.absoluteString.contains("watch") ||
-                    url.absoluteString.contains("shorts"))
+
+        func webView(_ webView: WKWebView,
+                     didFail navigation: WKNavigation!,
+                     withError error: Error) {
+
+            DispatchQueue.main.async {
+                self.parent.isLoading = false
+                self.viewModel?.updateNavigationState()
+            }
         }
-        
+
+        func webView(_ webView: WKWebView,
+                     didFailProvisionalNavigation navigation: WKNavigation!,
+                     withError error: Error) {
+
+            DispatchQueue.main.async {
+                self.parent.isLoading = false
+                self.viewModel?.updateNavigationState()
+            }
+        }
+
+        private func isValidYouTubeVideo(url: URL) -> Bool {
+
+            guard let host = url.host else { return false }
+
+            return host.contains("youtube.com") &&
+            (url.absoluteString.contains("watch") ||
+             url.absoluteString.contains("shorts"))
+        }
+
         private func injectBlockingJS(_ webView: WKWebView) {
+
             let js = """
             document.addEventListener('fullscreenchange', function() {
                 if (document.fullscreenElement) {
@@ -301,6 +340,7 @@ struct YoutubePreview: UIViewRepresentable {
                 }
             });
             """
+
             webView.evaluateJavaScript(js, completionHandler: nil)
         }
     }

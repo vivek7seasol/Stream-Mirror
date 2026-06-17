@@ -50,11 +50,9 @@ struct FilesListingView: View {
                                     fileName: file.name,
                                     fileSize: file.size,
                                     deleteAction: {
-                                        
-                                        filesVM.DeleteSelectedFiles(
-                                            at: file,
-                                            openFrom: filesVM.selectedType
-                                        )
+
+                                        filesVM.selectedFileForDelete = file
+                                        filesVM.showDeleteAlert = true
                                     },
                                     buttonAction: {
                                         adVm.registerTap()
@@ -98,10 +96,14 @@ struct FilesListingView: View {
                 )
                 
                 if !filesVM.files.contains(where: { $0.url == file.url }) {
-                    
+
                     filesVM.files.append(file)
-                    
+
                     filesVM.SaveSelectedFiles(openFrom: filesVM.selectedType)
+
+                } else {
+
+                    showToastAtCenter(message: str.Filealreadyexists)
                 }
             }
         }
@@ -128,6 +130,28 @@ struct FilesListingView: View {
                     openFrom: filesVM.selectedType
                 )
             }
+        }
+        .alert(str.DeleteFile,
+               isPresented: $filesVM.showDeleteAlert) {
+
+            Button(str.Cancel, role: .cancel) { }
+
+            Button(str.Delete, role: .destructive) {
+
+                if let file = filesVM.selectedFileForDelete {
+
+                    filesVM.DeleteSelectedFiles(
+                        at: file,
+                        openFrom: filesVM.selectedType
+                    )
+                }
+
+                filesVM.selectedFileForDelete = nil
+            }
+
+        } message: {
+
+            Text(str.DeleteFileMsg)
         }
     }
 }

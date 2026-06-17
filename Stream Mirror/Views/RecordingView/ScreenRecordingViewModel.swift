@@ -33,11 +33,13 @@ class ScreenRecordingViewModel: ObservableObject {
     @Published var shareItem: ShareItem?
     @Published var showPreview = false
     @Published var recordingTime: String = "00:00:00"
+    @Published var isWaitingForBroadcast = false
     
     private var timer: Timer?
+    private var waitingTimer: Timer?  // ← YEH ADD KARO
     private let defaults = UserDefaults(suiteName: AppStrings.groupID)
-    private let broadcastKey = "isBroadcasting"
     private let recordingStartDateKey = "recordingStartDate"
+    private let broadcastKey = "isRecordingBroadcasting"
     
     init() {
         checkBroadcastStatus()
@@ -46,10 +48,15 @@ class ScreenRecordingViewModel: ObservableObject {
     
     deinit {
         timer?.invalidate()
+        waitingTimer?.invalidate() 
     }
     
     func checkBroadcastStatus() {
-        let status = defaults?.bool(forKey: broadcastKey) ?? false
+        let isBroadcasting = defaults?.bool(forKey: "isBroadcasting") ?? false
+        let isRecordingSession = defaults?.bool(forKey: "shouldSaveRecording") ?? false
+        
+        // Sirf tab recording maano jab dono true hon
+        let status = isBroadcasting && isRecordingSession
         
         if status {
             if defaults?.object(forKey: recordingStartDateKey) == nil {
@@ -68,16 +75,51 @@ class ScreenRecordingViewModel: ObservableObject {
     }
     
     func toggleRecording() {
-        openBroadcastPicker()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.checkBroadcastStatus()
-            self.loadScreenRecordings()
+        if isRecording {
+            // Stop recording
+            openBroadcastPicker()
+            isWaitingForBroadcast = false
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.checkBroadcastStatus()
+            }
+        } else {
+            // Start recording - polling shuru karo
+            isWaitingForBroadcast = true
+            openBroadcastPicker()
+            startWaitingForBroadcastPoll()
         }
+    }
+
+    private func startWaitingForBroadcastPoll() {
+        var attempts = 0
+        let maxAttempts = 15 // 15 seconds tak wait karega
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            self.checkBroadcastStatus()
-            self.loadScreenRecordings()
+        // Pehle existing timer band karo
+        waitingTimer?.invalidate()
+        
+        waitingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] t in
+            guard let self else { t.invalidate(); return }
+            
+            attempts += 1
+            let status = self.defaults?.bool(forKey: self.broadcastKey) ?? false
+            
+            if status {
+                // Broadcast shuru ho gaya!
+                t.invalidate()
+                self.waitingTimer = nil
+                Task { @MainActor in
+                    self.isWaitingForBroadcast = false
+                    self.checkBroadcastStatus()
+                }
+            } else if attempts >= maxAttempts {
+                // Timeout - user ne cancel kiya hoga
+                t.invalidate()
+                self.waitingTimer = nil
+                Task { @MainActor in
+                    self.isWaitingForBroadcast = false
+                }
+            }
         }
     }
     

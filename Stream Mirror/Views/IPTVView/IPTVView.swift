@@ -166,6 +166,7 @@ struct IPTVView: View {
                         }
                     }
                     .padding(.top,10)
+                    .scrollDismissesKeyboard(.immediately)
                 }
             }
         }

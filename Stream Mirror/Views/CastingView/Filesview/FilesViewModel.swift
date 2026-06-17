@@ -39,6 +39,9 @@ class FilesViewModel: ObservableObject {
     @Published var showDocumentPicker = false
     @Published var files: [SelectedFile] = []
     @Published var selectedFile: SelectedFile?
+    @Published var showDeleteAlert = false
+    @Published var selectedFileForDelete: SelectedFile?
+    
     func SaveSelectedFiles(openFrom: FileType) {
         
         do {

@@ -46,6 +46,9 @@ class SketchBoardViewModel: NSObject, ObservableObject, PKCanvasViewDelegate {
     @Published var shareURL: URL?
     @Published var selectedDrawing: SavedSketchBoard?
     @Published var showEditDrawing = false
+    @Published var canUndo = false
+    @Published var canRedo = false
+    
     let canvasView = PKCanvasView()
     
     func setup(commonVm: CommonConnectionViewModel) {
@@ -79,6 +82,11 @@ class SketchBoardViewModel: NSObject, ObservableObject, PKCanvasViewDelegate {
         }
     }
     
+    func updateUndoRedoState() {
+        canUndo = canvasView.undoManager?.canUndo ?? false
+        canRedo = canvasView.undoManager?.canRedo ?? false
+    }
+    
     func deleteDrawing(_ drawing: SavedSketchBoard) {
         
         do {
@@ -98,15 +106,33 @@ class SketchBoardViewModel: NSObject, ObservableObject, PKCanvasViewDelegate {
     }
     
     func undo() {
+
         canvasView.undoManager?.undo()
+
+        DispatchQueue.main.async {
+            self.hasDrawing = !self.canvasView.drawing.strokes.isEmpty
+            self.updateUndoRedoState()
+        }
     }
     
     func redo() {
+
         canvasView.undoManager?.redo()
+
+        DispatchQueue.main.async {
+            self.hasDrawing = !self.canvasView.drawing.strokes.isEmpty
+            self.updateUndoRedoState()
+        }
     }
     
     func clearCanvas() {
+
         canvasView.drawing = PKDrawing()
+
+        DispatchQueue.main.async {
+            self.hasDrawing = false
+            self.updateUndoRedoState()
+        }
     }
     
     func showToolPicker(colorScheme: ColorScheme) {
@@ -163,10 +189,11 @@ class SketchBoardViewModel: NSObject, ObservableObject, PKCanvasViewDelegate {
     }
     
     func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
-        
+
         DispatchQueue.main.async {
-            
+
             self.hasDrawing = !canvasView.drawing.strokes.isEmpty
+            self.updateUndoRedoState()
         }
     }
     
@@ -174,6 +201,11 @@ class SketchBoardViewModel: NSObject, ObservableObject, PKCanvasViewDelegate {
         do {
             let data = try Data(contentsOf: url)
             canvasView.drawing = try PKDrawing(data: data)
+
+            DispatchQueue.main.async {
+                self.hasDrawing = !self.canvasView.drawing.strokes.isEmpty
+                self.updateUndoRedoState()
+            }
         } catch {
             print("Load error:", error)
         }

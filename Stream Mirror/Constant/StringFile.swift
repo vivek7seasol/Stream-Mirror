@@ -24,7 +24,7 @@ class StringFile {
     
     let Home = "Home".localized
     let Remote = "Remote".localized
-    let Recoding = "Recoding".localized
+    let Recoding = "Recording".localized
     let Settings = "Settings".localized
     
     let Connecttodevice = "Connect to device".localized
@@ -62,7 +62,7 @@ class StringFile {
     
     let connect1 = "Connected to ".localized
     let connect2 = "Your TV is connected and ready for screen sharing.".localized
-    let Connect = "Connect".localized
+    let Connect = "Continue".localized
     
     let disconnect1 = "Disconnect from ".localized
     let disconnect2 = "Are you sure you want to disconnect from this device?".localized
@@ -161,13 +161,13 @@ class StringFile {
     let Share = "Share".localized
     let Delete = "Delete".localized
     
-    let ScreenRecoding = "Screen Recoding".localized
+    let ScreenRecoding = "Screen Recording".localized
     let ReadytoRecord = "Ready to Record".localized
     let RecordinginProgress = "Recording in Progress".localized
-    let MyRecoding = "My Recoding".localized
+    let MyRecoding = "My Recording".localized
     let Microphone = "Microphone".localized
-    let StartRecoding = "Start Recoding".localized
-    let StopRecoding = "Stop Recoding".localized
+    let StartRecoding = "Start Recording".localized
+    let StopRecoding = "Stop Recording".localized
     let NoRecordingsYet = "No Recordings Yet".localized
     
     let ConnectTv = "Connect TV".localized
@@ -209,4 +209,10 @@ class StringFile {
     var No = "No ❌".localized
     var Yes = "Yes 👍".localized
     var rateMsg = "Help us to improve app by answering this quick poll.".localized
+    
+    let noPortFound = "No Port Found".localized
+    let Filealreadyexists = "File already exists".localized
+    let DeleteFile = "Delete File".localized
+    let DeleteFileMsg = "Are you sure you want to delete this file?".localized
+    let Noimagesfound = "No images found".localized
 }

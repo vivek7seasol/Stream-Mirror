@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ConnectSDK
 
 struct ControlBtn: View {
     
@@ -51,6 +52,7 @@ struct ControlBtn: View {
             }
         }
         .frame(height: isIpad() ? 70 : 50)
+        .background(.white.opacity(0.10))
         .modifier(GlassCardModifier(cornerRadius: isIpad() ? 35 : 25))
         .clipShape(RoundedRectangle(cornerRadius: isIpad() ? 35 : 25))
     }
@@ -120,6 +122,7 @@ struct controlTypeCard: View {
             }
         }
         .frame(width: isIpad() ? cardSize + 50 : cardSize, height: isIpad() ? cardSize + 30 : cardSize)
+        .background(.white.opacity(0.10))
         .modifier(GlassCardModifier(cornerRadius: 50))
         .clipShape(RoundedRectangle(cornerRadius: 50))
     }
@@ -159,6 +162,7 @@ struct touchPadView: View {
             }
         }
         .frame(maxWidth: isIpad() ? DeviceHelper.width * 0.55 : .infinity, minHeight: isIpad() ? cardHeight + 30 : cardHeight)
+        .background(.white.opacity(0.10))
         .modifier(GlassCardModifier(cornerRadius: 50))
         .clipShape(RoundedRectangle(cornerRadius: 50))
         .padding(.horizontal, 15)
@@ -214,6 +218,7 @@ struct mouseView: View {
             }
         }
         .frame(maxWidth: isIpad() ? DeviceHelper.width * 0.55 : .infinity, minHeight: isIpad() ? cardHeight + 30 : cardHeight)
+        .background(.white.opacity(0.10))
         .modifier(GlassCardModifier(cornerRadius: 50))
         .clipShape(RoundedRectangle(cornerRadius: 50))
         .padding(.horizontal, 15)
@@ -312,6 +317,7 @@ struct KeyboardView: View {
             minHeight: editorHeight,
             maxHeight: editorHeight
         )
+        .background(.white.opacity(0.10))
         .modifier(GlassCardModifier(cornerRadius: 50))
         .clipShape(RoundedRectangle(cornerRadius: 50))
         .padding(.horizontal, 15)
@@ -360,6 +366,7 @@ struct VolChButtonCard: View {
         }
         .frame(width:isIpad() ? 80 : 66)
         .padding(.vertical,15)
+        .background(.white.opacity(0.10))
         .modifier(GlassCardModifier(cornerRadius: isIpad() ? 40 : 33))
         .clipShape(RoundedRectangle(cornerRadius: isIpad() ? 40 : 33))
     }
@@ -642,8 +649,7 @@ struct TVInputItem: Identifiable {
 struct TVInputSourceView: View {
 
     @Binding var isPresented: Bool
-
-    let items: [TVInputItem]
+    @ObservedObject var TVRemoteVM: RemoteViewModel
 
     var body: some View {
 
@@ -657,85 +663,95 @@ struct TVInputSourceView: View {
 
             VStack(spacing: 0) {
 
-                Capsule()
-                    .fill(.gray.opacity(0.5))
-                    .frame(width: 50, height: 5)
-                    .padding(.top, 10)
+                Spacer()
 
-                HStack {
+                VStack {
 
-                    Spacer()
+                    Capsule()
+                        .fill(.gray.opacity(0.5))
+                        .frame(width: 50, height: 5)
+                        .padding(.top, 10)
 
-                    Text("Select TV Input Source")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.white)
+                    HStack {
 
-                    Spacer()
+                        Spacer()
 
-                    Button {
-                        isPresented = false
-                    } label: {
-                        Image(systemName: "xmark")
+                        Text("Select TV Input Source")
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(.white)
-                            .frame(width: 30, height: 30)
-                            .background(.white.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                }
-                .padding()
 
-                ScrollView(showsIndicators: false) {
+                        Spacer()
 
-                    VStack(spacing: 14) {
-
-                        ForEach(items) { item in
-
-                            Button {
-
-                                item.action()
-                                isPresented = false
-
-                            } label: {
-
-                                HStack {
-
-                                    ZStack {
-                                        Circle()
-                                            .fill(.white.opacity(0.08))
-                                            .frame(width: 44, height: 44)
-
-                                        Image(item.image)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 22,height: 22)
-                                    }
-
-                                    Text(item.title)
-                                        .foregroundColor(.white)
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.white)
-                                }
-                                .padding()
-                                .frame(height: 70)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 18)
-                                        .fill(.ultraThinMaterial)
-                                )
-                            }
-                            .buttonStyle(.plain)
+                        singleButtonCard(image: "close") {
+                            isPresented = false
                         }
                     }
                     .padding()
+
+                    if TVRemoteVM.lgPorts.isEmpty {
+                        Spacer()
+                        placeholderView(image: "PortPH", title: str.noPortFound, title2: "", isTitle2: false)
+                        Spacer()
+                    } else {
+                        
+                        ScrollView(showsIndicators: false) {
+                            
+                            VStack(spacing: 14) {
+                                
+                                ForEach(TVRemoteVM.lgPorts, id: \.id) { port in
+                                    
+                                    Button {
+                                        
+                                        TVRemoteVM.switchToLGPort(port)
+                                        
+                                        isPresented = false
+                                        
+                                    } label: {
+                                        let idLower = port.id?.lowercased() ?? ""
+                                        HStack {
+                                            
+                                            ZStack {
+                                                Circle()
+                                                    .fill(.white.opacity(0.08))
+                                                    .frame(width: 44, height: 44)
+                                                
+                                                Image(idLower.contains("hdmi") ? "hdmi" : "AV2")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(width: 22, height: 22)
+                                            }
+                                            
+                                            Text(port.name ?? "Unknown")
+                                                .foregroundColor(.white)
+                                            
+                                            Spacer()
+                                            
+                                            Image(systemName: "chevron.right")
+                                                .foregroundColor(.white)
+                                        }
+                                        .padding()
+                                        .frame(height: 70)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 18)
+                                                .fill(.ultraThinMaterial)
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding()
+                        }
+                    }
                 }
+                .padding(.horizontal, 24)
+                .background(DeviceListBG())
+                .clipShape(
+                    CustomCorner(
+                        corners: [.topLeft, .topRight],
+                        radius: 40
+                    )
+                )
             }
-            .background(
-                RoundedRectangle(cornerRadius: 30)
-                    .fill(Color.black.opacity(0.9))
-            )
-            .padding()
         }
     }
 }

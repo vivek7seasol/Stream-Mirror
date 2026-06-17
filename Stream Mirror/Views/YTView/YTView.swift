@@ -39,6 +39,7 @@ struct YTView: View {
                     YoutubePreview(
                         webView: $YTVM.webView,
                         isLoading: $YTVM.isLoading,
+                        viewModel: YTVM,
                         onVideoDetected: { url in
                             guard let url else { return }
                             YTVM.processAndFetchVideoDetails(from: url)
@@ -87,27 +88,29 @@ struct YTView: View {
                     HStack {
                         Spacer()
                         Button {
-                            if YTVM.webView.canGoBack {
-                                YTVM.webView.goBack()
-                            }
+                            YTVM.webView.goBack()
                         } label: {
                             Image("back")
                                 .resizable()
-                                .frame(width: isIpad() ? 30 : 24,height: isIpad() ? 30 : 24)
+                                .frame(width: isIpad() ? 30 : 24,
+                                       height: isIpad() ? 30 : 24)
                         }
                         .buttonStyle(.plain)
+                        .disabled(!YTVM.canGoBack)
+                        .opacity(YTVM.canGoBack ? 1 : 0.4)
                         
                         Spacer()
                         Button {
-                            if YTVM.webView.canGoBack {
-                                YTVM.webView.goForward()
-                            }
+                            YTVM.webView.goForward()
                         } label: {
                             Image("next")
                                 .resizable()
-                                .frame(width: isIpad() ? 30 : 24,height: isIpad() ? 30 : 24)
+                                .frame(width: isIpad() ? 30 : 24,
+                                       height: isIpad() ? 30 : 24)
                         }
                         .buttonStyle(.plain)
+                        .disabled(!YTVM.canGoForward)
+                        .opacity(YTVM.canGoForward ? 1 : 0.4)
                         
                         Spacer()
                         Button {

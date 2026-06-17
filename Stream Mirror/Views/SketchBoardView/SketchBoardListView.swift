@@ -12,6 +12,7 @@ struct SketchBoardListView: View {
     @AppStorage(SessionKeys.isPro) var isPro = false
     @EnvironmentObject var adVm : AdCountViewModel
     @State private var showPremium = false
+    @State private var showDeviceList = false
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
@@ -70,15 +71,28 @@ struct SketchBoardListView: View {
                 Spacer()
             }
         }
-        .appScreen()
+        .appScreen(isPresented: $showDeviceList) {
+            DeviceListview(isPresented: $showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+        }
         .onAppear {
             sketchVM.drawings = sketchVM.getAllSavedSketchboard()
         }
         .overlay(alignment: .bottomTrailing) {
             
             Button {
-                adVm.registerTap()
-                sketchVM.showSketchboardView = true
+//                if isPro {
+//                    TVRemoteVM.handleDeviceAction {
+//                        
+//                    } onTV: {
+                        sketchVM.showSketchboardView = true
+//                    } onNoDevice: {
+//                        showDeviceList = true
+//                    }
+//                } else {
+//                    showPremium = true
+//                }
             } label: {
                 Image("Add")
                     .resizable()
@@ -110,6 +124,13 @@ struct SketchBoardListView: View {
                 )
             }
         }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
 }
 

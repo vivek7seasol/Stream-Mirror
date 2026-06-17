@@ -10,6 +10,7 @@ import SwiftUI
 
 struct AppScreenModifier<PresentedView: View>: ViewModifier {
 
+    var disableSwipeBack: Bool = false
     var isPresented: Binding<Bool>?
     let destination: (() -> PresentedView)?
 
@@ -18,9 +19,14 @@ struct AppScreenModifier<PresentedView: View>: ViewModifier {
             Image("AppBG")
                 .resizable()
                 .ignoresSafeArea()
-
+            
             content
         }
+        .background(
+            disableSwipeBack
+            ? AnyView(DisableSwipeBack())
+            : AnyView(EnableSwipeBack())
+        )
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .fullScreenCover(
@@ -35,9 +41,10 @@ struct AppScreenModifier<PresentedView: View>: ViewModifier {
 
 extension View {
 
-    func appScreen() -> some View {
+    func appScreen(disableSwipeBack: Bool = false) -> some View {
         modifier(
             AppScreenModifier<EmptyView>(
+                disableSwipeBack: disableSwipeBack,
                 isPresented: nil,
                 destination: nil
             )

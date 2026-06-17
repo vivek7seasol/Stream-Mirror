@@ -11,7 +11,7 @@ import StoreKit
 struct HomeView: View {
     
     @AppStorage(SessionKeys.isPro) var isPro = false
-    @AppStorage("hasShownHomeAlert") private var hasShownHomeAlert = false
+    
     @EnvironmentObject var adVm : AdCountViewModel
     @EnvironmentObject var commonVM: CommonConnectionViewModel
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
@@ -169,19 +169,15 @@ struct HomeView: View {
                 .padding(.bottom,100)
             }
         }
-        .appScreen()
+        .appScreen(disableSwipeBack: true)
         .onAppear {
 
-            guard !hasShownHomeAlert else { return }
+            guard !AppSession.shared.hasShownRateAlert else { return }
 
-            hasShownHomeAlert = true
-
-            if isPro == false {
-
+            if !isPro {
                 if isShowPremium == "true" {
 
                     if !AppSession.shared.hasShownPremium {
-
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             showPremium = true
                             AppSession.shared.hasShownPremium = true
@@ -192,13 +188,24 @@ struct HomeView: View {
 
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         showRateAlert = true
+                        AppSession.shared.hasShownRateAlert = true
                     }
                 }
-
             } else {
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     showRateAlert = true
+                    AppSession.shared.hasShownRateAlert = true
+                }
+            }
+            
+            DispatchQueue.main.async {
+                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let nav = scene.windows.first(where: { $0.isKeyWindow })?
+                    .rootViewController?
+                    .findNavigationController() {
+                    
+                    nav.interactivePopGestureRecognizer?.delegate = SwipeBackDisabler.shared
                 }
             }
         }

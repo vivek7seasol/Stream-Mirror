@@ -158,9 +158,10 @@ struct RemoteView: View {
                             KeyboardView(viewModel: viewModel, TVRemoteVM: TVRemoteVM, text: $text)
                         }
                     }
+                    .padding(.horizontal,15)
                     .animation(.easeInOut(duration: 0.25), value: controlType)
                     
-                    HStack(spacing: isIpad() ? 40 : 20) {
+                    HStack(spacing: isIpad() ? 50 : 30) {
                         
                         VolChButtonCard(image1: "plus", image2: "minus", title: str.VOL, action1: {
                             handleDeviceSatus {
@@ -263,8 +264,9 @@ struct RemoteView: View {
                                     .foregroundStyle(.white)
                                     .font(.system(size:isIpad() ? 26 : 20,weight: .medium))
                             }
-                            .padding(.horizontal,15)
-                            .frame(height:isIpad() ? 67 : 66)
+                            
+                            .frame(width:isIpad() ? 67 : 66 , height:isIpad() ? 67 : 66)
+                            .background(.white.opacity(0.10))
                             .modifier(GlassCardModifier(cornerRadius:isIpad() ? 38 : 33))
                             .clipShape(RoundedRectangle(cornerRadius:isIpad() ? 38 : 33))
                         }
@@ -276,12 +278,14 @@ struct RemoteView: View {
                                 showChannelView = true
                             }
                         }
-                        CircleButton(icon: "input", size: 30, size2: 66) {
-                            showTVinputList = true
-//                            handleDeviceSatus {
-//                                
-//                            }
-                        }
+//                        if TVRemoteVM.connectedTVType == .LG {
+                            CircleButton(icon: "input", size: 30, size2: 66) {
+                                showTVinputList = true
+                                //                            handleDeviceSatus {
+                                //
+                                //                            }
+                            }
+//                        }
                         
                     }
                     .padding(.horizontal,15)
@@ -292,10 +296,21 @@ struct RemoteView: View {
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .frame(width: geo.size.width, height: geo.size.height)
-            .appScreen()
+            .appScreen(disableSwipeBack: true)
             .id(refreshID)
             .onTapGesture {
                 hideKeyboard()
+            }
+            .onAppear {
+                DispatchQueue.main.async {
+                    if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                       let nav = scene.windows.first(where: { $0.isKeyWindow })?
+                        .rootViewController?
+                        .findNavigationController() {
+                        
+                        nav.interactivePopGestureRecognizer?.delegate = SwipeBackDisabler.shared
+                    }
+                }
             }
             .onReceive(
                 NotificationCenter.default.publisher(

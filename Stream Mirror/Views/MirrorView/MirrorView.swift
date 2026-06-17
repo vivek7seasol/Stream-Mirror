@@ -17,7 +17,7 @@ struct MirrorView: View {
     @EnvironmentObject var TVRemoteVM: RemoteViewModel
     @Environment(\.scenePhase) private var scenePhase
     
-    @AppStorage(AppStrings.rotateMirror) private var isRotateOn: Bool = true
+    @AppStorage(AppStrings.rotateMirror) private var isRotateOn: Bool = false
     
     @State var broadcastManager: BroadCastPickerManager
     @State private var autoRotate = true
@@ -32,8 +32,6 @@ struct MirrorView: View {
     private var UD: UserDefaults? {
         UserDefaults(suiteName: AppStrings.groupID)
     }
-    
-    
     
     private func fetchBroadcastStatus() {
         isBroadcasting = AppStrings.fetchBroadcastStatus()

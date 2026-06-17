@@ -58,13 +58,19 @@ struct SketchBoardView: View {
                 ZStack {
                     HStack {
                         Spacer()
-                        sketcboardButtons(image: "redo", action: {
+                        sketcboardButtons(image: "redo") {
                             sketchVM.redo()
-                        })
+                        }
+                        .disabled(!sketchVM.canRedo)
+                        .opacity(sketchVM.canRedo ? 1 : 0.4)
+                        
                         Spacer()
-                        sketcboardButtons(image: "undo", action: {
+                        sketcboardButtons(image: "undo") {
                             sketchVM.undo()
-                        })
+                        }
+                        .disabled(!sketchVM.canUndo)
+                        .opacity(sketchVM.canUndo ? 1 : 0.4)
+                        
                         Spacer()
                         sketcboardButtons(image: "save", action: {
                             if let savedURL = sketchVM.saveSketchboard(existingURL: existingDrawingURL) {
@@ -84,40 +90,23 @@ struct SketchBoardView: View {
                                 showToastAtCenter(message: "Failed to save drawing")
                             }
                         })
+                        .disabled(!sketchVM.hasDrawing)
+                        .opacity(sketchVM.hasDrawing ? 1 : 0.4)
+                        
                         Spacer()
                         sketcboardButtons(image: sketchVM.isBroadcasting ? "stopDrawing" : "startDrawing", action: {
-                            if isPro {
-                                TVRemoteVM.handleDeviceAction {
-                                    
-                                } onTV: {
-                                    
-//                                    commonVM.castViewModel.stopCastingSession()
-//                                    if commonVM.connectedTvType == .LG || commonVM.connectedTvType == .ROKU {
-//                                        if let url = TVMirrorServer.shared.serverURL{
-//                                            commonVM.connectSDKDiscoveryModel.LGMirroring(mediaURL: url)
-//                                        }
-//                                    }
-                                    if selectedTvType == .ANDROID || selectedTvType == .SAMSUNG {
-                                        if let userDefaults = UserDefaults(suiteName: AppStrings.groupID){
-                                            if userDefaults.bool(forKey: "isBroadcasting") == false {
-                                                if commonVM.castViewModel.isCastingSessionGoing() {
-                                                    commonVM.castViewModel.stopCastingSession()
-                                                    commonVM.StopCasting()
-                                                }
-                                            }
+                            
+                            if selectedTvType == .ANDROID || selectedTvType == .SAMSUNG {
+                                if let userDefaults = UserDefaults(suiteName: AppStrings.groupID){
+                                    if userDefaults.bool(forKey: "isBroadcasting") == false {
+                                        if commonVM.castViewModel.isCastingSessionGoing() {
+                                            commonVM.castViewModel.stopCastingSession()
+                                            commonVM.StopCasting()
                                         }
                                     }
-                                    startMirroringFlow()
-//                                    recordingVM.toggleRecording()
-                                } onNoDevice: {
-                                    sketchVM.hideToolPicker()
-                                    recordingVM.showDeviceList = true
                                 }
-                            } else {
-                                sketchVM.hideToolPicker()
-                                showPremium = true
                             }
-
+                            startMirroringFlow()
                         })
                         Spacer()
                     }
@@ -146,6 +135,7 @@ struct SketchBoardView: View {
                 .environmentObject(commonVM)
         }
         .onAppear {
+            startMirroringFlow()
             sketchVM.fetchBroadcastStatus()
             sketchVM.setup(commonVm: commonVM)
             sketchVM.showToolPicker(colorScheme: colorScheme)
