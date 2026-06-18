@@ -106,15 +106,13 @@ struct TabbarView: View {
                         TVRemoteVM.launchLGInstalledApp(app)
                     }
                 )
-                .presentationDetents([
-                    .height(
-                        TVRemoteVM.connectedTVType == .LG
-                        ? (isIpad() ? 800 : 650)
-                        : (isIpad() ? 500 : 400)
-                    )
-                ])
-            
-            .presentationDetents([.height(isIpad() ? 500 : 400)])
+            .presentationDetents([
+                .height(
+                    TVRemoteVM.connectedTVType == .LG
+                    ? (isIpad() ? 800 : 700)
+                    : (isIpad() ? 500 : 380)
+                )
+            ])
             .presentationDragIndicator(.hidden)
             .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
         }

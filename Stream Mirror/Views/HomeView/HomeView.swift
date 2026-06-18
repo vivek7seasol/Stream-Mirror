@@ -172,7 +172,7 @@ struct HomeView: View {
         .appScreen(disableSwipeBack: true)
         .onAppear {
 
-            guard !AppSession.shared.hasShownRateAlert else { return }
+            let didAskForReview = UserDefaults.standard.bool(forKey: "didAskForReview")
 
             if !isPro {
                 if isShowPremium == "true" {
@@ -186,25 +186,34 @@ struct HomeView: View {
 
                 } else {
 
+                    if !didAskForReview &&
+                       !AppSession.shared.hasShownRateAlert {
+
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            showRateAlert = true
+                            AppSession.shared.hasShownRateAlert = true
+                        }
+                    }
+                }
+
+            } else {
+
+                if !didAskForReview &&
+                   !AppSession.shared.hasShownRateAlert {
+
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         showRateAlert = true
                         AppSession.shared.hasShownRateAlert = true
                     }
                 }
-            } else {
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    showRateAlert = true
-                    AppSession.shared.hasShownRateAlert = true
-                }
             }
-            
+
             DispatchQueue.main.async {
                 if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                    let nav = scene.windows.first(where: { $0.isKeyWindow })?
                     .rootViewController?
                     .findNavigationController() {
-                    
+
                     nav.interactivePopGestureRecognizer?.delegate = SwipeBackDisabler.shared
                 }
             }
@@ -247,7 +256,9 @@ struct HomeView: View {
                 .environmentObject(commonVM)
         }
         .fullScreenCover(isPresented: $showPremium,onDismiss: {
-            showRateAlert = true
+            if !UserDefaults.standard.bool(forKey: "didAskForReview") {
+                showRateAlert = true
+            }
         }) {
             PremiumView()
         }

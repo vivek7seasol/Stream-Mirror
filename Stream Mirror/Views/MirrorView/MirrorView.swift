@@ -242,6 +242,9 @@ struct MirrorView: View {
             }
             
         case .ANDROID, .SAMSUNG:
+            if let defaults = UserDefaults(suiteName: AppStrings.groupID) {
+                defaults.set("mirroring", forKey: "broadcastMode")
+            }
             print("🔥 Android Mirroring Start")
             broadcastManager = BroadCastPickerManager(commonVm: commonVM)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -249,7 +252,9 @@ struct MirrorView: View {
             }
             
         case .LG:
-            
+            if let defaults = UserDefaults(suiteName: AppStrings.groupID) {
+                defaults.set("mirroring", forKey: "broadcastMode")
+            }
             let lgModel = commonVM.connectSDKDiscoveryModel
             
             guard lgModel.isConnectedToLG else {

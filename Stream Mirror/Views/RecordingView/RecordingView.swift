@@ -98,6 +98,7 @@ struct RecordingView: View {
                 
                 Button {
                     if let defaults = UserDefaults(suiteName: AppStrings.groupID) {
+                        defaults.set("recording", forKey: "broadcastMode")
                         defaults.set(true, forKey: "shouldSaveRecording")
                     }
                     
@@ -135,8 +136,9 @@ struct RecordingView: View {
 
             let defaults = UserDefaults(suiteName: AppStrings.groupID)
 
-            videoEnabled = defaults?.bool(forKey: "isVideoEnabled") ?? true
-            microphoneEnabled = defaults?.bool(forKey: "isMicEnabled") ?? true
+            videoEnabled = defaults?.object(forKey: "recordingVideoEnabled") as? Bool ?? true
+
+            microphoneEnabled = defaults?.object(forKey: "recordingMicEnabled") as? Bool ?? true
             
             DispatchQueue.main.async {
                 if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -153,19 +155,19 @@ struct RecordingView: View {
                 defaults.set(false, forKey: "shouldSaveRecording")
             }
         }
-        .onChange(of: scenePhase) {
+        .onChange(of: scenePhase) { _ in
             if scenePhase == .active {
                 recordingVM.checkBroadcastStatus()
             }
         }
         .onChange(of: videoEnabled) { value in
             UserDefaults(suiteName: AppStrings.groupID)?
-                .set(value, forKey: "isVideoEnabled")
+                .set(value, forKey: "recordingVideoEnabled")
         }
 
         .onChange(of: microphoneEnabled) { value in
             UserDefaults(suiteName: AppStrings.groupID)?
-                .set(value, forKey: "isMicEnabled")
+                .set(value, forKey: "recordingMicEnabled")
         }
         .navigationDestination(isPresented: $recordingVM.showRecordingList) {
             RecordingListView(recordingVM: recordingVM) 

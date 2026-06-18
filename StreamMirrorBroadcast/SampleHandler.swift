@@ -19,7 +19,7 @@ class SampleHandler: RPBroadcastSampleHandler {
     private var videoQuality: String = "Low"
     private var serverUrl: String = ""
     private let userDefaultsSuiteName = AppStrings.groupID
-    
+    private var broadcastMode = "mirroring"
     private let motionManager = CMMotionManager()
     private var currentOrientation: UIDeviceOrientation = .portrait
     private var appAudioInput: AVAssetWriterInput?
@@ -33,6 +33,9 @@ class SampleHandler: RPBroadcastSampleHandler {
     private var shouldSaveRecording: Bool = false
     private var isVideoEnabled = true
     
+    private var recordingVideoEnabled = true
+    private var recordingMicEnabled = true
+    
     // MARK: - Broadcast Lifecycle Methods
     override func broadcastStarted(withSetupInfo setupInfo: [String : NSObject]?) {
         print("Broadcast started.")
@@ -42,6 +45,16 @@ class SampleHandler: RPBroadcastSampleHandler {
         startOrientationTracking()
         if shouldSaveRecording {
             setupVideoWriter()
+        }
+        if let userDefaults = UserDefaults(suiteName: userDefaultsSuiteName) {
+
+            let mode = userDefaults.string(forKey: "broadcastMode") ?? ""
+
+            if mode == "recording" {
+                userDefaults.set(true, forKey: "isRecordingBroadcasting")
+            } else {
+                userDefaults.set(true, forKey: "isMirroringBroadcasting")
+            }
         }
     }
 
@@ -57,6 +70,17 @@ class SampleHandler: RPBroadcastSampleHandler {
         print("Broadcast finished.")
         updateBroadcastStatus(isBroadcasting: false)
         postDarwinNotification(name: "BROADCAST_STOPPED")
+            
+        if let userDefaults = UserDefaults(suiteName: userDefaultsSuiteName) {
+
+            let mode = userDefaults.string(forKey: "broadcastMode") ?? ""
+
+            if mode == "recording" {
+                userDefaults.set(false, forKey: "isRecordingBroadcasting")
+            } else {
+                userDefaults.set(false, forKey: "isMirroringBroadcasting")
+            }
+        }
         
         finishWriting()
     }
@@ -106,17 +130,30 @@ class SampleHandler: RPBroadcastSampleHandler {
 
         case .video:
 
-            guard isVideoEnabled else { return }
+            if broadcastMode == "recording" {
 
-            handleVideoSampleBuffer(sampleBuffer)
+                if recordingVideoEnabled {
+                    writeSampleBuffer(sampleBuffer)
+                }
+
+            } else {
+
+                handleVideoSampleBuffer(sampleBuffer)
+            }
 
         case .audioApp:
             writeAudioSampleBuffer(sampleBuffer, input: appAudioInput)
 
         case .audioMic:
-            if isMicEnabled {
-                    writeAudioSampleBuffer(sampleBuffer, input: micAudioInput)
-                }
+
+            if broadcastMode == "recording",
+               recordingMicEnabled {
+
+                writeAudioSampleBuffer(
+                    sampleBuffer,
+                    input: micAudioInput
+                )
+            }
         @unknown default:
             break
         }
@@ -148,8 +185,6 @@ class SampleHandler: RPBroadcastSampleHandler {
         
         frameCount += 1
         
-        // ✅ ADD THIS LINE
-        writeSampleBuffer(sampleBuffer)
         
         guard frameCount % 2 == 0 else { return }
         
@@ -315,46 +350,67 @@ class SampleHandler: RPBroadcastSampleHandler {
     // MARK: - Recording Logic (NEW)
 
     private func setupVideoWriter() {
+
         guard let containerURL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: userDefaultsSuiteName) else {
-            print("App Group not found")
+            print("❌ App Group not found")
             return
         }
-        
-        let fileName = "recording_\(Int(Date().timeIntervalSince1970)).mp4"
-        let recordingsFolder = containerURL.appendingPathComponent("Recordings", isDirectory: true)
 
-        try? FileManager.default.createDirectory(at: recordingsFolder, withIntermediateDirectories: true)
+        let fileName = "recording_\(Int(Date().timeIntervalSince1970)).mp4"
+
+        let recordingsFolder = containerURL
+            .appendingPathComponent("Recordings", isDirectory: true)
+
+        try? FileManager.default.createDirectory(
+            at: recordingsFolder,
+            withIntermediateDirectories: true
+        )
 
         let url = recordingsFolder.appendingPathComponent(fileName)
-        
+
         try? FileManager.default.removeItem(at: url)
-        
+
         do {
-            assetWriter = try AVAssetWriter(outputURL: url, fileType: .mp4)
+
+            assetWriter = try AVAssetWriter(
+                outputURL: url,
+                fileType: .mp4
+            )
+
             outputURL = url
-            
-            let settings: [String: Any] = [
+
+            // MARK: - Video
+
+            let videoSettings: [String: Any] = [
                 AVVideoCodecKey: AVVideoCodecType.h264,
                 AVVideoWidthKey: 720,
                 AVVideoHeightKey: 1280
             ]
-            
-            videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
+
+            videoInput = AVAssetWriterInput(
+                mediaType: .video,
+                outputSettings: videoSettings
+            )
+
             videoInput?.expectsMediaDataInRealTime = true
-            
-            if let writer = assetWriter,
-               let input = videoInput,
-               writer.canAdd(input) {
-                writer.add(input)
+
+            if let videoInput,
+               assetWriter?.canAdd(videoInput) == true {
+
+                assetWriter?.add(videoInput)
             }
-            
+
+            // MARK: - Audio Settings
+
             let audioSettings: [String: Any] = [
                 AVFormatIDKey: kAudioFormatMPEG4AAC,
                 AVNumberOfChannelsKey: 2,
                 AVSampleRateKey: 44100,
                 AVEncoderBitRateKey: 128000
             ]
+
+            // MARK: - Microphone Audio
 
             micAudioInput = AVAssetWriterInput(
                 mediaType: .audio,
@@ -365,15 +421,34 @@ class SampleHandler: RPBroadcastSampleHandler {
 
             if let micAudioInput,
                assetWriter?.canAdd(micAudioInput) == true {
+
                 assetWriter?.add(micAudioInput)
             }
-            
+
+            // MARK: - App/System Audio
+
+            appAudioInput = AVAssetWriterInput(
+                mediaType: .audio,
+                outputSettings: audioSettings
+            )
+
+            appAudioInput?.expectsMediaDataInRealTime = true
+
+            if let appAudioInput,
+               assetWriter?.canAdd(appAudioInput) == true {
+
+                assetWriter?.add(appAudioInput)
+            }
+
             assetWriter?.startWriting()
-            
-            print("Recording started: \(url)")
-            
+
+            print("✅ Recording started: \(url)")
+            print("🎤 Mic Enabled: \(recordingMicEnabled)")
+            print("🎥 Video Enabled: \(recordingVideoEnabled)")
+
         } catch {
-            print("Writer error: \(error)")
+
+            print("❌ Writer error: \(error)")
         }
     }
     
@@ -398,32 +473,39 @@ class SampleHandler: RPBroadcastSampleHandler {
     }
     
     private func finishWriting() {
+
         videoInput?.markAsFinished()
-        
+        micAudioInput?.markAsFinished()
+        appAudioInput?.markAsFinished()
+
         assetWriter?.finishWriting { [weak self] in
+
             guard let self = self else { return }
-            
+
             if let url = self.outputURL {
-                print("Video saved at: \(url)")
-                
-                // Save filename for app access
-                if let userDefaults = UserDefaults(suiteName: self.userDefaultsSuiteName) {
-                    userDefaults.set(url.lastPathComponent, forKey: "lastRecording")
-                }
+
+                print("✅ Video saved at: \(url)")
+
+                UserDefaults(
+                    suiteName: self.userDefaultsSuiteName
+                )?.set(
+                    url.lastPathComponent,
+                    forKey: "lastRecording"
+                )
             }
         }
     }
-    
     // MARK: - User Defaults (UNCHANGED)
 
     private func loadUserPreferences() {
             if let userDefaults = UserDefaults(suiteName: userDefaultsSuiteName) {
-                isVideoEnabled =
-                    userDefaults.bool(forKey: "isVideoEnabled")
+                recordingVideoEnabled =
+                    userDefaults.object(forKey: "recordingVideoEnabled") as? Bool ?? true
 
-                isMicEnabled =
-                    userDefaults.bool(forKey: "isMicEnabled")
-                
+                recordingMicEnabled =
+                    userDefaults.object(forKey: "recordingMicEnabled") as? Bool ?? true
+                broadcastMode =
+                    userDefaults.string(forKey: "broadcastMode") ?? "mirroring"
                 videoQuality = userDefaults.string(forKey: "selectedQuality") ?? "Low"
                 print("Video Quality: \(videoQuality)")
                 shouldSaveRecording = userDefaults.bool(forKey: "shouldSaveRecording")

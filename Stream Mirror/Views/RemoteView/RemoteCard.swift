@@ -438,6 +438,7 @@ struct ChannelView: View {
                         }
                     }
                 }
+                .padding(.trailing,15)
                 
                 // Title
                 VStack(spacing: 8) {
@@ -473,7 +474,7 @@ struct ChannelView: View {
                                 }
                             }
                         }
-                        .padding(.bottom, 40)
+                        .padding(.horizontal, 15)
                     }
 
                 } else {
@@ -495,10 +496,11 @@ struct ChannelView: View {
                             }
                         }
                     }
-                    .padding(.bottom, 40)
+                    .padding(.horizontal, 15)
                 }
             }
             .padding(.horizontal, 24)
+            .padding(.top, 20)
             .clipShape(
                 CustomCorner(
                     corners: [.topLeft, .topRight],
