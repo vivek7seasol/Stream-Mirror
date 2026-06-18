@@ -162,10 +162,13 @@ struct CameraView: View {
         } message: {
             Text("Please disconnect AirPlay device first.".localized)
         }
-        .fullScreenCover(isPresented: $showDeviceList) {
+        .sheet(isPresented: $showDeviceList) {
             DeviceListview(isPresented: $showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
+                .presentationDetents([.height(isIpad() ? 830 : 700)])
+                .presentationDragIndicator(.hidden)
+                .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
         }
         .fullScreenCover(isPresented: $showPremium, onDismiss: {
             if pro_close_inter == "true" {

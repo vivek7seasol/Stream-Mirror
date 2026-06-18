@@ -375,7 +375,11 @@ struct VolChButtonCard: View {
 struct ChannelView: View {
     
     @Binding var isPresented: Bool
-    var onChannelSelected: (TVApps) -> Void
+    @ObservedObject var TVRemoteVM: RemoteViewModel
+    var onTVAppSelected: (TVApps) -> Void
+    var onLGAppSelected: (LGTVApps) -> Void
+    
+    
     let channels: [(image: String, title: String, app: TVApps)] = [
         ("Youtube2", "Youtube",.youtube),
         ("Netflix", "Netflix",.netflix),
@@ -383,6 +387,24 @@ struct ChannelView: View {
         ("Spotify", "Spotify",.spotify),
         ("Disney", "Disney",.disney),
         ("Paramount", "Paramount",.paramount)
+    ]
+    
+    let LGTVChannels: [(image: String, title: String, app: LGTVApps)] = [
+        ("Youtube2", "Youtube",.youtube),
+        ("Netflix", "Netflix",.netflix),
+        ("Prime", "Prime",.prime),
+        ("lgChannels", "lgChannels",.lgChannels),
+        ("AppleTV", "AppleTV",.appleTV),
+        ("ZeeFive", "ZeeFive",.zeeFive),
+        ("lgGaming", "lgGaming Portal",.lgGamingPortal),
+        ("Apps", "Apps",.apps),
+        ("HomeOffice", "HomeOffice",.homeOffice),
+        ("Music", "Music",.music),
+        ("HomeHub", "HomeHub",.homeHub),
+        ("learning", "learning",.learning),
+        ("WebBrowser", "WebBrowser",.webBrowser),
+        ("MediaPlayer", "MediaPlayer",.mediaPlayer),
+        
     ]
     
     let columns = [
@@ -393,82 +415,98 @@ struct ChannelView: View {
     var body: some View {
         
         ZStack {
-            
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    withAnimation(.spring()) {
-                        isPresented = false
-                    }
-                }
-            
-            VStack(spacing: 0) {
+            Image("sheetBG")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+            VStack(spacing: 15) {
                 
-                Spacer()
+                // Drag Indicator
+                Capsule()
+                    .fill(.white.opacity(0.2))
+                    .frame(width: 70, height: 6)
+                    .padding(.top)
                 
-                VStack(spacing: 20) {
+                // Close Button
+                HStack {
                     
-                    // Drag Indicator
-                    Capsule()
-                        .fill(.white.opacity(0.2))
-                        .frame(width: 70, height: 6)
-                        .padding(.top)
+                    Spacer()
                     
-                    // Close Button
-                    HStack {
-                        
-                        Spacer()
-                        
-                        singleButtonCard(image: "close") {
-                            withAnimation(.spring()) {
-                                isPresented = false
-                            }
+                    singleButtonCard(image: "close") {
+                        withAnimation(.spring()) {
+                            isPresented = false
                         }
                     }
+                }
+                
+                // Title
+                VStack(spacing: 8) {
                     
-                    // Title
-                    VStack(spacing: 8) {
-                        
-                        Text("Select Channel")
-                            .font(.system(size: 22, weight: .semibold))
-                            .foregroundColor(.white)
-                        
-                        Text("Choose a channel to start watching.")
-                            .font(.system(size: 12))
-                            .foregroundColor(AppColor.textColor)
+                    Text("Select Channel")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(.white)
+                    
+                    Text("Choose a channel to start watching.")
+                        .font(.system(size: 12))
+                        .foregroundColor(AppColor.textColor)
+                }
+                
+                // Channel Grid
+                if TVRemoteVM.connectedTVType == .LG {
+
+                    ScrollView(.vertical, showsIndicators: false) {
+
+                        LazyVGrid(columns: columns, spacing: 15) {
+
+                            ForEach(LGTVChannels.indices, id: \.self) { index in
+
+                                ChannelCard(
+                                    image: LGTVChannels[index].image,
+                                    title: LGTVChannels[index].title
+                                ) {
+
+                                    onLGAppSelected(LGTVChannels[index].app)
+
+                                    withAnimation(.spring()) {
+                                        isPresented = false
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.bottom, 40)
                     }
-                    
-                    // Channel Grid
+
+                } else {
+
                     LazyVGrid(columns: columns, spacing: 15) {
-                        
+
                         ForEach(channels.indices, id: \.self) { index in
-                            
+
                             ChannelCard(
-                                image: channels[index].0,
-                                title: channels[index].1
+                                image: channels[index].image,
+                                title: channels[index].title
                             ) {
-                                onChannelSelected(channels[index].app)
+
+                                onTVAppSelected(channels[index].app)
+
                                 withAnimation(.spring()) {
                                     isPresented = false
                                 }
                             }
                         }
                     }
+                    .padding(.bottom, 40)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 50)
-                .background(
-                    DeviceListBG()
-                )
-                .clipShape(
-                    CustomCorner(
-                        corners: [.topLeft, .topRight],
-                        radius: 40
-                    )
-                )
-                //                .offset(y: 60)
             }
+            .padding(.horizontal, 24)
+            .clipShape(
+                CustomCorner(
+                    corners: [.topLeft, .topRight],
+                    radius: 40
+                )
+            )
         }
+        
     }
 }
 struct ChannelCard: View {
@@ -510,12 +548,12 @@ struct ChannelCard: View {
 struct NumberPadView: View {
     
     @Binding var isPresented: Bool
-
-       var onNumberTap: (String) -> Void
-       var onClear: () -> Void
-       var onDone: (String) -> Void
-
-       @State private var enteredNumber = ""
+    
+    var onNumberTap: (String) -> Void
+    var onClear: () -> Void
+    var onDone: (String) -> Void
+    
+    @State private var enteredNumber = ""
     
     private let columns = [
         GridItem(.flexible()),
@@ -526,88 +564,83 @@ struct NumberPadView: View {
     var body: some View {
         
         ZStack {
-            
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    isPresented = false
+            Image("sheetBG")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+            VStack(spacing: 15) {
+                
+                Capsule()
+                    .fill(.white.opacity(0.10))
+                    .frame(width: 70, height: 6)
+                    .padding(.top)
+                
+                HStack {
+                    
+                    Spacer()
+                    
+                    singleButtonCard(image: "close") {
+                        isPresented = false
+                    }
+                }.padding(.top,15)
+                
+                ZStack {
+                    
+                    Text(enteredNumber)
+                        .font(.system(size: 30, weight: .medium))
+                        .foregroundColor(.white)
                 }
-            
-            VStack(spacing: 0) {
+                .frame(maxWidth: .infinity)
+                .frame(height: isIpad() ? 90 : 70)
+                .modifier(GlassCardModifier(cornerRadius: 20))
+                .padding(.horizontal,15)
                 
-                Spacer()
-                
-                VStack(spacing: 15) {
+                LazyVGrid(columns: columns, spacing: 20) {
                     
-                    Capsule()
-                        .fill(.white.opacity(0.2))
-                        .frame(width: 70, height: 6)
-                        .padding(.top)
-                    
-                    HStack {
+                    ForEach(1...9, id: \.self) { number in
                         
-                        Spacer()
-                        
-                        singleButtonCard(image: "close") {
-                            isPresented = false
-                        }
-                    }
-                    
-                    ZStack {
-                        
-                        Text(enteredNumber)
-                            .font(.system(size: 30, weight: .medium))
-                            .foregroundColor(.white)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: isIpad() ? 90 : 70)
-                    .modifier(GlassCardModifier(cornerRadius: 20))
-                    .padding(.horizontal,15)
-                    
-                    LazyVGrid(columns: columns, spacing: 20) {
-                        
-                        ForEach(1...9, id: \.self) { number in
+                        NumberKey(title: "\(number)") {
                             
-                            NumberKey(title: "\(number)") {
-
-                                enteredNumber += "\(number)"
-
-                                onNumberTap("\(number)")
-                            }
-                        }
-                        
-                        NumberKey(title: "✕") {
-
-                            if !enteredNumber.isEmpty {
-                                enteredNumber.removeLast()
-                            }
-
-                            onClear()
-                        }
-                        
-                        NumberKey(title: "0") {
-                            enteredNumber += "0"
-                        }
-                        
-                        NumberKey(title: "✓") {
-
-                            onDone(enteredNumber)
-
-                            isPresented = false
+                            enteredNumber += "\(number)"
+                            
+                            onNumberTap("\(number)")
                         }
                     }
-                    .padding(.bottom, 40)
+                    
+                    NumberKey(title: "✕") {
+                        
+                        if !enteredNumber.isEmpty {
+                            enteredNumber.removeLast()
+                        }
+                        
+                        onClear()
+                    }
+                    
+                    NumberKey(title: "0") {
+
+                        enteredNumber += "0"
+
+                        onNumberTap("0")
+                    }
+                    
+                    NumberKey(title: "✓") {
+                        
+                        onDone(enteredNumber)
+                        
+                        isPresented = false
+                    }
                 }
-                .padding(.horizontal, 24)
-                .background(DeviceListBG())
-                .clipShape(
-                    CustomCorner(
-                        corners: [.topLeft, .topRight],
-                        radius: 40
-                    )
-                )
+                .padding(.bottom, 40)
             }
+            .padding(.horizontal)
+            .clipShape(
+                CustomCorner(
+                    corners: [.topLeft, .topRight],
+                    radius: 40
+                )
+            )
         }
+        
     }
 }
 
@@ -647,111 +680,109 @@ struct TVInputItem: Identifiable {
 }
 
 struct TVInputSourceView: View {
-
+    
     @Binding var isPresented: Bool
     @ObservedObject var TVRemoteVM: RemoteViewModel
-
+    
     var body: some View {
-
+        
         ZStack {
+            Image("sheetBG")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+            VStack(spacing: 15) {
 
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    isPresented = false
-                }
+                Capsule()
+                    .fill(.white.opacity(0.10))
+                    .frame(width: 70, height: 6)
+                    .padding(.top)
 
-            VStack(spacing: 0) {
+                HStack {
 
-                Spacer()
+                    Spacer()
 
-                VStack {
-
-                    Capsule()
-                        .fill(.gray.opacity(0.5))
-                        .frame(width: 50, height: 5)
-                        .padding(.top, 10)
-
-                    HStack {
-
-                        Spacer()
-
-                        Text("Select TV Input Source")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white)
-
-                        Spacer()
-
-                        singleButtonCard(image: "close") {
-                            isPresented = false
-                        }
-                    }
-                    .padding()
-
-                    if TVRemoteVM.lgPorts.isEmpty {
-                        Spacer()
-                        placeholderView(image: "PortPH", title: str.noPortFound, title2: "", isTitle2: false)
-                        Spacer()
-                    } else {
-                        
-                        ScrollView(showsIndicators: false) {
-                            
-                            VStack(spacing: 14) {
-                                
-                                ForEach(TVRemoteVM.lgPorts, id: \.id) { port in
-                                    
-                                    Button {
-                                        
-                                        TVRemoteVM.switchToLGPort(port)
-                                        
-                                        isPresented = false
-                                        
-                                    } label: {
-                                        let idLower = port.id?.lowercased() ?? ""
-                                        HStack {
-                                            
-                                            ZStack {
-                                                Circle()
-                                                    .fill(.white.opacity(0.08))
-                                                    .frame(width: 44, height: 44)
-                                                
-                                                Image(idLower.contains("hdmi") ? "hdmi" : "AV2")
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(width: 22, height: 22)
-                                            }
-                                            
-                                            Text(port.name ?? "Unknown")
-                                                .foregroundColor(.white)
-                                            
-                                            Spacer()
-                                            
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(.white)
-                                        }
-                                        .padding()
-                                        .frame(height: 70)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 18)
-                                                .fill(.ultraThinMaterial)
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                            .padding()
-                        }
+                    singleButtonCard(image: "close") {
+                        isPresented = false
                     }
                 }
-                .padding(.horizontal, 24)
-                .background(DeviceListBG())
-                .clipShape(
-                    CustomCorner(
-                        corners: [.topLeft, .topRight],
-                        radius: 40
+                .padding(.top, 15)
+
+                Text("Select TV Input Source")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundColor(.white)
+
+                if TVRemoteVM.lgPorts.isEmpty {
+
+                    Spacer()
+
+                    placeholderView(
+                        image: "PortPH",
+                        title: str.noPortFound,
+                        title2: "",
+                        isTitle2: false
                     )
-                )
+
+                    Spacer()
+
+                } else {
+
+                    ScrollView(showsIndicators: false) {
+
+                        VStack(spacing: 14) {
+
+                            ForEach(TVRemoteVM.lgPorts, id: \.id) { port in
+
+                                Button {
+
+                                    TVRemoteVM.switchToLGPort(port)
+                                    isPresented = false
+
+                                } label: {
+
+                                    let idLower = port.id?.lowercased() ?? ""
+
+                                    HStack {
+
+                                        ZStack {
+
+                                            Circle()
+                                                .fill(.white.opacity(0.08))
+                                                .frame(width: 44, height: 44)
+
+                                            Image(idLower.contains("hdmi") ? "hdmi" : "AV2")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 22, height: 22)
+                                        }
+
+                                        Text(port.name ?? "Unknown")
+                                            .foregroundColor(.white)
+
+                                        Spacer()
+
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(.white)
+                                    }
+                                    .padding()
+                                    .frame(height: 70)
+                                    .modifier(GlassCardModifier(cornerRadius: 18))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding()
+                    }
+                }
             }
+            .padding(.horizontal)
+            .clipShape(
+                CustomCorner(
+                    corners: [.topLeft, .topRight],
+                    radius: 40
+                )
+            )
         }
+        
     }
 }

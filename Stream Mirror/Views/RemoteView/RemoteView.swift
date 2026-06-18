@@ -265,10 +265,10 @@ struct RemoteView: View {
                                     .font(.system(size:isIpad() ? 26 : 20,weight: .medium))
                             }
                             
-                            .frame(width:isIpad() ? 67 : 66 , height:isIpad() ? 67 : 66)
+                            .frame(width:isIpad() ? 77 : 66 , height:isIpad() ? 77 : 66)
                             .background(.white.opacity(0.10))
-                            .modifier(GlassCardModifier(cornerRadius:isIpad() ? 38 : 33))
-                            .clipShape(RoundedRectangle(cornerRadius:isIpad() ? 38 : 33))
+                            .modifier(GlassCardModifier(cornerRadius:isIpad() ? 38.5 : 33))
+                            .clipShape(RoundedRectangle(cornerRadius:isIpad() ? 38.5 : 33))
                         }
                         .buttonStyle(.plain)
                         
@@ -278,15 +278,13 @@ struct RemoteView: View {
                                 showChannelView = true
                             }
                         }
-//                        if TVRemoteVM.connectedTVType == .LG {
+                        if TVRemoteVM.connectedTVType == .LG {
                             CircleButton(icon: "input", size: 30, size2: 66) {
-                                showTVinputList = true
-                                //                            handleDeviceSatus {
-                                //
-                                //                            }
+                                handleDeviceSatus {
+                                    showTVinputList = true
+                                }
                             }
-//                        }
-                        
+                        }
                     }
                     .padding(.horizontal,15)
                     .padding(.vertical,10)

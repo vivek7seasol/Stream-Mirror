@@ -29,13 +29,16 @@ struct AppScreenModifier<PresentedView: View>: ViewModifier {
         )
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .fullScreenCover(
+        .sheet(
             isPresented: isPresented ?? .constant(false)
         ) {
             if let destination {
                 destination()
             }
         }
+        .presentationDetents([.height(isIpad() ? 830 : 700)])
+        .presentationDragIndicator(.hidden)
+        .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
     }
 }
 

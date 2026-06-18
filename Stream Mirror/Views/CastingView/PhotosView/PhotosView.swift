@@ -85,10 +85,13 @@ struct PhotosView: View {
                 selectedIndex: photoVM.selectedIndex
             )
         }
-        .fullScreenCover(isPresented: $photoVM.showDeviceList) {
+        .sheet(isPresented: $photoVM.showDeviceList) {
             DeviceListview(isPresented: $photoVM.showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
+                .presentationDetents([.height(isIpad() ? 830 : 700)])
+                .presentationDragIndicator(.hidden)
+                .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
         }
         .alert(str.Photo_Access_Required, isPresented: $photoVM.showSettingsAlert) {
             

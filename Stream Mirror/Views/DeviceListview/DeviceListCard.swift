@@ -196,6 +196,7 @@ struct PopupCard: View {
                 Text(subtitle)
                     .font(.system(size: isIpad() ? 18 : 12))
                     .foregroundStyle(AppColor.textColor)
+                    .multilineTextAlignment(.center)
             }
 
             commonButtonFile(text: btnTitle) {

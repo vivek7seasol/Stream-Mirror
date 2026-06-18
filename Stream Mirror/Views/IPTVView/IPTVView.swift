@@ -179,16 +179,27 @@ struct IPTVView: View {
             hideKeyboard()
         }
         .onAppear {
-            
+
+            isSearchFocused = false
+
+            DispatchQueue.main.async {
+                UIApplication.shared.sendAction(
+                    #selector(UIResponder.resignFirstResponder),
+                    to: nil,
+                    from: nil,
+                    for: nil
+                )
+            }
+
             Task {
-                
+
                 iptvVM.isLoadings = true
-                
+
                 async let countries = iptvVM.fetchIPTVCountry()
                 async let categories = iptvVM.fetchIPTVCategory()
-                
+
                 _ = await (countries, categories)
-                
+
                 await MainActor.run {
                     iptvVM.isLoadings = false
                 }

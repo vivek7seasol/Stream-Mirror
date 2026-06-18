@@ -88,7 +88,7 @@ struct YTView: View {
                     HStack {
                         Spacer()
                         Button {
-                            YTVM.webView.goBack()
+                            YTVM.webView.goForward()
                         } label: {
                             Image("back")
                                 .resizable()
@@ -101,7 +101,7 @@ struct YTView: View {
                         
                         Spacer()
                         Button {
-                            YTVM.webView.goForward()
+                            YTVM.webView.goBack()
                         } label: {
                             Image("next")
                                 .resizable()
@@ -163,10 +163,13 @@ struct YTView: View {
                 )
             }
         }
-        .fullScreenCover(isPresented: $YTVM.showDeviceList) {
+        .sheet(isPresented: $YTVM.showDeviceList) {
             DeviceListview(isPresented: $YTVM.showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
+                .presentationDetents([.height(isIpad() ? 830 : 700)])
+                .presentationDragIndicator(.hidden)
+                .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
         }
         .fullScreenCover(isPresented: $showPremium, onDismiss: {
             if pro_close_inter == "true" {

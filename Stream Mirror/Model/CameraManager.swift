@@ -95,21 +95,63 @@ final class CameraPreviewManager: NSObject, ObservableObject, AVCapturePhotoCapt
     }
     
     func switchCamera() {
-        
+        if isFlashOn {
+            turnOffTorch()
+        }
         currentPosition = currentPosition == .back ? .front : .back
         setupCamera(position: currentPosition)
     }
     
     func toggleFlash() {
-        
-        isFlashOn.toggle()
+
+        guard let device = currentInput?.device,
+              device.hasTorch else {
+            return
+        }
+
+        do {
+
+            try device.lockForConfiguration()
+
+            if device.torchMode == .on {
+
+                device.torchMode = .off
+                isFlashOn = false
+
+            } else {
+
+                try device.setTorchModeOn(level: 1.0)
+                isFlashOn = true
+            }
+
+            device.unlockForConfiguration()
+
+        } catch {
+            print("Torch Error:", error.localizedDescription)
+        }
+    }
+    
+    private func turnOffTorch() {
+
+        guard let device = currentInput?.device,
+              device.hasTorch else { return }
+
+        do {
+            try device.lockForConfiguration()
+            device.torchMode = .off
+            device.unlockForConfiguration()
+
+            isFlashOn = false
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
     func capturePhoto() {
         
         let settings = AVCapturePhotoSettings()
         
-        settings.flashMode = isFlashOn ? .on : .off
+        settings.flashMode = .off
         
         output.capturePhoto(with: settings, delegate: self)
     }

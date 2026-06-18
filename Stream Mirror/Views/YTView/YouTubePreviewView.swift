@@ -119,10 +119,13 @@ struct YouTubePreviewView: View {
                 commonVM.setTVPlaceHolder(connectedTvType: commonVM.connectedTvType ?? .ANDROID)
             }
         }
-        .fullScreenCover(isPresented: $YTVM.showDeviceList) {
+        .sheet(isPresented: $YTVM.showDeviceList) {
             DeviceListview(isPresented: $YTVM.showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
+                .presentationDetents([.height(isIpad() ? 830 : 700)])
+                .presentationDragIndicator(.hidden)
+                .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
         }
     }
     

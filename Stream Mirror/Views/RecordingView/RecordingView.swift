@@ -30,20 +30,16 @@ struct RecordingView: View {
                             .resizable()
                             .frame(width: isIpad() ? 150 : 110,height:  isIpad() ? 150 : 110)
                         
-                        Text(recordingVM.recordingTime)
-                            .font(.system(size: isIpad() ? 36 : 30,weight: .medium))
-                            .foregroundStyle(.white)
+                        let timeText = recordingVM.recordingTime
+
+                        Text(timeText)
+                            .font(.system(size: isIpad() ? 36 : 30, weight: .medium))
+                            .foregroundColor(.white)
                         
-                        Text(
-                            recordingVM.isRecording
-                            ? str.RecordinginProgress
-                            : recordingVM.isWaitingForBroadcast
-                                ? "Waiting for confirmation..."
-                                : str.ReadytoRecord
-                        )
+                        Text(recordingVM.recordingStatusText)
                             .font(.system(size: isIpad() ? 18 : 12))
                             .foregroundStyle(AppColor.textColor)
-                            .padding(.vertical,1)
+                            .padding(.vertical, 1)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -157,8 +153,8 @@ struct RecordingView: View {
                 defaults.set(false, forKey: "shouldSaveRecording")
             }
         }
-        .onChange(of: scenePhase) { newPhase in
-            if newPhase == .active {
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
                 recordingVM.checkBroadcastStatus()
             }
         }

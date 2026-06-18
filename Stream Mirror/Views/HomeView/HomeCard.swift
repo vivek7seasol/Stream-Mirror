@@ -9,6 +9,7 @@ import SwiftUI
 import Lottie
 
 struct connectDeviceCard: View {
+    @ObservedObject var TVRemoteVM: RemoteViewModel
     let action: () -> Void
     
     var body: some View {
@@ -22,10 +23,15 @@ struct connectDeviceCard: View {
                         .frame(width: isIpad() ? 50 : 30, height: isIpad() ? 50 : 30)
                         .rotationEffect(.degrees(0))
                         
-                    
-                    Text(str.Connecttodevice)
-                        .font(.system(size: isIpad() ? 18 : 12,weight: .medium))
-                        .foregroundStyle(.white)
+                    if TVRemoteVM.connectedTVType != nil {
+                        Text("\(TVRemoteVM.deviceName ?? "Unkonwn TV")")
+                            .font(.system(size: isIpad() ? 18 : 12,weight: .medium))
+                            .foregroundStyle(.white)
+                    } else {
+                        Text(str.Connecttodevice)
+                            .font(.system(size: isIpad() ? 18 : 12,weight: .medium))
+                            .foregroundStyle(.white)
+                    }
                     Spacer()
                     Image(systemName: "chevron.right")
                     .foregroundColor(.white)
@@ -168,5 +174,5 @@ struct castingCard: View {
 }
 
 #Preview {
-    connectDeviceCard(action: {})
+    connectDeviceCard(TVRemoteVM: RemoteViewModel(), action: {})
 }

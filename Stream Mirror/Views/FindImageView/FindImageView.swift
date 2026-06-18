@@ -117,6 +117,18 @@ struct FindImageView: View {
             hideKeyboard()
         }
         .onAppear {
+            
+            isSearchFocused = false
+
+            DispatchQueue.main.async {
+                UIApplication.shared.sendAction(
+                    #selector(UIResponder.resignFirstResponder),
+                    to: nil,
+                    from: nil,
+                    for: nil
+                )
+            }
+            
             if imageVM.isFirstAppear {
 
                 text = ""
@@ -124,6 +136,7 @@ struct FindImageView: View {
 
                 imageVM.isFirstAppear = false
             }
+            hideKeyboard()
         }
         .navigationDestination(
             isPresented: $imageVM.showPhotoCasting

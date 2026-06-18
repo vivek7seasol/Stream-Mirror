@@ -18,7 +18,7 @@ struct RecordingItem: Identifiable {
 
 class ScreenRecordingViewModel: ObservableObject {
     @Published var showConnectionView = false
-    @Published var showRecordingList = false
+    @Published var showPremiumView = false
     @Published var showDeviceList = false
     
     @Published var isVideo: Bool = true
@@ -35,11 +35,20 @@ class ScreenRecordingViewModel: ObservableObject {
     @Published var recordingTime: String = "00:00:00"
     @Published var isWaitingForBroadcast = false
     
+    var recordingStatusText: String {
+        if isRecording {
+            return str.RecordinginProgress
+        } else if isWaitingForBroadcast {
+            return "Waiting for confirmation..."
+        } else {
+            return str.ReadytoRecord
+        }
+    }
+    
     private var timer: Timer?
-    private var waitingTimer: Timer?  // ← YEH ADD KARO
     private let defaults = UserDefaults(suiteName: AppStrings.groupID)
+    private let broadcastKey = "isBroadcasting"
     private let recordingStartDateKey = "recordingStartDate"
-    private let broadcastKey = "isRecordingBroadcasting"
     
     init() {
         checkBroadcastStatus()
@@ -48,15 +57,10 @@ class ScreenRecordingViewModel: ObservableObject {
     
     deinit {
         timer?.invalidate()
-        waitingTimer?.invalidate() 
     }
     
     func checkBroadcastStatus() {
-        let isBroadcasting = defaults?.bool(forKey: "isBroadcasting") ?? false
-        let isRecordingSession = defaults?.bool(forKey: "shouldSaveRecording") ?? false
-        
-        // Sirf tab recording maano jab dono true hon
-        let status = isBroadcasting && isRecordingSession
+        let status = defaults?.bool(forKey: broadcastKey) ?? false
         
         if status {
             if defaults?.object(forKey: recordingStartDateKey) == nil {
@@ -64,8 +68,8 @@ class ScreenRecordingViewModel: ObservableObject {
             }
             
             isRecording = true
-            startRecordingTimer()
-            updateRecordingTimer()
+            startTimer()
+            updateRecordingTime()
         } else {
             isRecording = false
             stopTimer()
@@ -75,62 +79,27 @@ class ScreenRecordingViewModel: ObservableObject {
     }
     
     func toggleRecording() {
-        if isRecording {
-            // Stop recording
-            openBroadcastPicker()
-            isWaitingForBroadcast = false
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                self.checkBroadcastStatus()
-            }
-        } else {
-            // Start recording - polling shuru karo
-            isWaitingForBroadcast = true
-            openBroadcastPicker()
-            startWaitingForBroadcastPoll()
+        openSystemBroadcastPicker()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.checkBroadcastStatus()
+            self.loadScreenRecordings()
         }
-    }
-
-    private func startWaitingForBroadcastPoll() {
-        var attempts = 0
-        let maxAttempts = 15 // 15 seconds tak wait karega
         
-        // Pehle existing timer band karo
-        waitingTimer?.invalidate()
-        
-        waitingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] t in
-            guard let self else { t.invalidate(); return }
-            
-            attempts += 1
-            let status = self.defaults?.bool(forKey: self.broadcastKey) ?? false
-            
-            if status {
-                // Broadcast shuru ho gaya!
-                t.invalidate()
-                self.waitingTimer = nil
-                Task { @MainActor in
-                    self.isWaitingForBroadcast = false
-                    self.checkBroadcastStatus()
-                }
-            } else if attempts >= maxAttempts {
-                // Timeout - user ne cancel kiya hoga
-                t.invalidate()
-                self.waitingTimer = nil
-                Task { @MainActor in
-                    self.isWaitingForBroadcast = false
-                }
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            self.checkBroadcastStatus()
+            self.loadScreenRecordings()
         }
     }
     
-    private func startRecordingTimer() {
+    private func startTimer() {
         timer?.invalidate()
-        updateRecordingTimer()
+        updateRecordingTime()
         
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                self.updateRecordingTimer()
+                self.updateRecordingTime()
                 self.checkOnlyBroadcastStatus()
             }
         }
@@ -177,6 +146,7 @@ class ScreenRecordingViewModel: ObservableObject {
             
             recordings = items
                 .sorted(by: { $0.date > $1.date })
+                .prefix(3)
                 .map { $0 }
             
         } catch {
@@ -184,7 +154,7 @@ class ScreenRecordingViewModel: ObservableObject {
         }
     }
         
-    private func openBroadcastPicker() {
+    private func openSystemBroadcastPicker() {
         let picker = RPSystemBroadcastPickerView()
         picker.preferredExtension = AppStrings.appExtensionPackageName
         picker.showsMicrophoneButton = true
@@ -217,7 +187,7 @@ class ScreenRecordingViewModel: ObservableObject {
         }
     }
     
-    private func updateRecordingTimer() {
+    private func updateRecordingTime() {
            guard let startDate = defaults?.object(forKey: recordingStartDateKey) as? Date else {
                recordingTime = "00:00:00"
                return
@@ -239,7 +209,6 @@ class ScreenRecordingViewModel: ObservableObject {
            }
        }
 }
-
 struct ShareItem: Identifiable {
     let id = UUID()
     let url: URL

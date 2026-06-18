@@ -48,6 +48,8 @@ class SketchBoardViewModel: NSObject, ObservableObject, PKCanvasViewDelegate {
     @Published var showEditDrawing = false
     @Published var canUndo = false
     @Published var canRedo = false
+    @Published var showDeleteAlert = false
+    @Published var drawingToDelete: SavedSketchBoard?
     
     let canvasView = PKCanvasView()
     

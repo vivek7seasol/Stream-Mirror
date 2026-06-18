@@ -54,7 +54,7 @@ struct HomeView: View {
                 .padding(.horizontal, isIpad() ? 30 : 15)
                 
                 ScrollView(.vertical,showsIndicators: false) {
-                    connectDeviceCard {
+                    connectDeviceCard(TVRemoteVM: TVRemoteVM) {
                         showDeviceList = true
                     }
                     
@@ -269,20 +269,14 @@ struct HomeView: View {
     }
     
     func handlePostReviewLogic() {
-        let didAskForReview = UserDefaults.standard.bool(forKey: "didAskForReview")
-
-        if didAskForReview {
-            print("Review dialog was requested")
-            rateApp()
-        } else {
-            print("Review not requested")
-            showRateAlert = true
-        }
+        
+        rateApp()
+        
+        UserDefaults.standard.set(true, forKey: "didAskForReview")
     }
     
     func rateApp() {
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            UserDefaults.standard.set(true, forKey: "didAskForReview")
             SKStoreReviewController.requestReview(in: scene)
         }
     }

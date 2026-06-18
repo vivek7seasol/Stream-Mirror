@@ -22,10 +22,10 @@ class StringFile {
     
     let Next = "Next".localized
     
-    let Home = "Home".localized
-    let Remote = "Remote".localized
-    let Recoding = "Recording".localized
-    let Settings = "Settings".localized
+    let Home = "Home"
+    let Remote = "Remote"
+    let Recoding = "Recording"
+    let Settings = "Settings"
     
     let Connecttodevice = "Connect to device".localized
     let MirrorScreen = "Mirror Screen".localized
@@ -215,4 +215,7 @@ class StringFile {
     let DeleteFile = "Delete File".localized
     let DeleteFileMsg = "Are you sure you want to delete this file?".localized
     let Noimagesfound = "No images found".localized
+    
+    let DeleteDrawing = "Delete Drawing?".localized
+    let DeleteDrawingMessage = "Are you sure you want to delete this drawing?".localized
 }

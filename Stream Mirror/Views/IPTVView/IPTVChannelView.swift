@@ -123,6 +123,18 @@ struct IPTVChannelView: View {
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }
+        .onAppear {
+            isSearchFocused = false
+
+            DispatchQueue.main.async {
+                UIApplication.shared.sendAction(
+                    #selector(UIResponder.resignFirstResponder),
+                    to: nil,
+                    from: nil,
+                    for: nil
+                )
+            }
+        }
         .onTapGesture {
             hideKeyboard()
         }

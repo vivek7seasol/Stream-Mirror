@@ -69,76 +69,91 @@ struct TabbarView: View {
             refreshID = UUID()
         }
         .ignoresSafeArea(edges: .bottom)
-        .overlay {
-            
-            if showChannelView {
-                ChannelView(
-                    isPresented: $showChannelView
-                ) { app in
-                    
-                    switch app {
-                        
-                    case .youtube:
-                        TVRemoteVM.launchApp(.youtube)
-                        
-                    case .netflix:
-                        TVRemoteVM.launchApp(.netflix)
-                        
-                    case .disney:
-                        TVRemoteVM.launchApp(.disney)
-                        
-                    case .prime:
-                        TVRemoteVM.launchApp(.prime)
-                        
-                    case .spotify:
-                        TVRemoteVM.launchApp(.spotify)
-                        
-                    case .paramount:
-                        TVRemoteVM.launchApp(.paramount)
-                    default:
-                        break
-                    }
-                }
-                .offset(y: 50)
-                .zIndex(1)
-            }
-            
-            if showNumberPad {
-                NumberPadView(
-                    isPresented: $showNumberPad,
-                    
-                    onNumberTap: { number in
-                        print("Tapped:", number)
-                        TVRemoteVM.sendNumber(number)
+        .sheet(isPresented: $showChannelView) {
+            ChannelView(
+                    isPresented: $showChannelView,
+                    TVRemoteVM: TVRemoteVM,
+
+                    onTVAppSelected: { app in
+
+                        switch app {
+
+                        case .youtube:
+                            TVRemoteVM.launchApp(.youtube)
+
+                        case .netflix:
+                            TVRemoteVM.launchApp(.netflix)
+
+                        case .disney:
+                            TVRemoteVM.launchApp(.disney)
+
+                        case .prime:
+                            TVRemoteVM.launchApp(.prime)
+
+                        case .spotify:
+                            TVRemoteVM.launchApp(.spotify)
+
+                        case .paramount:
+                            TVRemoteVM.launchApp(.paramount)
+
+                        default:
+                            break
+                        }
                     },
-                    
-                    onClear: {
-                        TVRemoteVM.sendCommand(.BACK)
-                    },
-                    
-                    onDone: { value in
-                        print("Entered:", value)
-                        showNumberPad = false
+
+                    onLGAppSelected: { app in
+
+                        TVRemoteVM.launchLGInstalledApp(app)
                     }
                 )
-                .offset(y: 50)
-                .zIndex(2)
-            }
-            if showTVInputList {
-                
-                TVInputSourceView(
-                    isPresented: $showTVInputList,
-                    TVRemoteVM: TVRemoteVM
-                )
-                .offset(y: 50)
-                .zIndex(2)
-            }
+                .presentationDetents([
+                    .height(
+                        TVRemoteVM.connectedTVType == .LG
+                        ? (isIpad() ? 800 : 650)
+                        : (isIpad() ? 500 : 400)
+                    )
+                ])
             
+            .presentationDetents([.height(isIpad() ? 500 : 400)])
+            .presentationDragIndicator(.hidden)
+            .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
         }
-        .fullScreenCover(isPresented: $showDeviceList) {
+        .sheet(isPresented: $showNumberPad) {
+            NumberPadView(
+                isPresented: $showNumberPad,
+                
+                onNumberTap: { number in
+                    TVRemoteVM.sendNumber(number)
+                },
+                
+                onClear: {
+                    TVRemoteVM.sendCommand(.BACK)
+                },
+                
+                onDone: { value in
+                    showNumberPad = false
+                }
+            )
+            .presentationDetents([.height(isIpad() ? 670 : 570)])
+            .presentationDragIndicator(.hidden)
+            .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
+        }
+        .sheet(isPresented: $showTVInputList) {
+            TVInputSourceView(
+                isPresented: $showTVInputList,
+                TVRemoteVM: TVRemoteVM
+            )
+            .presentationDetents([.height(isIpad() ? 800 : 550)])
+            .presentationDragIndicator(.hidden)
+            .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
+        }
+        .sheet(isPresented: $showDeviceList) {
             DeviceListview(isPresented: $showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
+                .presentationDetents([.height(isIpad() ? 830 : 700)])
+                .presentationDragIndicator(.hidden)
+                .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
         }
         .alert(
             "AirPlay Connected",

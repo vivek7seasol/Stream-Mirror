@@ -39,14 +39,18 @@ struct DeviceListview: View {
     
     var body: some View {
         ZStack {
-            DeviceListBG()
+            Image("sheetBG")
+                    .resizable()
+//                    .scaledToFit()
+                    .ignoresSafeArea()
             
             VStack {
                 singleButtonCard(image: "close") {
                     isPresented = false
                 }
                 .frame(maxWidth: .infinity,alignment: .trailing)
-                .padding(.trailing)
+                .padding(.top,20)
+                .padding(.trailing,20)
                 
                 VStack(spacing:8) {
                     Text(str.ConnecttoaDevice)
@@ -102,7 +106,7 @@ struct DeviceListview: View {
                         .foregroundStyle(.white)
                 }
                 .frame(maxWidth: .infinity,alignment: .leading)
-                .padding(.horizontal)
+                .padding(.horizontal,15)
                 .padding(.vertical,15)
                 
                 if showStep {
@@ -178,10 +182,12 @@ struct DeviceListview: View {
                                 .buttonStyle(.plain)
                             }
                         }
+//                        .padding(.horizontal)
                     }
                 }
                 Spacer()
             }
+//            .padding(.horizontal,24)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarBackButtonHidden(true)
@@ -265,16 +271,15 @@ struct DeviceListview: View {
             
             ZStack {
                 
-                if showConnectionPopup || showDisconnectPopup {
-                    
+                if permissionVM.showNoNetworkPopup ||
+                   permissionVM.showLocalNetworkPopup ||
+                   showConnectionPopup ||
+                   showDisconnectPopup ||
+                   showSwitchDevicePopup {
+
                     Color.black.opacity(0.45)
                         .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.spring()) {
-                                showConnectionPopup = false
-                                showDisconnectPopup = false
-                            }
-                        }
+                        .contentShape(Rectangle())
                 }
                 
                 VStack {

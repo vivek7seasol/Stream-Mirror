@@ -45,7 +45,7 @@ struct VideosView: View {
 
                     placeholderView(
                         image: "VideoListPH",
-                        title: str.NoPhotosAvailable,
+                        title: str.NoVideoAvailable,
                         title2: "",
                         isTitle2: false
                     )
@@ -74,10 +74,13 @@ struct VideosView: View {
             photoVM.requestVideoAccess()
             
         }
-        .fullScreenCover(isPresented: $photoVM.showDeviceList) {
+        .sheet(isPresented: $photoVM.showDeviceList) {
             DeviceListview(isPresented: $photoVM.showDeviceList)
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
+                .presentationDetents([.height(isIpad() ? 830 : 700)])
+                .presentationDragIndicator(.hidden)
+                .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
         }
         .navigationDestination(
             isPresented: $photoVM.showVideoCasting

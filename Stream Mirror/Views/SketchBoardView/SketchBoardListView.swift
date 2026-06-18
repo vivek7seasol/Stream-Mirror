@@ -54,7 +54,8 @@ struct SketchBoardListView: View {
                                         sketchVM.showShareSheet = true
                                     },
                                     deleteAction: {
-                                        sketchVM.deleteDrawing(drawing)
+                                        sketchVM.drawingToDelete = drawing
+                                        sketchVM.showDeleteAlert = true
                                     },
                                     buttonAction: {
                                         adVm.registerTap()
@@ -131,6 +132,25 @@ struct SketchBoardListView: View {
         }, content: {
             PremiumView()
         })
+        .alert(str.DeleteDrawing, isPresented: $sketchVM.showDeleteAlert) {
+
+            Button(str.Delete, role: .destructive) {
+
+                if let drawing = sketchVM.drawingToDelete {
+                    sketchVM.deleteDrawing(drawing)
+                }
+
+                sketchVM.drawingToDelete = nil
+            }
+
+            Button(str.Cancel, role: .cancel) {
+                sketchVM.drawingToDelete = nil
+            }
+
+        } message: {
+
+            Text(str.DeleteDrawingMessage)
+        }
     }
 }
 
