@@ -6,16 +6,22 @@
 //
 import SwiftUI
 import AVKit
+import AVFoundation
 
 struct VideoPlayerView: UIViewControllerRepresentable {
 
     let url: URL
 
     func makeUIViewController(context: Context) -> AVPlayerViewController {
+
+        checkAudioTrack(url: url)
+
         let controller = AVPlayerViewController()
         controller.player = AVPlayer(url: url)
-        controller.videoGravity = .resize
+        controller.player?.isMuted = false
+        controller.player?.volume = 1.0
         controller.player?.play()
+
         return controller
     }
 
@@ -23,6 +29,13 @@ struct VideoPlayerView: UIViewControllerRepresentable {
         _ uiViewController: AVPlayerViewController,
         context: Context
     ) {}
+    
+    func checkAudioTrack(url: URL) {
+        let asset = AVURLAsset(url: url)
+        let audioTracks = asset.tracks(withMediaType: .audio)
+
+        print("Audio Tracks Count = \(audioTracks.count)")
+    }
 }
 
 

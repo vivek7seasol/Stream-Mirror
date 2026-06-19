@@ -19,11 +19,10 @@ class SampleHandler: RPBroadcastSampleHandler {
     private var videoQuality: String = "Low"
     private var serverUrl: String = ""
     private let userDefaultsSuiteName = AppStrings.groupID
-    private var broadcastMode = "mirroring"
+    
     private let motionManager = CMMotionManager()
     private var currentOrientation: UIDeviceOrientation = .portrait
-    private var appAudioInput: AVAssetWriterInput?
-    private var micAudioInput: AVAssetWriterInput?
+
     // MARK: - Recording Properties (NEW)
     private var assetWriter: AVAssetWriter?
     private var videoInput: AVAssetWriterInput?
@@ -31,10 +30,15 @@ class SampleHandler: RPBroadcastSampleHandler {
     private var outputURL: URL?
     private var isMicEnabled: Bool = false
     private var shouldSaveRecording: Bool = false
-    private var isVideoEnabled = true
+    private var audioInput: AVAssetWriterInput?
+    private var appAudioInput: AVAssetWriterInput?
+    private var micAudioInput: AVAssetWriterInput?
+    private var pixelBufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
+    private var recordingSize: CGSize?
+    private let ciContext = CIContext()
+    private var isCameraEnabled: Bool = false
+    private var broadcastMode: String = ""
     
-    private var recordingVideoEnabled = true
-    private var recordingMicEnabled = true
     
     // MARK: - Broadcast Lifecycle Methods
     override func broadcastStarted(withSetupInfo setupInfo: [String : NSObject]?) {
@@ -43,19 +47,9 @@ class SampleHandler: RPBroadcastSampleHandler {
         postDarwinNotification(name: "BROADCAST_STARTED")
         loadUserPreferences()
         startOrientationTracking()
-        if shouldSaveRecording {
-            setupVideoWriter()
-        }
-        if let userDefaults = UserDefaults(suiteName: userDefaultsSuiteName) {
-
-            let mode = userDefaults.string(forKey: "broadcastMode") ?? ""
-
-            if mode == "recording" {
-                userDefaults.set(true, forKey: "isRecordingBroadcasting")
-            } else {
-                userDefaults.set(true, forKey: "isMirroringBroadcasting")
-            }
-        }
+//        if shouldSaveRecording {
+//            setupVideoWriter()
+//        }
     }
 
     override func broadcastPaused() {
@@ -70,17 +64,6 @@ class SampleHandler: RPBroadcastSampleHandler {
         print("Broadcast finished.")
         updateBroadcastStatus(isBroadcasting: false)
         postDarwinNotification(name: "BROADCAST_STOPPED")
-            
-        if let userDefaults = UserDefaults(suiteName: userDefaultsSuiteName) {
-
-            let mode = userDefaults.string(forKey: "broadcastMode") ?? ""
-
-            if mode == "recording" {
-                userDefaults.set(false, forKey: "isRecordingBroadcasting")
-            } else {
-                userDefaults.set(false, forKey: "isMirroringBroadcasting")
-            }
-        }
         
         finishWriting()
     }
@@ -122,40 +105,19 @@ class SampleHandler: RPBroadcastSampleHandler {
 
     
     // MARK: - Sample Buffer Processing
-    override func processSampleBuffer(
-        _ sampleBuffer: CMSampleBuffer,
-        with sampleBufferType: RPSampleBufferType
-    ) {
+    override func processSampleBuffer(_ sampleBuffer: CMSampleBuffer, with sampleBufferType: RPSampleBufferType) {
         switch sampleBufferType {
-
         case .video:
-
-            if broadcastMode == "recording" {
-
-                if recordingVideoEnabled {
-                    writeSampleBuffer(sampleBuffer)
+            handleVideoSampleBuffer(sampleBuffer)
+        case .audioMic:
+            if isMicEnabled {
+                    writeAudioSampleBuffer(sampleBuffer, input: micAudioInput)
                 }
-
-            } else {
-
-                handleVideoSampleBuffer(sampleBuffer)
-            }
-
         case .audioApp:
             writeAudioSampleBuffer(sampleBuffer, input: appAudioInput)
-
-        case .audioMic:
-
-            if broadcastMode == "recording",
-               recordingMicEnabled {
-
-                writeAudioSampleBuffer(
-                    sampleBuffer,
-                    input: micAudioInput
-                )
-            }
+            
         @unknown default:
-            break
+            fatalError("Unknown type of sample buffer")
         }
     }
     
@@ -183,8 +145,26 @@ class SampleHandler: RPBroadcastSampleHandler {
     
     private func handleVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
         
-        frameCount += 1
+        if broadcastMode == "recording" {
+            
+            if shouldSaveRecording {
+                if assetWriter == nil,
+                   let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+
+                    let width = CVPixelBufferGetWidth(imageBuffer)
+                    let height = CVPixelBufferGetHeight(imageBuffer)
+
+                    recordingSize = CGSize(width: width, height: height)
+                    setupVideoWriter(size: recordingSize!)
+                }
+
+                writeCompositedVideoSampleBuffer(sampleBuffer)
+            }
+
+            return
+        }
         
+        frameCount += 1
         
         guard frameCount % 2 == 0 else { return }
         
@@ -212,6 +192,139 @@ class SampleHandler: RPBroadcastSampleHandler {
         sendToServer(data: jpegData)
     }
 
+    private func writeCompositedVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
+        guard shouldSaveRecording else { return }
+
+        guard let writer = assetWriter,
+              let input = videoInput,
+              let adaptor = pixelBufferAdaptor,
+              let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+        else { return }
+
+        let time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+
+        if !isWritingStarted {
+            writer.startSession(atSourceTime: time)
+            isWritingStarted = true
+        }
+
+        guard writer.status == .writing,
+              input.isReadyForMoreMediaData,
+              let pixelBufferPool = adaptor.pixelBufferPool
+        else { return }
+
+        var outputPixelBuffer: CVPixelBuffer?
+        CVPixelBufferPoolCreatePixelBuffer(
+            kCFAllocatorDefault,
+            pixelBufferPool,
+            &outputPixelBuffer
+        )
+
+        guard let outputPixelBuffer else { return }
+
+        var screenImage = CIImage(cvPixelBuffer: imageBuffer)
+
+        // Apply same rotation if needed
+        if let userDefaults = UserDefaults(suiteName: AppStrings.groupID),
+           userDefaults.bool(forKey: AppStrings.rotateMirror) == true {
+            screenImage = rotateImageForOrientation(screenImage, orientation: currentOrientation)
+        }
+
+        let targetSize = recordingSize ?? CGSize(
+            width: CVPixelBufferGetWidth(imageBuffer),
+            height: CVPixelBufferGetHeight(imageBuffer)
+        )
+        var finalImage = resizeImage(screenImage, targetSize: targetSize)
+
+        if isCameraEnabled, let cameraImage = loadLatestCameraCIImage() {
+
+            let cameraWidth: CGFloat = 160
+            let cameraHeight: CGFloat = 220
+            let padding: CGFloat = 24
+
+            let x = targetSize.width - cameraWidth - padding
+            let y = targetSize.height - cameraHeight - padding
+
+            // TEST RED BOX - must show in recording
+            let testBox = CIImage(color: CIColor(red: 1, green: 0, blue: 0, alpha: 1))
+                .cropped(to: CGRect(x: x, y: y, width: cameraWidth, height: cameraHeight))
+
+            finalImage = testBox.composited(over: finalImage)
+
+            if isCameraEnabled, let cameraImage = loadLatestCameraCIImage() {
+                let normalizedCamera = cameraImage.transformed(
+                    by: CGAffineTransform(
+                        translationX: -cameraImage.extent.origin.x,
+                        y: -cameraImage.extent.origin.y
+                    )
+                )
+
+                let scale = max(
+                    cameraWidth / normalizedCamera.extent.width,
+                    cameraHeight / normalizedCamera.extent.height
+                )
+
+                let scaledCamera = normalizedCamera.transformed(
+                    by: CGAffineTransform(scaleX: scale, y: scale)
+                )
+
+                let cropRect = CGRect(
+                    x: (scaledCamera.extent.width - cameraWidth) / 2,
+                    y: (scaledCamera.extent.height - cameraHeight) / 2,
+                    width: cameraWidth,
+                    height: cameraHeight
+                )
+
+                let croppedCamera = scaledCamera
+                    .cropped(to: cropRect)
+                    .transformed(
+                        by: CGAffineTransform(
+                            translationX: -cropRect.origin.x,
+                            y: -cropRect.origin.y
+                        )
+                    )
+
+                let positionedCamera = croppedCamera.transformed(
+                    by: CGAffineTransform(translationX: x, y: y)
+                )
+
+                finalImage = positionedCamera.composited(over: finalImage)
+            }
+        }
+
+        ciContext.render(
+            finalImage.cropped(to: CGRect(x: 0, y: 0, width: targetSize.width, height: targetSize.height)),
+            to: outputPixelBuffer
+        )
+
+        adaptor.append(outputPixelBuffer, withPresentationTime: time)
+    }
+    
+    private func loadLatestCameraCIImage() -> CIImage? {
+        guard let containerURL = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: userDefaultsSuiteName)
+        else {
+            print("Camera App Group not found")
+            return nil
+        }
+
+        let url = containerURL.appendingPathComponent("latest_camera.jpg")
+
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            print("latest_camera.jpg not found")
+            return nil
+        }
+
+        guard let data = try? Data(contentsOf: url),
+              let image = CIImage(data: data)
+        else {
+            print("Camera image load failed")
+            return nil
+        }
+
+        print("Camera image loaded:", image.extent)
+        return image
+    }
     
     // MARK: - Image Processing (UNCHANGED)
 
@@ -349,106 +462,77 @@ class SampleHandler: RPBroadcastSampleHandler {
     
     // MARK: - Recording Logic (NEW)
 
-    private func setupVideoWriter() {
-
+    private func setupVideoWriter(size: CGSize) {
         guard let containerURL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: userDefaultsSuiteName) else {
-            print("❌ App Group not found")
             return
         }
-
+        
         let fileName = "recording_\(Int(Date().timeIntervalSince1970)).mp4"
-
-        let recordingsFolder = containerURL
-            .appendingPathComponent("Recordings", isDirectory: true)
-
-        try? FileManager.default.createDirectory(
-            at: recordingsFolder,
-            withIntermediateDirectories: true
-        )
-
+        let recordingsFolder = containerURL.appendingPathComponent("Recordings", isDirectory: true)
+        try? FileManager.default.createDirectory(at: recordingsFolder, withIntermediateDirectories: true)
+        
         let url = recordingsFolder.appendingPathComponent(fileName)
-
         try? FileManager.default.removeItem(at: url)
-
+        
         do {
-
-            assetWriter = try AVAssetWriter(
-                outputURL: url,
-                fileType: .mp4
-            )
-
+            assetWriter = try AVAssetWriter(outputURL: url, fileType: .mp4)
             outputURL = url
-
-            // MARK: - Video
-
+            
             let videoSettings: [String: Any] = [
                 AVVideoCodecKey: AVVideoCodecType.h264,
-                AVVideoWidthKey: 720,
-                AVVideoHeightKey: 1280
+                AVVideoWidthKey: Int(size.width),
+                AVVideoHeightKey: Int(size.height),
+                AVVideoCompressionPropertiesKey: [
+                    AVVideoAverageBitRateKey: 6_000_000,
+                    AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel
+                ]
             ]
-
-            videoInput = AVAssetWriterInput(
-                mediaType: .video,
-                outputSettings: videoSettings
-            )
-
+            
+            videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
             videoInput?.expectsMediaDataInRealTime = true
-
-            if let videoInput,
-               assetWriter?.canAdd(videoInput) == true {
-
-                assetWriter?.add(videoInput)
-            }
-
-            // MARK: - Audio Settings
-
+            
             let audioSettings: [String: Any] = [
                 AVFormatIDKey: kAudioFormatMPEG4AAC,
                 AVNumberOfChannelsKey: 2,
-                AVSampleRateKey: 44100,
-                AVEncoderBitRateKey: 128000
+                AVSampleRateKey: 48000,
+                AVEncoderBitRateKey: 192000
             ]
-
-            // MARK: - Microphone Audio
-
-            micAudioInput = AVAssetWriterInput(
-                mediaType: .audio,
-                outputSettings: audioSettings
-            )
-
-            micAudioInput?.expectsMediaDataInRealTime = true
-
-            if let micAudioInput,
-               assetWriter?.canAdd(micAudioInput) == true {
-
-                assetWriter?.add(micAudioInput)
-            }
-
-            // MARK: - App/System Audio
-
-            appAudioInput = AVAssetWriterInput(
-                mediaType: .audio,
-                outputSettings: audioSettings
-            )
-
+            
+            appAudioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
             appAudioInput?.expectsMediaDataInRealTime = true
-
-            if let appAudioInput,
-               assetWriter?.canAdd(appAudioInput) == true {
-
-                assetWriter?.add(appAudioInput)
+            
+            micAudioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+            micAudioInput?.expectsMediaDataInRealTime = true
+            
+            guard let writer = assetWriter else { return }
+            
+            if let videoInput, writer.canAdd(videoInput) {
+                writer.add(videoInput)
+                
+                pixelBufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(
+                    assetWriterInput: videoInput,
+                    sourcePixelBufferAttributes: [
+                        kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+                        kCVPixelBufferWidthKey as String: Int(size.width),
+                        kCVPixelBufferHeightKey as String: Int(size.height),
+                        kCVPixelBufferIOSurfacePropertiesKey as String: [:]
+                    ]
+                )
             }
-
-            assetWriter?.startWriting()
-
-            print("✅ Recording started: \(url)")
-            print("🎤 Mic Enabled: \(recordingMicEnabled)")
-            print("🎥 Video Enabled: \(recordingVideoEnabled)")
-
+            
+            if let appAudioInput, writer.canAdd(appAudioInput) {
+                writer.add(appAudioInput)
+            }
+            
+            if isMicEnabled, let micAudioInput, writer.canAdd(micAudioInput) {
+                writer.add(micAudioInput)
+            }
+            
+            writer.startWriting()
+            
         } catch {
-
-            print("❌ Writer error: \(error)")
+            print("Writer error:", error.localizedDescription)
         }
     }
     
@@ -479,19 +563,16 @@ class SampleHandler: RPBroadcastSampleHandler {
         appAudioInput?.markAsFinished()
 
         assetWriter?.finishWriting { [weak self] in
-
             guard let self = self else { return }
 
+            print("Writer Status = \(self.assetWriter?.status.rawValue ?? -1)")
+
+            if let error = self.assetWriter?.error {
+                print("Writer Error = \(error)")
+            }
+
             if let url = self.outputURL {
-
-                print("✅ Video saved at: \(url)")
-
-                UserDefaults(
-                    suiteName: self.userDefaultsSuiteName
-                )?.set(
-                    url.lastPathComponent,
-                    forKey: "lastRecording"
-                )
+                print("Video saved at: \(url)")
             }
         }
     }
@@ -499,15 +580,12 @@ class SampleHandler: RPBroadcastSampleHandler {
 
     private func loadUserPreferences() {
             if let userDefaults = UserDefaults(suiteName: userDefaultsSuiteName) {
-                recordingVideoEnabled =
-                    userDefaults.object(forKey: "recordingVideoEnabled") as? Bool ?? true
-
-                recordingMicEnabled =
-                    userDefaults.object(forKey: "recordingMicEnabled") as? Bool ?? true
-                broadcastMode =
-                    userDefaults.string(forKey: "broadcastMode") ?? "mirroring"
                 videoQuality = userDefaults.string(forKey: "selectedQuality") ?? "Low"
                 print("Video Quality: \(videoQuality)")
+                isMicEnabled =
+                    userDefaults.bool(forKey: "recordingMicEnabled")
+                isCameraEnabled = userDefaults.bool(forKey: "recordingVideoEnabled")
+                broadcastMode = userDefaults.string(forKey: "broadcastMode") ?? ""
                 shouldSaveRecording = userDefaults.bool(forKey: "shouldSaveRecording")
                 if let urlString = userDefaults.string(forKey: AppStrings.serverUrlKey) {
                     serverUrl = urlString

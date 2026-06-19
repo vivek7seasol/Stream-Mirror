@@ -26,26 +26,26 @@ struct RecordingView: View {
                 
                 ZStack {
                     VStack {
-                        Image("Ready to Record")
+                        Image(recordingVM.isRecording ? "Recording in Progress" : "Ready to Record")
                             .resizable()
                             .frame(width: isIpad() ? 150 : 110,height:  isIpad() ? 150 : 110)
                         
-                        let timeText = recordingVM.recordingTime
-
-                        Text(timeText)
+                        //                        let timeText = recordingVM.recordingTime
+                        
+                        Text(recordingVM.recordingTime)
                             .font(.system(size: isIpad() ? 36 : 30, weight: .medium))
                             .foregroundColor(.white)
                         
-                        Text(recordingVM.recordingStatusText)
-                            .font(.system(size: isIpad() ? 18 : 12))
-                            .foregroundStyle(AppColor.textColor)
-                            .padding(.vertical, 1)
+                        //                        Text(recordingVM.recordingStatusText)
+                        //                            .font(.system(size: isIpad() ? 18 : 12))
+                        //                            .foregroundStyle(AppColor.textColor)
+                        //                            .padding(.vertical, 1)
                     }
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical,30)
                 .background(
-                    recordingVM.isRecording
+                    (recordingVM.isRecording)
                     ? LinearGradient(
                         colors: [
                             Color("#EF4444"),
@@ -103,21 +103,21 @@ struct RecordingView: View {
                     }
                     
                     recordingVM.toggleRecording()
-
+                    
                 } label: {
                     
                     ZStack {
-                        Text(recordingVM.isRecording ? str.StopRecoding : str.StartRecoding)
+                        Text((recordingVM.isRecording) ? str.StopRecoding : str.StartRecoding)
                             .font(.system(size: isIpad() ? 22 : 16,weight: .medium))
-                            .foregroundStyle(recordingVM.isRecording ?  .white : AppColor.textColor2)
+                            .foregroundStyle((recordingVM.isRecording) ?  .white : AppColor.textColor2)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: isIpad() ? 70 : 50)
                     .background(
                         Image(
                             isIpad()
-                            ? (recordingVM.isRecording ? "IpadbtnBG2" : "IpadbtnBG")
-                            : (recordingVM.isRecording ? "btnBG2" : "btnBG")
+                            ? ((recordingVM.isRecording) ? "IpadbtnBG2" : "IpadbtnBG")
+                            : ((recordingVM.isRecording) ? "btnBG2" : "btnBG")
                         )
                         .resizable()
                         .scaledToFill()
@@ -132,12 +132,27 @@ struct RecordingView: View {
         }
         .appScreen(disableSwipeBack: true)
         .onAppear {
+            recordingVM.isScreenCaptured = UIScreen.main.isCaptured
+            
+            NotificationCenter.default.addObserver(
+                forName: UIScreen.capturedDidChangeNotification,
+                object: UIScreen.main,
+                queue: .main
+            ) { _ in
+
+                let isCaptured = UIScreen.main.isCaptured
+
+                print("isCaptured - \(isCaptured)")
+
+                recordingVM.updateCaptureStatus(isCaptured)
+            }
+            
             recordingVM.checkBroadcastStatus()
-
+            
             let defaults = UserDefaults(suiteName: AppStrings.groupID)
-
+            
             videoEnabled = defaults?.object(forKey: "recordingVideoEnabled") as? Bool ?? true
-
+            
             microphoneEnabled = defaults?.object(forKey: "recordingMicEnabled") as? Bool ?? true
             
             DispatchQueue.main.async {
@@ -164,13 +179,13 @@ struct RecordingView: View {
             UserDefaults(suiteName: AppStrings.groupID)?
                 .set(value, forKey: "recordingVideoEnabled")
         }
-
+        
         .onChange(of: microphoneEnabled) { value in
             UserDefaults(suiteName: AppStrings.groupID)?
                 .set(value, forKey: "recordingMicEnabled")
         }
         .navigationDestination(isPresented: $recordingVM.showRecordingList) {
-            RecordingListView(recordingVM: recordingVM) 
+            RecordingListView(recordingVM: recordingVM)
         }
     }
     

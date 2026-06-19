@@ -16,6 +16,11 @@ struct RecordingItem: Identifiable {
     let date: Date
 }
 
+struct ShareItem: Identifiable {
+    let id = UUID()
+    let url: URL
+}
+
 class ScreenRecordingViewModel: ObservableObject {
     @Published var showConnectionView = false
     @Published var showPremiumView = false
@@ -34,82 +39,35 @@ class ScreenRecordingViewModel: ObservableObject {
     @Published var shareItem: ShareItem?
     @Published var showPreview = false
     @Published var recordingTime: String = "00:00:00"
-    @Published var isWaitingForBroadcast = false
-    var recordingStatusText: String {
-        if isRecording {
-            return str.RecordinginProgress
-        } else if isWaitingForBroadcast {
-            return "Waiting for confirmation..."
-        } else {
-            return str.ReadytoRecord
-        }
-    }
+    @Published var isScreenCaptured: Bool = false
     
     private var timer: Timer?
     private let defaults = UserDefaults(suiteName: AppStrings.groupID)
-    private let broadcastKey = "isRecordingBroadcasting"
+    private let broadcastKey = "isBroadcasting"
     private let recordingStartDateKey = "recordingStartDate"
     
     init() {
         checkBroadcastStatus()
         loadScreenRecordings()
-        registerForBroadcastNotifications() // ← Add this
     }
     
     deinit {
         timer?.invalidate()
-        removeBroadcastNotifications() // ← Add this
-    }
-    
-    // MARK: - Darwin Notification Listener
-
-    private func registerForBroadcastNotifications() {
-        let center = CFNotificationCenterGetDarwinNotifyCenter()
-        let selfPtr = Unmanaged.passRetained(self).toOpaque()
-
-        let callback: CFNotificationCallback = { _, observer, _, _, _ in
-            guard let observer else { return }
-            let vm = Unmanaged<ScreenRecordingViewModel>
-                .fromOpaque(observer)
-                .takeUnretainedValue()
-            DispatchQueue.main.async {
-                vm.checkBroadcastStatus()
-                vm.loadScreenRecordings()
-            }
-        }
-
-        CFNotificationCenterAddObserver(
-            center, selfPtr, callback,
-            "BROADCAST_STARTED" as CFString,
-            nil, .deliverImmediately
-        )
-
-        CFNotificationCenterAddObserver(
-            center, selfPtr, callback,
-            "BROADCAST_STOPPED" as CFString,
-            nil, .deliverImmediately
-        )
-    }
-
-    private func removeBroadcastNotifications() {
-        let center = CFNotificationCenterGetDarwinNotifyCenter()
-        let selfPtr = Unmanaged.passUnretained(self).toOpaque()
-        CFNotificationCenterRemoveEveryObserver(center, selfPtr)
     }
     
     func checkBroadcastStatus() {
         let status = defaults?.bool(forKey: broadcastKey) ?? false
-
-        if status {
-            isWaitingForBroadcast = false  // ← Add this
+        let mode = defaults?.string(forKey: "broadcastMode") ?? ""
+        
+        if status && mode == "recording" {
             if defaults?.object(forKey: recordingStartDateKey) == nil {
                 defaults?.set(Date(), forKey: recordingStartDateKey)
             }
+            
             isRecording = true
             startTimer()
             updateRecordingTime()
         } else {
-            isWaitingForBroadcast = false  // ← Add this
             isRecording = false
             stopTimer()
             recordingTime = "00:00:00"
@@ -117,37 +75,39 @@ class ScreenRecordingViewModel: ObservableObject {
         }
     }
     
-    private func checkOnlyBroadcastStatus() {
-        
-        let status = defaults?.bool(forKey: broadcastKey) ?? false
-        
-        let mode =
-        defaults?.string(forKey: "broadcastMode") ?? ""
-        
-        let isRealRecording =
-        status &&
-        mode == "recording"
-        
-        if isRealRecording != isRecording {
-            checkBroadcastStatus()
-        }
-    }
-    
     func toggleRecording() {
-        if !isRecording {
-            isWaitingForBroadcast = true  // ← "Waiting for confirmation..." dikhega
-        }
         openSystemBroadcastPicker()
-
-        // Fallback polls (agar Darwin notification miss ho)
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             self.checkBroadcastStatus()
             self.loadScreenRecordings()
         }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            self.isWaitingForBroadcast = false
             self.checkBroadcastStatus()
             self.loadScreenRecordings()
+        }
+    }
+    
+    func updateCaptureStatus(_ captured: Bool) {
+        let mode = defaults?.string(forKey: "broadcastMode") ?? ""
+
+        isScreenCaptured = captured
+
+        if captured && mode == "recording" {
+
+            if defaults?.object(forKey: recordingStartDateKey) == nil {
+                defaults?.set(Date(), forKey: recordingStartDateKey)
+            }
+
+            isRecording = true
+
+            startTimer()
+            updateRecordingTime()
+
+        } else {
+
+            checkBroadcastStatus()
         }
     }
     
@@ -205,18 +165,24 @@ class ScreenRecordingViewModel: ObservableObject {
             
             recordings = items
                 .sorted(by: { $0.date > $1.date })
-                .prefix(3)
                 .map { $0 }
             
         } catch {
             print("Fetch error:", error)
         }
     }
-    
+        
     private func openSystemBroadcastPicker() {
+
         let picker = RPSystemBroadcastPickerView()
         picker.preferredExtension = AppStrings.appExtensionPackageName
-        picker.showsMicrophoneButton = true
+        
+
+        let isMicOn = UserDefaults(suiteName: AppStrings.groupID)?
+            .bool(forKey: "recordingMicEnabled") ?? true
+
+        print("Mic Setting = \(isMicOn)")
+        picker.showsMicrophoneButton = isMicOn
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             for subview in picker.subviews {
@@ -228,40 +194,43 @@ class ScreenRecordingViewModel: ObservableObject {
     }
     
     func deleteRecording(_ item: RecordingItem) {
-        
+
         do {
-            
+
             try FileManager.default.removeItem(at: item.url)
-            
+
             DispatchQueue.main.async {
-                
+
                 self.recordings.removeAll {
                     $0.id == item.id
                 }
             }
-            
+
         } catch {
-            
+
             print("Delete error:", error)
         }
     }
     
     private func updateRecordingTime() {
-        guard let startDate = defaults?.object(forKey: recordingStartDateKey) as? Date else {
-            recordingTime = "00:00:00"
-            return
-        }
-        
-        let elapsed = max(0, Int(Date().timeIntervalSince(startDate)))
-        let hours = elapsed / 3600
-        let minutes = (elapsed % 3600) / 60
-        let seconds = elapsed % 60
-        
-        recordingTime = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-    }
-    
-}
-struct ShareItem: Identifiable {
-    let id = UUID()
-    let url: URL
+           guard let startDate = defaults?.object(forKey: recordingStartDateKey) as? Date else {
+               recordingTime = "00:00:00"
+               return
+           }
+           
+           let elapsed = max(0, Int(Date().timeIntervalSince(startDate)))
+           let hours = elapsed / 3600
+           let minutes = (elapsed % 3600) / 60
+           let seconds = elapsed % 60
+           
+           recordingTime = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+       }
+       
+       private func checkOnlyBroadcastStatus() {
+           let status = defaults?.bool(forKey: broadcastKey) ?? false
+           
+           if status != isRecording {
+               checkBroadcastStatus()
+           }
+       }
 }
