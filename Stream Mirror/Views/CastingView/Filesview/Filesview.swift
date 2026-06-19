@@ -51,6 +51,7 @@ struct Filesview: View {
                 if !isPro {
                     NativeAd7()
                         .padding(.bottom,5)
+                        .padding(.horizontal,15)
                 }
             }
         }

@@ -39,6 +39,7 @@ struct FavMusicListView: View {
                         if !isPro {
                             NativeAd7()
                                 .padding(.top,15)
+                                .padding(.horizontal,15)
                         }
                         LazyVStack(spacing: 12) {
                             

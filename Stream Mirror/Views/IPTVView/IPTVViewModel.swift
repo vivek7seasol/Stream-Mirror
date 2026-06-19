@@ -26,6 +26,14 @@ class IPTVViewModel: ObservableObject {
     @Published var text: String = ""
     
     func fetchIPTVCategory() async {
+        
+        if let cached = getIPTVCategory() {
+            await MainActor.run {
+                self.categories = cached
+            }
+            return
+        }
+        
         if getIPTVCategory() != nil{
             self.categories = getIPTVCategory() ?? []
             self.isDataLoaded = true
@@ -62,6 +70,14 @@ class IPTVViewModel: ObservableObject {
     }
     
     func fetchIPTVCountry() async {
+        
+        if let cached = getIPTVCountry() {
+            await MainActor.run {
+                self.countries = cached
+            }
+            return
+        }
+        
         if getIPTVCountry() != nil{
             self.countries = getIPTVCountry() ?? []
             self.isDataLoaded = true

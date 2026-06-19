@@ -24,6 +24,8 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
     @Published var showDeviceList = false
     @Published var showPermissionAlert = false
     @Published var selectedVideoIndex = 0
+    @Published var hasLoadedImages = false
+    @Published var hasLoadedVideos = false
     
     private var isReloading = false
     
@@ -53,8 +55,13 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
     }
     
     func requestPhotoAccess() {
+        
+        if hasLoadedImages && !assets.isEmpty {
+            return
+        }
+        
         isLoading = true
-            showPlaceholder = false
+        showPlaceholder = false
         // Pehle current status check karo — no dialog needed
         let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         
@@ -96,6 +103,11 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
     }
     
     func requestVideoAccess() {
+        
+        if hasLoadedVideos && !videoAssets.isEmpty {
+                return
+            }
+        
         let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         
         DispatchQueue.main.async {
@@ -162,14 +174,16 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
         }
         
         DispatchQueue.main.async {
-            
+
             let oldIDs = self.assets.map(\.localIdentifier)
             let newIDs = tempAssets.map(\.localIdentifier)
-            
+
             if oldIDs != newIDs {
                 self.assets = tempAssets
             }
-            
+
+            self.hasLoadedImages = true
+
             self.isLoading = false
             self.showPlaceholder = tempAssets.isEmpty
         }
@@ -200,16 +214,18 @@ class PhotoVideoListingViewModel:NSObject, ObservableObject, PHPhotoLibraryChang
         }
         
         DispatchQueue.main.async {
-            
+
             let oldIDs = self.videoAssets.map(\.localIdentifier)
             let newIDs = tempAssets.map(\.localIdentifier)
-            
+
             if oldIDs != newIDs {
                 withAnimation(.none) {
                     self.videoAssets = tempAssets
                 }
             }
-            
+
+            self.hasLoadedVideos = true
+
             self.isLoading = false
             self.showPlaceholder = tempAssets.isEmpty
         }

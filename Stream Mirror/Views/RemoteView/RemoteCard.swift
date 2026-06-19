@@ -19,7 +19,7 @@ struct ControlBtn: View {
             ForEach(ControlType.allCases, id: \.self) { type in
                 
                 Button {
-                    
+                    haptic()
                     withAnimation(.easeInOut(duration: 0.25)) {
                         selectedType = type
                     }
@@ -45,7 +45,7 @@ struct ControlBtn: View {
                             .foregroundStyle(selectedType == type ? .white : AppColor.textColor)
                     }
                     .frame(maxWidth: isIpad() ? 0 : .infinity)
-                    .padding(.horizontal, isIpad() ? 50 : 0)
+                    .padding(.horizontal, isIpad() ? 100 : 0)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -74,7 +74,10 @@ struct controlTypeCard: View {
     var body: some View {
         ZStack {
             HStack(spacing: isIpad() ? 60 : 30) {
-                Button { leftAction() } label: {
+                Button {
+                    haptic()
+                    leftAction()
+                } label: {
                     Image("left")
                         .resizable()
                         .foregroundStyle(.white)
@@ -83,7 +86,10 @@ struct controlTypeCard: View {
                 .buttonStyle(.plain)
                 
                 VStack(spacing: isIpad() ? 60 : 30) {
-                    Button { upAction() } label: {
+                    Button {
+                        haptic()
+                        upAction()
+                    } label: {
                         Image("up")
                             .resizable()
                             .foregroundStyle(.white)
@@ -91,7 +97,10 @@ struct controlTypeCard: View {
                     }
                     .buttonStyle(.plain)
                     
-                    Button { okAction() } label: {
+                    Button {
+                        haptic()
+                        okAction()
+                    } label: {
                         ZStack {
                             Text("OK")
                                 .font(.system(size: isIpad() ? 26 : 20, weight: .semibold))
@@ -103,7 +112,10 @@ struct controlTypeCard: View {
                     }
                     .buttonStyle(.plain)
                     
-                    Button { downAction() } label: {
+                    Button {
+                        haptic()
+                        downAction()
+                    } label: {
                         Image("down")
                             .resizable()
                             .foregroundStyle(.white)
@@ -112,7 +124,10 @@ struct controlTypeCard: View {
                     .buttonStyle(.plain)
                 }
                 
-                Button { rightAction() } label: {
+                Button {
+                    haptic()
+                    rightAction()
+                } label: {
                     Image("right")
                         .resizable()
                         .foregroundStyle(.white)
@@ -300,6 +315,12 @@ struct KeyboardView: View {
                     )
                 }
                 .padding(.horizontal, 15)
+                .focused($isKeyboardFocused)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isKeyboardFocused = true
+                        }
+                    }
             
             if text.isEmpty {
                 Text(str.StartTypingHere)
@@ -331,41 +352,123 @@ struct VolChButtonCard: View {
     let title: String
     let action1: () -> Void
     let action2: () -> Void
+    var checkConnection: () -> Bool = { true }  // default true
+    
+    @State private var action1Timer: Timer?
+    @State private var action2Timer: Timer?
+    @State private var isHoldingAction1 = false
+    @State private var isHoldingAction2 = false
+    
+    // MARK: - Timer Helpers
+    private func startAction1Repeating() {
+        action1Timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
+            haptic()
+            action1()
+        }
+    }
+    
+    private func stopAction1Repeating() {
+        action1Timer?.invalidate()
+        action1Timer = nil
+    }
+    
+    private func startAction2Repeating() {
+        action2Timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
+            haptic()
+            action2()
+        }
+    }
+    
+    private func stopAction2Repeating() {
+        action2Timer?.invalidate()
+        action2Timer = nil
+    }
     
     var body: some View {
         ZStack {
-            VStack(spacing:isIpad() ? 35 : 25) {
+            VStack(spacing: isIpad() ? 35 : 25) {
+                
+                // Button 1
                 Button {
+                    haptic()
                     action1()
                 } label: {
                     ZStack {
                         Image(systemName: image1)
                             .foregroundStyle(.white)
-                            .frame(width: isIpad() ? 34 : 28,height:  isIpad() ? 34 : 28)
+                            .frame(width: isIpad() ? 34 : 28, height: isIpad() ? 34 : 28)
                     }
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            if !isHoldingAction1 {
+                                isHoldingAction1 = true
+                                
+                                guard checkConnection() else {
+                                    isHoldingAction1 = false
+                                    return
+                                }
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    if isHoldingAction1 {
+                                        startAction1Repeating()
+                                    }
+                                }
+                            }
+                        }
+                        .onEnded { _ in
+                            stopAction1Repeating()
+                            isHoldingAction1 = false
+                        }
+                )
                 
                 Text(title)
                     .font(.system(size: 16))
                     .foregroundStyle(.white)
                 
+                // Button 2
                 Button {
+                    haptic()
                     action2()
                 } label: {
                     ZStack {
                         Image(systemName: image2)
                             .foregroundStyle(.white)
-                            .frame(width: isIpad() ? 34 : 28,height:  isIpad() ? 34 : 28)
+                            .frame(width: isIpad() ? 34 : 28, height: isIpad() ? 34 : 28)
                     }
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            if !isHoldingAction2 {
+                                isHoldingAction2 = true
+                                
+                                guard checkConnection() else {
+                                    isHoldingAction2 = false
+                                    return
+                                }
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    if isHoldingAction2 {
+                                        startAction2Repeating()
+                                    }
+                                }
+                            }
+                        }
+                        .onEnded { _ in
+                            stopAction2Repeating()
+                            isHoldingAction2 = false
+                        }
+                )
             }
         }
-        .frame(width:isIpad() ? 80 : 66)
-        .padding(.vertical,15)
+        .frame(width: isIpad() ? 80 : 66)
+        .padding(.vertical, 15)
         .background(.white.opacity(0.10))
         .modifier(GlassCardModifier(cornerRadius: isIpad() ? 40 : 33))
         .clipShape(RoundedRectangle(cornerRadius: isIpad() ? 40 : 33))
@@ -520,6 +623,7 @@ struct ChannelCard: View {
     var body: some View {
         
         Button {
+            haptic()
             action()
         } label: {
             ZStack {
@@ -653,7 +757,10 @@ struct NumberKey: View {
     
     var body: some View {
         
-        Button(action: action) {
+        Button{
+            haptic()
+            action()
+        } label: {
             
             Text(title)
                 .font(.system(size: 28, weight: .medium))

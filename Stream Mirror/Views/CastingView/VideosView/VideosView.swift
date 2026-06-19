@@ -59,6 +59,7 @@ struct VideosView: View {
                         if !isPro {
                             NativeAd7()
                                 .padding(.top,15)
+                                .padding(.horizontal,15)
                         }
                         videoGridView
                             .padding(.bottom, 16)
@@ -70,9 +71,10 @@ struct VideosView: View {
         }
         .appScreen()
         .onAppear {
-            
+
+            guard photoVM.videoAssets.isEmpty else { return }
+
             photoVM.requestVideoAccess()
-            
         }
         .sheet(isPresented: $photoVM.showDeviceList) {
             DeviceListview(isPresented: $photoVM.showDeviceList)

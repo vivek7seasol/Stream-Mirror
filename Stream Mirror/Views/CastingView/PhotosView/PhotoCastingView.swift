@@ -125,11 +125,11 @@ struct PhotoCastingView: View {
                             if isPlaying {
 
                                 stopSlideshow()
-                                isPlaying = false
 
                             } else {
 
-                                showTimerView = true
+                                timerSeconds = 7
+                                startSlideshow()
                             }
                         }
                         

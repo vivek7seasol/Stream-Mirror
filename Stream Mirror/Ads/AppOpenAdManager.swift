@@ -376,6 +376,7 @@ class AppOpenBackAdManager: NSObject, FullScreenContentDelegate {
     var isShowingAd = false
     var loadTime: Date?
     var hasLoadedOnce = false
+    private var adCompletion: (() -> Void)?
     
     static let shared = AppOpenBackAdManager()
     
@@ -414,25 +415,29 @@ class AppOpenBackAdManager: NSObject, FullScreenContentDelegate {
     }
     
     // MARK: - Show Ad
-    func showAdIfAvailable() {
+    func showAdIfAvailable(completion: @escaping () -> Void) {
 //        if !sholdShowAppOpenAd {
 //            print("⚠️ Some Other Content is showing.")
 //            return
 //        }
-//        
+        
         if isShowingAd {
             print("⚠️ App open ad is already showing.")
+            completion()
             return
         }
         guard let ad = appOpenAd else {
             print("⚠️ App open ad not available.")
-            appOpenAdManagerDelegate?.appOpenAdManagerAdDidComplete(self)
+            completion()
             return
         }
         if let topVC = UIApplication.topViewController {
             print("🎬 Presenting App Open Ad...")
             ad.present(from: topVC)
             isShowingAd = true
+            adCompletion = completion
+        } else {
+            completion()
         }
     }
     
@@ -455,17 +460,21 @@ class AppOpenBackAdManager: NSObject, FullScreenContentDelegate {
     
     func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
         print("✅ App open ad dismissed.")
-        isShowingAd = false
-        appOpenAd = nil
-        appOpenAdManagerDelegate?.appOpenAdManagerAdDidComplete(self)
+        finishAdFlow()
     }
     
     func ad(_ ad: FullScreenPresentingAd,
             didFailToPresentFullScreenContentWithError error: Error) {
         print("❌ Ad failed to present: \(error.localizedDescription)")
+        finishAdFlow()
+    }
+    
+    private func finishAdFlow() {
         isShowingAd = false
         appOpenAd = nil
-        appOpenAdManagerDelegate?.appOpenAdManagerAdDidComplete(self)
+        hasLoadedOnce = true
+        adCompletion?()
+        adCompletion = nil
     }
     
     // MARK: - Reset for new session

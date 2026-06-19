@@ -104,8 +104,9 @@ struct LanguageView: View {
                     .padding()
                 }
                 if !isPro {
-                    NativeAd7()
+                    NativeAd9()
                         .padding(.bottom,10)
+                        .padding(.horizontal,15)
                 }
             }
         }

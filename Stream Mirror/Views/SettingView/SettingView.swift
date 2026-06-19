@@ -60,7 +60,8 @@ struct SettingView: View {
                 Spacer()
                 if !isPro {
                     NativeAd7()
-                        .padding(.bottom,100)
+                        .padding(.horizontal,15)
+                        .padding(.bottom, isIpad() ? 120 : 100)
                 }
             }
         }

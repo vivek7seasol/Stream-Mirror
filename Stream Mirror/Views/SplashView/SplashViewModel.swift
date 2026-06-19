@@ -55,12 +55,26 @@ class SplashViewModel: ObservableObject {
                 }
                 
                 AdCountViewModel.sharedd.reloadAd()
+                let isHomeOpened = UserDefaults.standard.bool(forKey: SessionKeys.isHomeOpened)
                 
-                await AppOpenAdManager.shared.loadAd()
-                
-                AppOpenAdManager.shared.showAdIfAvailable {
-                    DispatchQueue.main.async {
-                        self.navigateAfterSplash()
+                if isHomeOpened {
+                    print("User open HomeScreen First time load regular app open ad")
+                    await AppOpenBackAdManager.shared.loadAd()
+                    
+                    AppOpenBackAdManager.shared.showAdIfAvailable {
+                        DispatchQueue.main.async {
+                            self.navigateAfterSplash()
+                        }
+                    }
+                    
+                } else {
+                    print("User not open HomeScreen First time load second app open ad")
+                    await AppOpenAdManager.shared.loadAd()
+                    
+                    AppOpenAdManager.shared.showAdIfAvailable {
+                        DispatchQueue.main.async {
+                            self.navigateAfterSplash()
+                        }
                     }
                 }
             }
@@ -145,6 +159,7 @@ class SplashViewModel: ObservableObject {
                         second_appopen = extraFields["second_appopen"] as? String ?? "true"
                         small_native = extraFields["small_native"] as? String ?? "true"
                         pro_close_inter = extraFields["pro_close_inter"] as? String ?? "true"
+                        second_small_native = extraFields["second_small_native"] as? String ?? "true"
                         
                     } else {
                         

@@ -60,20 +60,24 @@ struct Stream_MirrorApp: App {
                     print("⛔ Interstitial running → skip AppOpen")
                     return
                 }
-                
-                if AppOpenAdManager.shared.isShowingAd {
+                if AppOpenAdManager.shared.isShowingAd || AppOpenBackAdManager.shared.isShowingAd {
                     return
                 }
                 
-                AppOpenAdManager.shared.resetForForeground()
-                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     Task {
-                        AppOpenBackAdManager.shared.resetForForeground()
-                        
-                        await AppOpenBackAdManager.shared.loadAd()
-                        
-                        AppOpenBackAdManager.shared.showAdIfAvailable()
+                        let isHomeOpened = UserDefaults.standard.bool(forKey: SessionKeys.isHomeOpened)
+                        if isHomeOpened {
+                            print("Foreground: HomeScreen opened → load regular app open ad")
+                            AppOpenBackAdManager.shared.resetForForeground()
+                            await AppOpenBackAdManager.shared.loadAd()
+                            AppOpenBackAdManager.shared.showAdIfAvailable { }
+                        } else {
+                            print("Foreground: HomeScreen NOT opened → load second app open ad")
+                            AppOpenAdManager.shared.resetForForeground()
+                            await AppOpenAdManager.shared.loadAd()
+                            AppOpenAdManager.shared.showAdIfAvailable { }
+                        }
                     }
                 }
                 

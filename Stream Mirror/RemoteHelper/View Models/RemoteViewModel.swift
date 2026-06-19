@@ -142,7 +142,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     func selectDevice(_ device: ConnectableDevice) {
         showProgress = true
         deviceName = device.friendlyName
-        
+        connectingDeviceAddress = device.address
         if let tvType = identifyTVType(from: device) {
             print("Identified by name: \(tvType), \(device.friendlyName)")
             connectToTV(type: tvType, device: device)
@@ -165,54 +165,59 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     func connect(to device: ConnectableDevice) {
-        
+
         // Prevent multiple taps while switching
         guard !isSwitchingDevice else {
             print("⚠️ Already switching device")
             return
         }
-        
-        // ✅ CASE 1: User tapped SAME device → DISCONNECT (Toggle behavior)
-        if connectedTVType != nil,
-           deviceName == device.friendlyName {
-            
+
+        // ✅ SAME DEVICE TAPPED → Disconnect
+        if let connectedAddress = connectingDeviceAddress,
+           connectedTVType != nil,
+           connectedAddress == device.address {
+
             print("🔌 Tapped connected device → Disconnecting")
+
             isSwitchingDevice = true
-            
+
             disconnectTV()
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.isSwitchingDevice = false
             }
-            
+
             return
         }
-        
-        // ✅ CASE 2: Connected to different TV → SWITCH
+
+        // ✅ DIFFERENT DEVICE TAPPED → Switch
         if connectedTVType != nil {
-            
-            print("🔄 Switching TV connection...")
+
+            print("🔄 Switching TV connection from \(deviceName ?? "") to \(device.friendlyName ?? "")")
+
             isSwitchingDevice = true
             pendingDevice = device
-            
+
             disconnectTV()
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+
                 guard let self = self,
                       let newDevice = self.pendingDevice else { return }
-                
-                print("🔌 Connecting to new device...")
+
                 self.pendingDevice = nil
                 self.isSwitchingDevice = false
-                
+
+                print("🔌 Connecting to new device: \(newDevice.friendlyName ?? "")")
+
                 self.selectDevice(newDevice)
             }
-            
+
             return
         }
-        
-        // ✅ CASE 3: Fresh connection
-        print("🔌 Connecting to device...")
+
+        // ✅ Fresh connection
+        print("🔌 Connecting to device: \(device.friendlyName ?? "")")
         selectDevice(device)
     }
     
@@ -353,6 +358,8 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     func disconnectTV() {
+        connectingDeviceAddress = nil
+        
         showProgress = false
         deviceName = nil
         isConnectedSuccessfully = false

@@ -94,6 +94,7 @@ struct FindImageView: View {
                         if !isPro {
                             NativeAd7()
                                 .padding(.top,15)
+                                .padding(.horizontal,15)
                         }
                         photoGrid
                             .padding(.top, 20)

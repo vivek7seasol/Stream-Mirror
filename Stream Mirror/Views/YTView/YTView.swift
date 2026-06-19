@@ -146,6 +146,7 @@ struct YTView: View {
                     NativeAd6()
                         .padding(.top,15)
                         .padding(.bottom,5)
+                        .padding(.horizontal,15)
                 }
             }
         }

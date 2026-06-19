@@ -51,8 +51,6 @@ struct PhotosView: View {
                         isTitle2: false
                     )
 
-//                    Spacer()
-
                 } else {
                     
                     // MARK: - Photo Grid
@@ -60,6 +58,7 @@ struct PhotosView: View {
                         if !isPro {
                             NativeAd7()
                                 .padding(.top,15)
+                                .padding(.horizontal,15)
                         }
                         photoGridView
                             .padding(.bottom, 16)

@@ -72,6 +72,8 @@ struct HomeView: View {
                     if !isPro {
                         NativeAd7()
                             .padding(.top,15)
+                            .padding(.horizontal, isIpad() ? 30 : 15)
+                        
                     }
                     
                     VStack(spacing:15) {
@@ -171,7 +173,7 @@ struct HomeView: View {
         }
         .appScreen(disableSwipeBack: true)
         .onAppear {
-
+            UserDefaults.standard.set(true, forKey: SessionKeys.isHomeOpened)
             let didAskForReview = UserDefaults.standard.bool(forKey: "didAskForReview")
 
             if !isPro {

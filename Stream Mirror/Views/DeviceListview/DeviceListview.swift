@@ -24,16 +24,26 @@ struct DeviceListview: View {
     @Binding var isPresented: Bool
     
     private var connectedDevices: [ConnectableDevice] {
-        TVRemoteVM.discoveredDevices.filter {
-            TVRemoteVM.connectedTVType != nil &&
-            TVRemoteVM.deviceName == $0.friendlyName
+        TVRemoteVM.discoveredDevices.filter { device in
+
+            guard let connectedAddress = TVRemoteVM.connectingDeviceAddress,
+                  TVRemoteVM.connectedTVType != nil else {
+                return false
+            }
+
+            return device.address == connectedAddress
         }
     }
     
     private var otherDevices: [ConnectableDevice] {
-        TVRemoteVM.discoveredDevices.filter {
-            TVRemoteVM.deviceName != $0.friendlyName ||
-            TVRemoteVM.connectedTVType == nil
+        TVRemoteVM.discoveredDevices.filter { device in
+
+            guard let connectedAddress = TVRemoteVM.connectingDeviceAddress,
+                  TVRemoteVM.connectedTVType != nil else {
+                return true
+            }
+
+            return device.address != connectedAddress
         }
     }
     
@@ -113,7 +123,7 @@ struct DeviceListview: View {
                     
                     stepCard()
                     
-                } else if TVRemoteVM.discoveredDevices.isEmpty {
+                } else if otherDevices.isEmpty {
                     
                     Spacer()
                     VStack(spacing:50) {
@@ -148,7 +158,7 @@ struct DeviceListview: View {
                     VStack(spacing: 12) {
                         
                         ScrollView(.vertical, showsIndicators: false) {
-                            ForEach(TVRemoteVM.discoveredDevices, id: \.address) { device in
+                            ForEach(otherDevices, id: \.address) { device in
                                 Button {
                                     if TVRemoteVM.connectedTVType != nil &&
                                            TVRemoteVM.deviceName == device.friendlyName {
@@ -418,20 +428,14 @@ struct DeviceListview: View {
     
     private func statusForDevice(_ device: ConnectableDevice) -> deviceStatus {
 
-        print("""
-        Device = \(device.friendlyName ?? "")
-        TVRemoteVM.deviceName = \(TVRemoteVM.deviceName ?? "nil")
-        showProgress = \(TVRemoteVM.showProgress)
-        connectedTVType = \(String(describing: TVRemoteVM.connectedTVType))
-        """)
-        
-        if TVRemoteVM.connectedTVType != nil,
-           TVRemoteVM.deviceName == device.friendlyName {
+        if let connectedAddress = TVRemoteVM.connectingDeviceAddress,
+           TVRemoteVM.connectedTVType != nil,
+           device.address == connectedAddress {
             return .connected
         }
 
         if TVRemoteVM.showProgress,
-           TVRemoteVM.deviceName == device.friendlyName {
+           device.address == TVRemoteVM.connectingDeviceAddress {
             return .connecting
         }
 

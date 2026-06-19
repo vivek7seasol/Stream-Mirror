@@ -43,6 +43,7 @@ struct RemoteView: View {
                 VStack(spacing:isIpad() ? 25 : 15) {
                     HStack {
                         Button {
+                            haptic()
                             showDeviceList = true
                         } label: {
                             
@@ -66,6 +67,7 @@ struct RemoteView: View {
                         
                         Spacer()
                         Button {
+                            haptic()
                             handleDeviceSatus {
                                 TVRemoteVM.sendCommand(.POWER)
                             }
@@ -76,7 +78,23 @@ struct RemoteView: View {
                         }
                         
                     }
-                    .padding(.horizontal,15)
+                    .padding(.horizontal, isIpad() ? 30 : 15)
+                    
+                    if viewModel.isRecording {
+                        ZStack {
+                            Text(viewModel.recognizedText)
+                                .font(.system(size: isIpad() ? 22 : 16, weight: .medium))
+                                .foregroundStyle(AppColor.textColor2)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 10)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: isIpad() ? 70 : 50)
+                        .background(.white)
+                        .cornerRadius(20)
+                        .padding(.horizontal,15)
+                    }
                     
                     ZStack {
                         ControlBtn(selectedType: $controlType)
@@ -88,26 +106,31 @@ struct RemoteView: View {
                         if controlType == .remote {
                             controlTypeCard(
                                 upAction: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.DPAD_UP)
                                     }
                                 },
                                 downAction: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.DPAD_DOWN)
                                     }
                                 },
                                 leftAction: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.DPAD_LEFT)
                                     }
                                 },
                                 rightAction: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.DPAD_RIGHT)
                                     }
                                 },
                                 okAction: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.OK)
                                     }
@@ -116,26 +139,31 @@ struct RemoteView: View {
                         } else if controlType == .touchpad {
                             touchPadView(
                                 viewModel: viewModel, onSwipeUp: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.DPAD_UP)
                                     }
                                 },
                                 onSwipeDown: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.DPAD_DOWN)
                                     }
                                 },
                                 onSwipeLeft: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.DPAD_LEFT)
                                     }
                                 },
                                 onSwipeRight: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.DPAD_RIGHT)
                                     }
                                 },
                                 onTap: {
+                                    haptic()
                                     handleDeviceSatus {
                                         TVRemoteVM.sendCommand(.OK)
                                     }
@@ -163,66 +191,69 @@ struct RemoteView: View {
                     
                     HStack(spacing: isIpad() ? 50 : 30) {
                         
-                        VolChButtonCard(image1: "plus", image2: "minus", title: str.VOL, action1: {
-                            handleDeviceSatus {
-                                TVRemoteVM.sendCommand(.VOLUMEUP)
+                        VolChButtonCard(
+                            image1: "plus",
+                            image2: "minus",
+                            title: str.VOL,
+                            action1: {
+                                haptic()
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.VOLUMEUP)
+                                }
+                            },
+                            action2: {
+                                haptic()
+                                handleDeviceSatus {
+                                    TVRemoteVM.sendCommand(.VOLUMEDOWN)
+                                }
+                            },
+                            checkConnection: {
+                                isPro && TVRemoteVM.connectedTVType != nil
                             }
-                        }, action2: {
-                            handleDeviceSatus {
-                                TVRemoteVM.sendCommand(.VOLUMEDOWN)
-                            }
-                        })
+                        )
                         
                         VStack(spacing:20) {
                             CircleButton(icon: "home2",size: 30,size2: 66, action: {
+                                haptic()
                                 handleDeviceSatus {
                                     TVRemoteVM.sendCommand(.HOME)
                                 }
                             })
                             
-                            CircleButton(icon: "mic",size: 30,size2: 66, action: {
-                                
+                            CircleButton(icon:"mic",size: 30,size2: 66, action: {
+                                haptic()
                             })
                             .onTapGesture {
                                 if isPro {
-                                    if !(commonVM.isAirPlayConnected() || TVRemoteVM.isConnectedSuccessfully) {
-                                        viewModel.showConnectionView = true
-                                        return
-                                    }
-                                    
-                                    if commonVM.isAirPlayConnected() {
-                                        viewModel.showAirPlayAlert = true
-                                        return
-                                    }
-                                    
-                                    // Permission already granted
-                                    if !isPro {
-                                        viewModel.showPremiumView = true
-                                        return
-                                    }
-                                    
-                                    let speechStatus = SFSpeechRecognizer.authorizationStatus()
-                                    let micStatus = AVAudioSession.sharedInstance().recordPermission
-                                    
-                                    if speechStatus != .authorized || micStatus != .granted {
-                                        viewModel.requestMicPermission()
+                                    TVRemoteVM.handleDeviceAction {
                                         
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                            viewModel.stopLiveRecognition()
-                                            viewModel.isRecording = false
-                                        }
-                                    }
-                                    
-                                    // Pro user
-                                    if !viewModel.isRecording {
-                                        viewModel.recognizedText = "Hold and Speak"
-                                        viewModel.showRecognizedView = true
+                                    } onTV: {
                                         
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            if !viewModel.isRecording {
-                                                viewModel.showRecognizedView = false
+                                        let speechStatus = SFSpeechRecognizer.authorizationStatus()
+                                        let micStatus = AVAudioSession.sharedInstance().recordPermission
+                                        
+                                        if speechStatus != .authorized || micStatus != .granted {
+                                            viewModel.requestMicPermission()
+                                            
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                                viewModel.stopLiveRecognition()
+                                                viewModel.isRecording = false
                                             }
                                         }
+                                        
+                                        // Pro user
+                                        if !viewModel.isRecording {
+                                            viewModel.recognizedText = "Hold and Speak"
+                                            viewModel.showRecognizedView = true
+                                            
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                if !viewModel.isRecording {
+                                                    viewModel.showRecognizedView = false
+                                                }
+                                            }
+                                        }
+                                    } onNoDevice: {
+                                        showDeviceList = true
                                     }
                                 } else {
                                     showPremium = true
@@ -231,85 +262,40 @@ struct RemoteView: View {
                             .simultaneousGesture(
                                 LongPressGesture(minimumDuration: 0.2)
                                     .onEnded { _ in
-                                        if !(commonVM.isAirPlayConnected() || TVRemoteVM.isConnectedSuccessfully) {
-                                            viewModel.showConnectionView = true
-                                            return
-                                        }
-                                        
-                                        if commonVM.isAirPlayConnected() {
-                                            viewModel.showAirPlayAlert = true
-                                            return
-                                        }
                                         
                                         if isPro {
-                                            viewModel.micTouchDown()
+                                            TVRemoteVM.handleDeviceAction {
+                                                
+                                            } onTV: {
+                                                viewModel.micTouchDown()
+                                            } onNoDevice: {
+                                                showDeviceList = true
+                                            }
                                         } else {
-                                            viewModel.showPremiumView = true
+                                            showPremium = true
                                         }
                                     }
                             )
                             .simultaneousGesture(
                                 DragGesture(minimumDistance: 0)
                                     .onEnded { _ in
-                                        if !(commonVM.isAirPlayConnected() || TVRemoteVM.isConnectedSuccessfully) {
-                                            viewModel.showConnectionView = true
-                                            return
-                                        }
-                                        
-                                        if commonVM.isAirPlayConnected() {
-                                            viewModel.showAirPlayAlert = true
-                                            return
-                                        }
-                                        
                                         if isPro && viewModel.isRecording {
                                             viewModel.micTouchUp(tvVM: TVRemoteVM)
                                         }
                                     }
                             )
-//                            .simultaneousGesture(
-//                                LongPressGesture(minimumDuration: 0.2)
-//                                    .onEnded { _ in
-//                                        
-//                                        handleDeviceSatus {
-//                                            
-//                                            let speechStatus = SFSpeechRecognizer.authorizationStatus()
-//                                            let micStatus = AVAudioSession.sharedInstance().recordPermission
-//                                            
-//                                            if speechStatus != .authorized || micStatus != .granted {
-//                                                
-//                                                viewModel.requestMicPermission()
-//                                                
-//                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                                                    viewModel.stopLiveRecognition()
-//                                                    viewModel.isRecording = false
-//                                                }
-//                                            }
-//                                            
-//                                            if !viewModel.isRecording {
-//                                                viewModel.recognizedText = "Hold and Speak"
-//                                                viewModel.showRecognizedView = true
-//                                                
-//                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-//                                                    if !viewModel.isRecording {
-//                                                        viewModel.showRecognizedView = false
-//                                                    }
-//                                                }
-//                                            }
-//                                            
-//                                            viewModel.micTouchDown()
-//                                        }
-//                                    }
-//                            )
                         }
                         
                         VStack(spacing:20) {
                             CircleButton(icon: "mute",size: 30,size2: 66, action: {
+                                haptic()
                                 handleDeviceSatus {
                                     TVRemoteVM.sendCommand(.MUTE)
                                 }
                             })
                             
                             CircleButton(icon: "setting",size: 30,size2: 66, action: {
+                                haptic()
                                 handleDeviceSatus {
                                     TVRemoteVM.sendCommand(.SETTINGS)
                                 }
@@ -317,13 +303,17 @@ struct RemoteView: View {
                         }
                         
                         VolChButtonCard(image1: "chevron.up", image2: "chevron.down", title: str.CH, action1: {
+                            haptic()
                             handleDeviceSatus {
                                 TVRemoteVM.sendCommand(.CHANNELUP)
                             }
                         }, action2: {
+                            haptic()
                             handleDeviceSatus {
                                 TVRemoteVM.sendCommand(.CHANNELDOWN)
                             }
+                        }, checkConnection: {
+                            isPro && TVRemoteVM.connectedTVType != nil
                         })
                         
                     }
@@ -332,12 +322,14 @@ struct RemoteView: View {
                     HStack(spacing: isIpad() ? 40 : 20) {
                         
                         CircleButton(icon: "back2",size: 30,size2: 66, action: {
+                            haptic()
                             handleDeviceSatus {
                                 TVRemoteVM.sendCommand(.BACK)
                             }
                         })
                         
                         Button {
+                            haptic()
                             handleDeviceSatus {
                                 showNumberPad = true
                             }
@@ -357,12 +349,14 @@ struct RemoteView: View {
                         
                         
                         CircleButton(icon: "channel2", size: 30, size2: 66) {
+                            haptic()
                             handleDeviceSatus {
                                 showChannelView = true
                             }
                         }
                         if TVRemoteVM.connectedTVType == .LG {
                             CircleButton(icon: "input", size: 30, size2: 66) {
+                                haptic()
                                 handleDeviceSatus {
                                     showTVinputList = true
                                 }

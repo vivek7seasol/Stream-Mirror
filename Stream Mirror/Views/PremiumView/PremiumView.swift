@@ -103,7 +103,9 @@ struct PremiumView: View {
                                     lbl1: product.localizedPrice,
                                     lbl2: getSubtitle(product.productIdentifier),
                                     isSelected: proVM.selectedProduct?.productIdentifier == product.productIdentifier,
-                                    showBestValue: product.productIdentifier == Products.smart_view_lifeTime.rawValue
+                                    showBestValue: shouldShowBestValue(
+                                        for: product.productIdentifier
+                                    )
                                 ) {
                                     proVM.selectedProduct = product
                                 }
@@ -233,6 +235,35 @@ struct PremiumView: View {
         } else {
             debugPrint("❌ System can't open this URL!")
         }
+    }
+    
+    func shouldShowBestValue(for productId: String) -> Bool {
+
+        let monthly = iapMonthlyPlan == "true"
+        let yearly = iapYearlyPlan == "true"
+        let lifetime = iapLifetime == "true"
+
+        let activeCount =
+            (monthly ? 1 : 0) +
+            (yearly ? 1 : 0) +
+            (lifetime ? 1 : 0)
+
+        // Single plan -> no BEST badge
+        guard activeCount > 1 else {
+            return false
+        }
+
+        // Lifetime available with any other plan -> Lifetime gets BEST
+        if lifetime {
+            return productId == Products.smart_view_lifeTime.rawValue
+        }
+
+        // Only Monthly + Yearly
+        if monthly && yearly {
+            return productId == Products.smart_view_yearly.rawValue
+        }
+
+        return false
     }
 }
 

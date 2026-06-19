@@ -19,114 +19,116 @@ struct BrowserView: View {
             VStack {
                 CommonStatusView(title: str.Browser, isCastingShow: false)
                 
-                Image("Online Browser")
-                    .resizable()
-                    .frame(width: isIpad() ? 170 : 150, height: isIpad() ? 140 : 120)
-                
-                VStack(alignment: .center, spacing: 8) {
-                    Text(str.OnlineBrowser)
-                        .font(.system(size: isIpad() ? 26 : 20, weight: .semibold))
-                        .foregroundStyle(.white)
+                ScrollView(.vertical,showsIndicators: false) {
+                    Image("Online Browser")
+                        .resizable()
+                        .frame(width: isIpad() ? 170 : 150, height: isIpad() ? 140 : 120)
                     
-                    Text(str.Browsewebsitesquicklyandsecurely)
-                        .font(.system(size: isIpad() ? 18 : 12))
-                        .foregroundStyle(AppColor.textColor)
-                }
-                
-                ZStack {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .resizable()
-                            .foregroundStyle(AppColor.textColor)
-                            .frame(width: isIpad() ? 24 : 18, height: isIpad() ? 24 : 18)
+                    VStack(alignment: .center, spacing: 8) {
+                        Text(str.OnlineBrowser)
+                            .font(.system(size: isIpad() ? 26 : 20, weight: .semibold))
+                            .foregroundStyle(.white)
                         
-                        ZStack(alignment: .leading) {
-                            if text.isEmpty {
-                                Text(str.Search)
-                                    .font(.system(size:  isIpad() ? 20 : 14))
-                                    .foregroundColor(AppColor.textColor)
-                                    .padding(.leading, 2)
-                            }
-                            
-                            TextField("", text: $text, onCommit: {
-                                selectedURL = text
-                                adVm.registerTap()
-                                navigateToBrowser = true
-                            })
-                            .foregroundColor(AppColor.textColor)
-                        }
-                        .frame(maxWidth: .infinity)
+                        Text(str.Browsewebsitesquicklyandsecurely)
+                            .font(.system(size: isIpad() ? 18 : 12))
+                            .foregroundStyle(AppColor.textColor)
                     }
-                    .padding()
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: isIpad() ? 70 : 50)
-                .modifier(GlassCardModifier(cornerRadius: isIpad() ? 35 : 25))
-                .padding()
-                
-                HStack {
-                    Divider()
-                        .frame(width: isIpad() ? 7 : 4, height: isIpad() ? 26 : 22)
-                        .background(.white)
-                        .cornerRadius(15)
                     
-                    Text(str.PopularWebsites)
-                        .font(.system(size: isIpad() ? 24 : 18, weight: .semibold))
-                        .foregroundStyle(.white)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 15)
-                
-                VStack(spacing: 15) {
-                    HStack(spacing: 5) {
-                        Spacer()
-                        webRow(title: str.Google, image: "Google") {
-                            adVm.registerTap()
-                            selectedURL = "https://www.google.com/"
-                            navigateToBrowser = true
+                    ZStack {
+                        HStack {
+                            Image(systemName: "magnifyingglass")
+                                .resizable()
+                                .foregroundStyle(AppColor.textColor)
+                                .frame(width: isIpad() ? 24 : 18, height: isIpad() ? 24 : 18)
+                            
+                            ZStack(alignment: .leading) {
+                                if text.isEmpty {
+                                    Text(str.Search)
+                                        .font(.system(size:  isIpad() ? 20 : 14))
+                                        .foregroundColor(AppColor.textColor)
+                                        .padding(.leading, 2)
+                                }
+                                
+                                TextField("", text: $text, onCommit: {
+                                    selectedURL = text
+                                    adVm.registerTap()
+                                    navigateToBrowser = true
+                                })
+                                .foregroundColor(AppColor.textColor)
+                            }
+                            .frame(maxWidth: .infinity)
                         }
-                        Spacer()
-                        webRow(title: str.Instagram, image: "Instagram") {
-                            adVm.registerTap()
-                            selectedURL = "https://www.instagram.com/"
-                            navigateToBrowser = true
-                        }
-                        Spacer()
-                        webRow(title: str.Vimeo, image: "Vimeo") {
-                            adVm.registerTap()
-                            selectedURL = "https://vimeo.com/"
-                            navigateToBrowser = true
-                        }
-                        Spacer()
+                        .padding()
                     }
-                    HStack(spacing: 5) {
-                        Spacer()
-                        webRow(title: str.Youtube, image: "Youtube") {
-                            adVm.registerTap()
-                            selectedURL = "https://www.youtube.com"
-                            navigateToBrowser = true
-                        }
-                        Spacer()
-                        webRow(title: str.Facebook, image: "Facebook") {
-                            adVm.registerTap()
-                            selectedURL = "https://www.facebook.com"
-                            navigateToBrowser = true
-                        }
-                        Spacer()
-                        webRow(title: str.Telegram, image: "Telegram") {
-                            adVm.registerTap()
-                            selectedURL = "https://web.telegram.org"
-                            navigateToBrowser = true
-                        }
-                        Spacer()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: isIpad() ? 70 : 50)
+                    .modifier(GlassCardModifier(cornerRadius: isIpad() ? 35 : 25))
+                    .padding()
+                    
+                    HStack {
+                        Divider()
+                            .frame(width: isIpad() ? 7 : 4, height: isIpad() ? 26 : 22)
+                            .background(.white)
+                            .cornerRadius(15)
+                        
+                        Text(str.PopularWebsites)
+                            .font(.system(size: isIpad() ? 24 : 18, weight: .semibold))
+                            .foregroundStyle(.white)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 15)
+                    
+                    VStack(spacing: 15) {
+                        HStack(spacing: 5) {
+                            Spacer()
+                            webRow(title: str.Google, image: "Google") {
+                                adVm.registerTap()
+                                selectedURL = "https://www.google.com/"
+                                navigateToBrowser = true
+                            }
+                            Spacer()
+                            webRow(title: str.Instagram, image: "Instagram") {
+                                adVm.registerTap()
+                                selectedURL = "https://www.instagram.com/"
+                                navigateToBrowser = true
+                            }
+                            Spacer()
+                            webRow(title: str.Vimeo, image: "Vimeo") {
+                                adVm.registerTap()
+                                selectedURL = "https://vimeo.com/"
+                                navigateToBrowser = true
+                            }
+                            Spacer()
+                        }
+                        HStack(spacing: 5) {
+                            Spacer()
+                            webRow(title: str.Youtube, image: "Youtube") {
+                                adVm.registerTap()
+                                selectedURL = "https://www.youtube.com"
+                                navigateToBrowser = true
+                            }
+                            Spacer()
+                            webRow(title: str.Facebook, image: "Facebook") {
+                                adVm.registerTap()
+                                selectedURL = "https://www.facebook.com"
+                                navigateToBrowser = true
+                            }
+                            Spacer()
+                            webRow(title: str.Telegram, image: "Telegram") {
+                                adVm.registerTap()
+                                selectedURL = "https://web.telegram.org"
+                                navigateToBrowser = true
+                            }
+                            Spacer()
+                        }
+                    }
+                    .padding(.horizontal, 10)
                 }
-                .padding(.horizontal, 10)
-                
                 Spacer()
                 if !isPro {
                     NativeAd7()
                         .padding(.bottom,5)
+                        .padding(.horizontal,15)
                 }
             }
         }

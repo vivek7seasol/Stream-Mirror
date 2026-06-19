@@ -82,10 +82,11 @@ struct IntroMainView: View {
                 .padding(.horizontal, 15)
                 .padding(.bottom,10)
                 
-                if !isPro {
-                    NativeAd6()
-                        .padding(.bottom,5)
-                }
+//                if !isPro {
+//                    NativeAd6()
+//                        .padding(.bottom,5)
+//                        .padding(.horizontal,15)
+//                }
             }
         }
         .appScreen(disableSwipeBack: true)

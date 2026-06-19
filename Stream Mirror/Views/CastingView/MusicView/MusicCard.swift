@@ -33,12 +33,12 @@ struct MusicRow: View {
                 
                 VStack(alignment:.leading,spacing: 5) {
                     Text(musicName)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: isIpad() ? 22 : 16, weight: .medium))
                         .foregroundStyle(.white)
                         .lineLimit(1)
                     
                     Text(artistName)
-                        .font(.system(size: 12))
+                        .font(.system(size: isIpad() ? 18 : 12))
                         .foregroundStyle(AppColor.textColor)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
@@ -57,7 +57,7 @@ struct MusicRow: View {
             .padding(.horizontal,15)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: isIpad() ? 120 : 80)
+        .frame(height: isIpad() ? 100 : 80)
         .modifier(GlassCardModifier(cornerRadius: 20))
     }
 }

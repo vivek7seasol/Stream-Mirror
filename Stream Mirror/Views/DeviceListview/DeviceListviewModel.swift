@@ -6,6 +6,7 @@
 import Foundation
 import Network
 import Combine
+import ConnectSDK
 
 enum PermissionState {
     case checking
@@ -20,7 +21,8 @@ class DeviceListViewModel: ObservableObject {
     @Published var permissionState: PermissionState = .checking
     @Published var showLocalNetworkPopup = false
     @Published var showNoNetworkPopup = false
-
+    @Published var connectedDevice: ConnectableDevice?
+    
     private let monitor = NWPathMonitor()
     
     private var browser: NWBrowser?

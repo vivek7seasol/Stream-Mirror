@@ -37,6 +37,7 @@ struct SketchBoardListView: View {
                         if !isPro {
                             NativeAd7()
                                 .padding(.top,15)
+                                .padding(.horizontal,15)
                         }
                         LazyVGrid(
                             columns: columns,

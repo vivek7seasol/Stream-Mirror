@@ -72,7 +72,7 @@ final class NativeAdViewModel: NSObject, ObservableObject {
         }
 
         let request = Request()
-        smallAdLoader = AdLoader(adUnitID: small_native,
+        smallAdLoader = AdLoader(adUnitID: second_small_native,
                             rootViewController: nil,
                             adTypes: [.native],
                             options: nil)

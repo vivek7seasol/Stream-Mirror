@@ -103,7 +103,15 @@ struct IPTVView: View {
                 .padding(.horizontal, 15)
                 .padding(.top, 10)
                 
-                if !iptvVM.isLoadings &&
+                if iptvVM.isLoadings {
+                    ProgressView("Loading Images...".localized)
+                        .tint(.white)
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(12)
+                }
+                else if !iptvVM.isLoadings &&
                     iptvVM.selectedType == .country &&
                     filteredCountries.isEmpty {
 
@@ -137,6 +145,7 @@ struct IPTVView: View {
                         if !isPro {
                             NativeAd7()
                                 .padding(.top,15)
+                                .padding(.horizontal,15)
                         }
                         if iptvVM.selectedType == .country {
                             
@@ -173,18 +182,6 @@ struct IPTVView: View {
                     .scrollDismissesKeyboard(.immediately)
                 }
             }
-            
-            if iptvVM.isLoadings {
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
-                
-                ProgressView("Loading Images...".localized)
-                    .tint(.white)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(12)
-            }
         }
         .appScreen(isPresented: $iptvVM.showDeviceList) {
             DeviceListview(isPresented: $iptvVM.showDeviceList)
@@ -207,29 +204,21 @@ struct IPTVView: View {
                 )
             }
 
-            if iptvVM.getIPTVCountry() != nil &&
-                    iptvVM.getIPTVCategory() != nil {
+            Task {
 
-                    iptvVM.countries = iptvVM.getIPTVCountry() ?? []
-                    iptvVM.categories = iptvVM.getIPTVCategory() ?? []
-                    return
+                await MainActor.run {
+                    iptvVM.isLoadings = true
                 }
 
-                Task {
+                async let countries = iptvVM.fetchIPTVCountry()
+                async let categories = iptvVM.fetchIPTVCategory()
 
-                    await MainActor.run {
-                        iptvVM.isLoadings = true
-                    }
+                _ = await (countries, categories)
 
-                    async let countries = iptvVM.fetchIPTVCountry()
-                    async let categories = iptvVM.fetchIPTVCategory()
-
-                    _ = await (countries, categories)
-
-                    await MainActor.run {
-                        iptvVM.isLoadings = false
-                    }
+                await MainActor.run {
+                    iptvVM.isLoadings = false
                 }
+            }
         }
         .navigationDestination(isPresented: $iptvVM.showChannelList) {
             

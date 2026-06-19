@@ -88,6 +88,9 @@ struct SessionKeys {
     
     static var isPasswordOn = "isPasswordOn"
     static var isPasswordSet = "isPasswordSet"
+    
+    //Manage App openAD
+    static let isHomeOpened = "isHomeOpened"
 }
 
 struct placeholderView: View {
@@ -239,4 +242,9 @@ class AppSession {
 
     var hasShownPremium = false
     var hasShownRateAlert = false
+}
+
+func haptic(){
+    let impactMed = UIImpactFeedbackGenerator(style: .medium)
+    impactMed.impactOccurred()
 }
