@@ -377,7 +377,7 @@ struct ChannelView: View {
     @Binding var isPresented: Bool
     @ObservedObject var TVRemoteVM: RemoteViewModel
     var onTVAppSelected: (TVApps) -> Void
-    var onLGAppSelected: (LGTVApps) -> Void
+    var onLGTVAppselected: (LGTVApps) -> Void
     
     
     let channels: [(image: String, title: String, app: TVApps)] = [
@@ -466,7 +466,7 @@ struct ChannelView: View {
                                     title: LGTVChannels[index].title
                                 ) {
 
-                                    onLGAppSelected(LGTVChannels[index].app)
+                                    onLGTVAppselected(LGTVChannels[index].app)
 
                                     withAnimation(.spring()) {
                                         isPresented = false

@@ -34,7 +34,7 @@ struct PhotosView: View {
 
                     Spacer()
 
-                    ProgressView("Loading Photos...")
+                    ProgressView("Loading Photos...".localized)
                         .tint(.white)
                         .foregroundColor(.white)
 

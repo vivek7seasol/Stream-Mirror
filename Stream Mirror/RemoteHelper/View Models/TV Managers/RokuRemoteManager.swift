@@ -1,5 +1,5 @@
 //
-//  RokuTVManager.swift
+//  RokuRemoteManager.swift
 //  TV Remote
 //
 //  Created by IOS Developer on 09/09/2025.
@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class RokuTVManager: NSObject, ObservableObject {
+class RokuRemoteManager: NSObject, ObservableObject {
     @Published var availableApps: [String] = []
     @Published var connectionStatus = false
     private var ip: String = "192.168.0.1"

@@ -1,5 +1,5 @@
 //
-//  LGTVManager.swift
+//  LGRemoteManager.swift
 //  TV Remote
 //
 //  Created by IOS Developer on 09/09/2025.
@@ -9,15 +9,18 @@ import Foundation
 import ConnectSDK
 import Combine
 
-class LGTVManager: NSObject {
+class LGRemoteManager: NSObject {
     var selectedDevice: ConnectableDevice?
     @Published var connectionStatus = false
     @Published var availableApps: [AppInfo] = []
     @Published var isMuted = false
     var connectedDevice: ConnectableDevice?
+    var onDisconnectOrFailure: (() -> Void)?
     
     func connectLG(device: ConnectableDevice) {
+        disconnectFromTV()
         connectedDevice = device
+        selectedDevice = device
         device.setPairingType(DeviceServicePairingTypePinCode)
         device.delegate = self
         device.connect()
@@ -317,7 +320,7 @@ class LGTVManager: NSObject {
     }
 }
 
-extension LGTVManager: ConnectableDeviceDelegate {
+extension LGRemoteManager: ConnectableDeviceDelegate {
     func connectableDeviceReady(_ device: ConnectableDevice) {
         DispatchQueue.main.async {
             self.selectedDevice = device
@@ -333,5 +336,46 @@ extension LGTVManager: ConnectableDeviceDelegate {
             print("Device disconnected: \(error?.localizedDescription ?? "No Error Info")")
         }
     }
+    
+    func connectableDevice(
+            _ device: ConnectableDevice,
+            service: DeviceService,
+            pairingFailedWithError error: Error?
+        ) {
+            DispatchQueue.main.async {
+                self.resetLGPairingState()
+                self.onDisconnectOrFailure?()
+                print("LG pairing failed/cancelled: \(error?.localizedDescription ?? "No Error Info")")
+            }
+        }
+
+        func connectableDevice(
+            _ device: ConnectableDevice,
+            service: DeviceService,
+            disconnectedWithError error: Error?
+        ) {
+            DispatchQueue.main.async {
+                self.resetLGPairingState()
+                print("LG service disconnected: \(error?.localizedDescription ?? "No Error Info")")
+                self.onDisconnectOrFailure?()
+            }
+        }
+
+        func connectableDevice(
+            _ device: ConnectableDevice,
+            service: DeviceService,
+            didFailConnectWithError error: Error?
+        ) {
+            DispatchQueue.main.async {
+                self.resetLGPairingState()
+                print("LG service failed: \(error?.localizedDescription ?? "No Error Info")")
+                self.onDisconnectOrFailure?()
+            }
+        }
+
+        private func resetLGPairingState() {
+            self.connectionStatus = false
+            self.selectedDevice = nil
+        }
 }
 

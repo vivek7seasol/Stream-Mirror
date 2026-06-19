@@ -88,7 +88,7 @@ struct YTView: View {
                     HStack {
                         Spacer()
                         Button {
-                            YTVM.webView.goForward()
+                            YTVM.webView.goBack()
                         } label: {
                             Image("back")
                                 .resizable()
@@ -101,7 +101,7 @@ struct YTView: View {
                         
                         Spacer()
                         Button {
-                            YTVM.webView.goBack()
+                            YTVM.webView.goForward()
                         } label: {
                             Image("next")
                                 .resizable()

@@ -31,8 +31,8 @@ class SampleHandler: RPBroadcastSampleHandler {
     private var isMicEnabled: Bool = false
     private var shouldSaveRecording: Bool = false
     private var audioInput: AVAssetWriterInput?
-    private var appAudioInput: AVAssetWriterInput?
-    private var micAudioInput: AVAssetWriterInput?
+//    private var appAudioInput: AVAssetWriterInput?
+//    private var micAudioInput: AVAssetWriterInput?
     private var pixelBufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
     private var recordingSize: CGSize?
     private let ciContext = CIContext()
@@ -111,10 +111,12 @@ class SampleHandler: RPBroadcastSampleHandler {
             handleVideoSampleBuffer(sampleBuffer)
         case .audioMic:
             if isMicEnabled {
-                    writeAudioSampleBuffer(sampleBuffer, input: micAudioInput)
-                }
+                writeAudioSampleBuffer(sampleBuffer, input: audioInput)
+            }
         case .audioApp:
-            writeAudioSampleBuffer(sampleBuffer, input: appAudioInput)
+            if !isMicEnabled {
+                writeAudioSampleBuffer(sampleBuffer, input: audioInput)
+            }
             
         @unknown default:
             fatalError("Unknown type of sample buffer")
@@ -126,21 +128,123 @@ class SampleHandler: RPBroadcastSampleHandler {
         input: AVAssetWriterInput?
     ) {
         guard shouldSaveRecording else { return }
-
         guard let writer = assetWriter,
               let input = input else { return }
 
-        let time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-
-        if !isWritingStarted {
-            writer.startSession(atSourceTime: time)
-            isWritingStarted = true
-        }
+        // Sirf tab audio append karo jab session already started ho
+        guard isWritingStarted else { return }
 
         if writer.status == .writing,
            input.isReadyForMoreMediaData {
             input.append(sampleBuffer)
         }
+    }
+
+    private func writeCompositedVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
+        guard shouldSaveRecording else { return }
+
+        guard let writer = assetWriter,
+              let input = videoInput,
+              let adaptor = pixelBufferAdaptor,
+              let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+        else { return }
+
+        let time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+
+        // Session always video pe start karo
+        if !isWritingStarted {
+            writer.startSession(atSourceTime: time)
+            isWritingStarted = true
+        }
+
+        guard writer.status == .writing,
+              input.isReadyForMoreMediaData,
+              let pixelBufferPool = adaptor.pixelBufferPool
+        else { return }
+
+        var outputPixelBuffer: CVPixelBuffer?
+        CVPixelBufferPoolCreatePixelBuffer(
+            kCFAllocatorDefault,
+            pixelBufferPool,
+            &outputPixelBuffer
+        )
+
+        guard let outputPixelBuffer else { return }
+
+        var screenImage = CIImage(cvPixelBuffer: imageBuffer)
+
+        if let userDefaults = UserDefaults(suiteName: AppStrings.groupID),
+           userDefaults.bool(forKey: AppStrings.rotateMirror) == true {
+            screenImage = rotateImageForOrientation(screenImage, orientation: currentOrientation)
+        }
+
+        let targetSize = recordingSize ?? CGSize(
+            width: CVPixelBufferGetWidth(imageBuffer),
+            height: CVPixelBufferGetHeight(imageBuffer)
+        )
+        var finalImage = resizeImage(screenImage, targetSize: targetSize)
+
+        if isCameraEnabled, let cameraImage = loadLatestCameraCIImage() {
+
+            let cameraWidth: CGFloat = 160
+            let cameraHeight: CGFloat = 220
+            let padding: CGFloat = 24
+
+            let x = targetSize.width - cameraWidth - padding
+            let y = targetSize.height - cameraHeight - padding
+
+            let testBox = CIImage(color: CIColor(red: 1, green: 0, blue: 0, alpha: 1))
+                .cropped(to: CGRect(x: x, y: y, width: cameraWidth, height: cameraHeight))
+
+            finalImage = testBox.composited(over: finalImage)
+
+            if let cameraImage = loadLatestCameraCIImage() {
+                let normalizedCamera = cameraImage.transformed(
+                    by: CGAffineTransform(
+                        translationX: -cameraImage.extent.origin.x,
+                        y: -cameraImage.extent.origin.y
+                    )
+                )
+
+                let scale = max(
+                    cameraWidth / normalizedCamera.extent.width,
+                    cameraHeight / normalizedCamera.extent.height
+                )
+
+                let scaledCamera = normalizedCamera.transformed(
+                    by: CGAffineTransform(scaleX: scale, y: scale)
+                )
+
+                let cropRect = CGRect(
+                    x: (scaledCamera.extent.width - cameraWidth) / 2,
+                    y: (scaledCamera.extent.height - cameraHeight) / 2,
+                    width: cameraWidth,
+                    height: cameraHeight
+                )
+
+                let croppedCamera = scaledCamera
+                    .cropped(to: cropRect)
+                    .transformed(
+                        by: CGAffineTransform(
+                            translationX: -cropRect.origin.x,
+                            y: -cropRect.origin.y
+                        )
+                    )
+
+                let positionedCamera = croppedCamera.transformed(
+                    by: CGAffineTransform(translationX: x, y: y)
+                )
+
+                finalImage = positionedCamera.composited(over: finalImage)
+            }
+        }
+
+        ciContext.render(
+            finalImage.cropped(to: CGRect(x: 0, y: 0, width: targetSize.width, height: targetSize.height)),
+            to: outputPixelBuffer
+        )
+
+        adaptor.append(outputPixelBuffer, withPresentationTime: time)
     }
     
     private func handleVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
@@ -190,114 +294,6 @@ class SampleHandler: RPBroadcastSampleHandler {
         }
         
         sendToServer(data: jpegData)
-    }
-
-    private func writeCompositedVideoSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
-        guard shouldSaveRecording else { return }
-
-        guard let writer = assetWriter,
-              let input = videoInput,
-              let adaptor = pixelBufferAdaptor,
-              let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-        else { return }
-
-        let time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-
-        if !isWritingStarted {
-            writer.startSession(atSourceTime: time)
-            isWritingStarted = true
-        }
-
-        guard writer.status == .writing,
-              input.isReadyForMoreMediaData,
-              let pixelBufferPool = adaptor.pixelBufferPool
-        else { return }
-
-        var outputPixelBuffer: CVPixelBuffer?
-        CVPixelBufferPoolCreatePixelBuffer(
-            kCFAllocatorDefault,
-            pixelBufferPool,
-            &outputPixelBuffer
-        )
-
-        guard let outputPixelBuffer else { return }
-
-        var screenImage = CIImage(cvPixelBuffer: imageBuffer)
-
-        // Apply same rotation if needed
-        if let userDefaults = UserDefaults(suiteName: AppStrings.groupID),
-           userDefaults.bool(forKey: AppStrings.rotateMirror) == true {
-            screenImage = rotateImageForOrientation(screenImage, orientation: currentOrientation)
-        }
-
-        let targetSize = recordingSize ?? CGSize(
-            width: CVPixelBufferGetWidth(imageBuffer),
-            height: CVPixelBufferGetHeight(imageBuffer)
-        )
-        var finalImage = resizeImage(screenImage, targetSize: targetSize)
-
-        if isCameraEnabled, let cameraImage = loadLatestCameraCIImage() {
-
-            let cameraWidth: CGFloat = 160
-            let cameraHeight: CGFloat = 220
-            let padding: CGFloat = 24
-
-            let x = targetSize.width - cameraWidth - padding
-            let y = targetSize.height - cameraHeight - padding
-
-            // TEST RED BOX - must show in recording
-            let testBox = CIImage(color: CIColor(red: 1, green: 0, blue: 0, alpha: 1))
-                .cropped(to: CGRect(x: x, y: y, width: cameraWidth, height: cameraHeight))
-
-            finalImage = testBox.composited(over: finalImage)
-
-            if isCameraEnabled, let cameraImage = loadLatestCameraCIImage() {
-                let normalizedCamera = cameraImage.transformed(
-                    by: CGAffineTransform(
-                        translationX: -cameraImage.extent.origin.x,
-                        y: -cameraImage.extent.origin.y
-                    )
-                )
-
-                let scale = max(
-                    cameraWidth / normalizedCamera.extent.width,
-                    cameraHeight / normalizedCamera.extent.height
-                )
-
-                let scaledCamera = normalizedCamera.transformed(
-                    by: CGAffineTransform(scaleX: scale, y: scale)
-                )
-
-                let cropRect = CGRect(
-                    x: (scaledCamera.extent.width - cameraWidth) / 2,
-                    y: (scaledCamera.extent.height - cameraHeight) / 2,
-                    width: cameraWidth,
-                    height: cameraHeight
-                )
-
-                let croppedCamera = scaledCamera
-                    .cropped(to: cropRect)
-                    .transformed(
-                        by: CGAffineTransform(
-                            translationX: -cropRect.origin.x,
-                            y: -cropRect.origin.y
-                        )
-                    )
-
-                let positionedCamera = croppedCamera.transformed(
-                    by: CGAffineTransform(translationX: x, y: y)
-                )
-
-                finalImage = positionedCamera.composited(over: finalImage)
-            }
-        }
-
-        ciContext.render(
-            finalImage.cropped(to: CGRect(x: 0, y: 0, width: targetSize.width, height: targetSize.height)),
-            to: outputPixelBuffer
-        )
-
-        adaptor.append(outputPixelBuffer, withPresentationTime: time)
     }
     
     private func loadLatestCameraCIImage() -> CIImage? {
@@ -499,12 +495,12 @@ class SampleHandler: RPBroadcastSampleHandler {
                 AVEncoderBitRateKey: 192000
             ]
             
-            appAudioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
-            appAudioInput?.expectsMediaDataInRealTime = true
-            
-            micAudioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
-            micAudioInput?.expectsMediaDataInRealTime = true
-            
+//            appAudioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+//            appAudioInput?.expectsMediaDataInRealTime = true
+//            
+//            micAudioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+//            micAudioInput?.expectsMediaDataInRealTime = true
+//            
             guard let writer = assetWriter else { return }
             
             if let videoInput, writer.canAdd(videoInput) {
@@ -521,12 +517,11 @@ class SampleHandler: RPBroadcastSampleHandler {
                 )
             }
             
-            if let appAudioInput, writer.canAdd(appAudioInput) {
-                writer.add(appAudioInput)
-            }
-            
-            if isMicEnabled, let micAudioInput, writer.canAdd(micAudioInput) {
-                writer.add(micAudioInput)
+            audioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+            audioInput?.expectsMediaDataInRealTime = true
+
+            if let audioInput, writer.canAdd(audioInput) {
+                writer.add(audioInput)
             }
             
             writer.startWriting()
@@ -559,8 +554,7 @@ class SampleHandler: RPBroadcastSampleHandler {
     private func finishWriting() {
 
         videoInput?.markAsFinished()
-        micAudioInput?.markAsFinished()
-        appAudioInput?.markAsFinished()
+        audioInput?.markAsFinished()
 
         assetWriter?.finishWriting { [weak self] in
             guard let self = self else { return }

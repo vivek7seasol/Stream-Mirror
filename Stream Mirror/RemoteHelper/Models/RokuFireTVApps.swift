@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct RokuFireApps: Identifiable, Hashable, Codable {
+struct RokuFireTVApps: Identifiable, Hashable, Codable {
     let id: UUID
     let appID: String
     let name: String

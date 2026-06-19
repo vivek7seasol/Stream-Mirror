@@ -1,5 +1,5 @@
 //
-//  AndroidTVManager+Extensions.swift
+//  AndroidRemoteManager+Extensions.swift
 //  TV Remote
 //
 //  Created by iOS Developer on 22/08/2025.
@@ -33,7 +33,7 @@ extension RemoteManager.RemoteState {
     }
 }
 
-extension PairingManager.PairingState {
+extension PairManager.PairingState {
     func toString() -> String {
         switch self {
         case .idle:
@@ -63,7 +63,7 @@ extension PairingManager.PairingState {
         case .secretSent:
             return "Secret Sent"
         case .successPaired:
-            if let currentHost = AndroidTVManager.currentHost {
+            if let currentHost = AndroidRemoteManager.currentHost {
                 ConnectedTVs.shared.saveIP(currentHost)
             }
             return "Success Paired"

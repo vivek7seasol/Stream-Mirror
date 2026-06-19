@@ -234,8 +234,14 @@ struct DeviceListview: View {
             TextField(str.EnterPIN, text: $TVRemoteVM.pinCode)
             
             Button(str.Cancel, role: .cancel) {
+
                 TVRemoteVM.pinCode = ""
                 TVRemoteVM.showPinDialog = false
+
+                TVRemoteVM.showProgress = false
+                TVRemoteVM.isConnectedSuccessfully = false
+                TVRemoteVM.deviceName = nil
+
                 TVRemoteVM.disconnectTV()
             }
             
@@ -245,8 +251,11 @@ struct DeviceListview: View {
                 TVRemoteVM.showPinDialog = false
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+
                     if TVRemoteVM.connectedTVType == nil {
+
                         TVRemoteVM.showProgress = false
+                        TVRemoteVM.deviceName = nil
                     }
                 }
             }
@@ -408,17 +417,24 @@ struct DeviceListview: View {
     }
     
     private func statusForDevice(_ device: ConnectableDevice) -> deviceStatus {
+
+        print("""
+        Device = \(device.friendlyName ?? "")
+        TVRemoteVM.deviceName = \(TVRemoteVM.deviceName ?? "nil")
+        showProgress = \(TVRemoteVM.showProgress)
+        connectedTVType = \(String(describing: TVRemoteVM.connectedTVType))
+        """)
         
         if TVRemoteVM.connectedTVType != nil,
            TVRemoteVM.deviceName == device.friendlyName {
             return .connected
         }
-        
+
         if TVRemoteVM.showProgress,
            TVRemoteVM.deviceName == device.friendlyName {
             return .connecting
         }
-        
+
         return .notConnected
     }
 }

@@ -101,7 +101,7 @@ struct TabbarView: View {
                         }
                     },
 
-                    onLGAppSelected: { app in
+                    onLGTVAppselected: { app in
 
                         TVRemoteVM.launchLGInstalledApp(app)
                     }

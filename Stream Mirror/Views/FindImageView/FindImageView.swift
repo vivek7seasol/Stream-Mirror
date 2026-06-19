@@ -68,7 +68,7 @@ struct FindImageView: View {
                     
                     Spacer()
                     
-                    ProgressView("Loading Images...")
+                    ProgressView("Loading Images...".localized)
                         .tint(.white)
                         .foregroundColor(.white)
                     

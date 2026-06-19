@@ -25,6 +25,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     @Published var discoveredDevices: [ConnectableDevice] = []
     @Published var pinCode = ""
     @Published var showAirPlayAlert = false
+    @Published var connectingDeviceAddress: String?
     
     private var isDiscoveryConfigured = false
     private var isSwitchingDevice = false
@@ -35,7 +36,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     private var discoveryManager: DiscoveryManager
     private var cancellables: Set<AnyCancellable> = []
     var lgPorts: [AppInfo] {
-        guard let lgManager = currentTVManager as? LGTVManager else { return [] }
+        guard let lgManager = currentTVManager as? LGRemoteManager else { return [] }
         return lgManager.availableApps
     }
     let lgTVApps: [LGTVApps] = [
@@ -226,7 +227,7 @@ class RemoteViewModel: NSObject, ObservableObject {
         case .ANDROID:
             print("android connecting")
             // ✅ Start pairing process
-            (currentTVManager as? AndroidTVManager)?.establishConnection(with: device.address)
+            (currentTVManager as? AndroidRemoteManager)?.establishConnection(with: device.address)
             selectedTvType = .ANDROID
             // 🔥 MATCH CAST DEVICE USING IP
             if let castDevice = gcastDevice.first(where: {
@@ -241,7 +242,7 @@ class RemoteViewModel: NSObject, ObservableObject {
             commonViewModel?.castViewModel.isConnected = true
             setSelectedTV(name: "Gcast-\(device.friendlyName ?? "GcastTV")")
         case .SAMSUNG:
-            if let manager = currentTVManager as? SamsungTVManager {
+            if let manager = currentTVManager as? SamsungRemoteManager {
                 manager.deviceIP = device.address
                 
                 // ✅ STEP 1: Always connect FIRST
@@ -250,8 +251,8 @@ class RemoteViewModel: NSObject, ObservableObject {
                 // ❗ DO NOT call WOL here
             }
             
-            (currentTVManager as? SamsungTVManager)?.deviceIP = device.address
-            (currentTVManager as? SamsungTVManager)?.UserTappedConnect(ip: device.address)
+            (currentTVManager as? SamsungRemoteManager)?.deviceIP = device.address
+            (currentTVManager as? SamsungRemoteManager)?.UserTappedConnect(ip: device.address)
             selectedTvType = .SAMSUNG
             setSelectedTV(name: "Samsung-\(device.friendlyName ?? "SamsungTV")")
             if let castDevice = gcastDevice.first(where: {
@@ -263,7 +264,7 @@ class RemoteViewModel: NSObject, ObservableObject {
             } else {
                 print("⚠️ No matching GCKDevice found")
                 if let device = device as? ConnectableDevice {
-                    (currentTVManager as? LGTVManager)?.connectLG(device: device)
+                    (currentTVManager as? LGRemoteManager)?.connectLG(device: device)
                 }
                 commonViewModel?.connectSDKDiscoveryModel.selectedLGDevice = device
                 selectedTvType = .LG
@@ -271,8 +272,8 @@ class RemoteViewModel: NSObject, ObservableObject {
             }
             
         case .FIRE:
-            (currentTVManager as? FireTVManager)?.deviceIP = device.address
-            (currentTVManager as? FireTVManager)?.verifyInitialConnection { [weak self] showPin in
+            (currentTVManager as? FireRemoteManager)?.deviceIP = device.address
+            (currentTVManager as? FireRemoteManager)?.verifyInitialConnection { [weak self] showPin in
                 DispatchQueue.main.async {
                     self?.showProgress = false
                     self?.showPinDialog = showPin
@@ -281,12 +282,12 @@ class RemoteViewModel: NSObject, ObservableObject {
             selectedTvType = .FIRE
             setSelectedTV(name: "Fire-\(device.friendlyName ?? "FireTV")")
         case .ROKU:
-            (currentTVManager as? RokuTVManager)?.SelectRoku(device.address)
+            (currentTVManager as? RokuRemoteManager)?.SelectRoku(device.address)
             selectedTvType = .ROKU
             setSelectedTV(name: "Roku-\(device.friendlyName ?? "RokuTV")")
         case .LG:
             if let device = device as? ConnectableDevice {
-                (currentTVManager as? LGTVManager)?.connectLG(device: device)
+                (currentTVManager as? LGRemoteManager)?.connectLG(device: device)
             }
             commonViewModel?.connectSDKDiscoveryModel.selectedLGDevice = device
             selectedTvType = .LG
@@ -304,15 +305,27 @@ class RemoteViewModel: NSObject, ObservableObject {
     private func initializeTVManager(for type: TVType, ipAddress: String = "") {
         switch type {
         case .ANDROID:
-            currentTVManager = AndroidTVManager()
+            currentTVManager = AndroidRemoteManager()
         case .SAMSUNG:
-            currentTVManager = SamsungTVManager()
+            currentTVManager = SamsungRemoteManager()
         case .FIRE:
-            currentTVManager = FireTVManager(ipAddress: ipAddress)
+            currentTVManager = FireRemoteManager(ipAddress: ipAddress)
         case .ROKU:
-            currentTVManager = RokuTVManager()
+            currentTVManager = RokuRemoteManager()
         case .LG:
-            currentTVManager = LGTVManager()
+            let lgManager = LGRemoteManager()
+            
+            lgManager.onDisconnectOrFailure = { [weak self] in
+                DispatchQueue.main.async {
+                    print("🧹 Resetting pairing layouts via TVViewModel")
+                    self?.connectingDeviceAddress = nil
+                    self?.showProgress = false
+                    self?.showPinDialog = false
+                    self?.isConnectedSuccessfully = false
+                }
+            }
+            
+            currentTVManager = lgManager
         case .AIRPLAY:
             break
         case .NONETV:
@@ -340,16 +353,17 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     func disconnectTV() {
-        
+        showProgress = false
+        deviceName = nil
+        isConnectedSuccessfully = false
         print("🛑 Disconnecting current TV")
-        
-        (currentTVManager as? AndroidTVManager)?.terminateConnection()
-        (currentTVManager as? SamsungTVManager)?.UserTappedDisconnect()
-        (currentTVManager as? FireTVManager)?.Disconnect()
-        (currentTVManager as? RokuTVManager)?.Disconnect()
-        (currentTVManager as? LGTVManager)?.disconnectFromTV()
-        
-        // Delay state reset slightly to allow SDK cleanup
+
+        (currentTVManager as? AndroidRemoteManager)?.terminateConnection()
+        (currentTVManager as? SamsungRemoteManager)?.UserTappedDisconnect()
+        (currentTVManager as? FireRemoteManager)?.Disconnect()
+        (currentTVManager as? RokuRemoteManager)?.Disconnect()
+        (currentTVManager as? LGRemoteManager)?.disconnectFromTV()
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.connectedTVType = nil
             self.selectedTVType = nil
@@ -358,10 +372,12 @@ class RemoteViewModel: NSObject, ObservableObject {
             self.showDisconnectPopup = false
             self.isConnectedSuccessfully = false
         }
+
         commonViewModel?.isDeviceConnected = false
         commonViewModel?.setConnectedTv(tvType: .NONETV)
         selectedTvType = .NONETV
         setSelectedTV(name: "")
+
         AppUtils.instance.hapticFeedback()
     }
     
@@ -376,7 +392,7 @@ class RemoteViewModel: NSObject, ObservableObject {
         print("📡 Available Cast Devices:", castDevices.map { $0.friendlyName ?? "" })
         
         // ✅ Try match by IP FIRST
-        if let currentIP = (currentTVManager as? AndroidTVManager)?.deviceIP,
+        if let currentIP = (currentTVManager as? AndroidRemoteManager)?.deviceIP,
            let match = castDevices.first(where: {
                $0.ipAddress == currentIP
            }) {
@@ -413,10 +429,10 @@ class RemoteViewModel: NSObject, ObservableObject {
         
         switch type {
         case .ANDROID:
-            (currentTVManager as? AndroidTVManager)?.submitCode(pinCode)
+            (currentTVManager as? AndroidRemoteManager)?.submitCode(pinCode)
         case .FIRE:
-            (currentTVManager as? FireTVManager)?.verifyPin(pinCode: pinCode) { [weak self] status in
-                if (self?.currentTVManager as? FireTVManager)?.connectionStatus == true {
+            (currentTVManager as? FireRemoteManager)?.verifyPin(pinCode: pinCode) { [weak self] status in
+                if (self?.currentTVManager as? FireRemoteManager)?.connectionStatus == true {
                     self?.connectedTVType = .FIRE
                     self?.showPinDialog = false
                 }
@@ -436,23 +452,23 @@ class RemoteViewModel: NSObject, ObservableObject {
         switch type {
         case .ANDROID:
             if let action = mapAndroidKey(key) {
-                (currentTVManager as? AndroidTVManager)?.SendCommand(action: action)
+                (currentTVManager as? AndroidRemoteManager)?.SendCommand(action: action)
             }
         case .SAMSUNG:
             if let code = mapSamsungKey(key) {
-                (currentTVManager as? SamsungTVManager)?.KeyPress(keyCode: code)
+                (currentTVManager as? SamsungRemoteManager)?.KeyPress(keyCode: code)
             }
         case .FIRE:
             if let fireKey = mapFireTVKey(key) {
-                (currentTVManager as? FireTVManager)?.PerformKeyPress(keyAction: fireKey)
+                (currentTVManager as? FireRemoteManager)?.PerformKeyPress(keyAction: fireKey)
             }
         case .ROKU:
             if let rokuKey = mapRokuKey(key) {
-                (currentTVManager as? RokuTVManager)?.KeyPress(key: rokuKey)
+                (currentTVManager as? RokuRemoteManager)?.KeyPress(key: rokuKey)
             }
         case .LG:
             if let lgCommand = mapLGKey(key) {
-                (currentTVManager as? LGTVManager)?.sendCommand(lgCommand)
+                (currentTVManager as? LGRemoteManager)?.sendCommand(lgCommand)
             }
         case .AIRPLAY:
             break
@@ -481,7 +497,7 @@ class RemoteViewModel: NSObject, ObservableObject {
                 "9": .KEYCODE_9
             ]
             if let keyCode = mapping[key] {
-                (currentTVManager as? AndroidTVManager)?.SendCommand(action: keyCode)
+                (currentTVManager as? AndroidRemoteManager)?.SendCommand(action: keyCode)
             }
             
         case .SAMSUNG:
@@ -498,7 +514,7 @@ class RemoteViewModel: NSObject, ObservableObject {
                 "9": .number9
             ]
             if let keyCode = mapping[key] {
-                (currentTVManager as? SamsungTVManager)?.KeyPress(keyCode: keyCode)
+                (currentTVManager as? SamsungRemoteManager)?.KeyPress(keyCode: keyCode)
             }
             
         default:
@@ -529,30 +545,30 @@ class RemoteViewModel: NSObject, ObservableObject {
         
         switch type {
         case .ANDROID:
-            (currentTVManager as? AndroidTVManager)?.launchMediaOnRemoteScreen(url: app.deepLinkURL)
+            (currentTVManager as? AndroidRemoteManager)?.launchMediaOnRemoteScreen(url: app.deepLinkURL)
         case .SAMSUNG:
-            (currentTVManager as? SamsungTVManager)?.UserTappedLaunchApp(tvapp: app.toSamsungApp())
+            (currentTVManager as? SamsungRemoteManager)?.UserTappedLaunchApp(tvapp: app.toSamsungApp())
         case .FIRE:
-            (currentTVManager as? FireTVManager)?.launchAppOnRemote(appId: app.fireTVAppId) { _ in }
+            (currentTVManager as? FireRemoteManager)?.launchAppOnRemote(appId: app.fireTVAppId) { _ in }
         case .ROKU:
-            (currentTVManager as? RokuTVManager)?.launchApp(app.rokuAppId)
+            (currentTVManager as? RokuRemoteManager)?.launchApp(app.rokuAppId)
         case .LG:
             switch app {
             case .youtube:
-                (currentTVManager as? LGTVManager)?.LaunchApp(url: "youtube.leanback.v4")
+                (currentTVManager as? LGRemoteManager)?.LaunchApp(url: "youtube.leanback.v4")
             case .netflix:
-                (currentTVManager as? LGTVManager)?.LauchNetfliz()
+                (currentTVManager as? LGRemoteManager)?.LauchNetfliz()
             case .prime:
-                (currentTVManager as? LGTVManager)?.LauchPrime()
+                (currentTVManager as? LGRemoteManager)?.LauchPrime()
             case .hotstar:
-                (currentTVManager as? LGTVManager)?
+                (currentTVManager as? LGRemoteManager)?
                     .LaunchApp(url: "com.disney.disneyplus")
             case .spotify:
-                (currentTVManager as? LGTVManager)?.LaunchApp(url: "spotify-beehive")
+                (currentTVManager as? LGRemoteManager)?.LaunchApp(url: "spotify-beehive")
             case .disney:
-                (currentTVManager as? LGTVManager)?.LaunchApp(url: "com.disney.disneyplus-prod")
+                (currentTVManager as? LGRemoteManager)?.LaunchApp(url: "com.disney.disneyplus-prod")
             case .paramount:
-                (currentTVManager as? LGTVManager)?.LaunchApp(url: "com.cbs.app")
+                (currentTVManager as? LGRemoteManager)?.LaunchApp(url: "com.cbs.app")
             }
         case .AIRPLAY:
             break
@@ -636,7 +652,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     // MARK: - Connection Monitoring
     private func monitorAndroidConnection() {
         print("monitoring android")
-        (currentTVManager as? AndroidTVManager)?.connectionStateUpdated = { [weak self] state in
+        (currentTVManager as? AndroidRemoteManager)?.connectionStateUpdated = { [weak self] state in
             DispatchQueue.main.async {
                 switch state {
                 case "Connection Prepairing":
@@ -660,7 +676,7 @@ class RemoteViewModel: NSObject, ObservableObject {
             }
         }
         
-        (currentTVManager as? AndroidTVManager)?.deviceStateUpdated = { [weak self] state in
+        (currentTVManager as? AndroidRemoteManager)?.deviceStateUpdated = { [weak self] state in
             DispatchQueue.main.async {
                 if state == "connected" {
                     self?.connectedTVType = .ANDROID
@@ -678,7 +694,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     private func monitorSamsungConnection() {
-        guard let samsungManager = currentTVManager as? SamsungTVManager else { return }
+        guard let samsungManager = currentTVManager as? SamsungRemoteManager else { return }
         samsungManager.$authStatus
             .sink { [weak self] authStatus in
                 print("🔐 Auth Status:", authStatus)
@@ -707,7 +723,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     private func monitorFireConnection() {
-        (currentTVManager as? FireTVManager)?.$connectionStatus
+        (currentTVManager as? FireRemoteManager)?.$connectionStatus
             .sink { [weak self] isConnected in
                 if isConnected {
                     self?.connectedTVType = .FIRE
@@ -718,7 +734,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     private func monitorRokuConnection() {
-        (currentTVManager as? RokuTVManager)?.$connectionStatus
+        (currentTVManager as? RokuRemoteManager)?.$connectionStatus
             .sink { [weak self] isConnected in
                 if isConnected {
                     self?.connectedTVType = .ROKU
@@ -730,7 +746,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     
     private func monitorLGConnection() {
         
-        guard let lgManager = currentTVManager as? LGTVManager else {
+        guard let lgManager = currentTVManager as? LGRemoteManager else {
             return
         }
         
@@ -753,7 +769,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     }
     
     func launchLGInstalledApp(_ app: LGTVApps) {
-        guard let lgManager = currentTVManager as? LGTVManager else {
+        guard let lgManager = currentTVManager as? LGRemoteManager else {
             print("⚠️ Operations targeting LG manager failed: Incompatible type.")
             return
         }
@@ -777,7 +793,7 @@ class RemoteViewModel: NSObject, ObservableObject {
     
     // MARK: - Input Port Operations
     func switchToLGPort(_ port: AppInfo) {
-        guard let lgManager = currentTVManager as? LGTVManager else {
+        guard let lgManager = currentTVManager as? LGRemoteManager else {
             print("⚠️ Operations targeting LG manager failed: Incompatible manager type.")
             return
         }
@@ -968,10 +984,10 @@ class RemoteViewModel: NSObject, ObservableObject {
         switch type {
             
         case .LG:
-            (currentTVManager as? LGTVManager)?.movePointer(dx: dx, dy: dy)
+            (currentTVManager as? LGRemoteManager)?.movePointer(dx: dx, dy: dy)
             
         case .SAMSUNG:
-            (currentTVManager as? SamsungTVManager)?.mouseMove(dx: dx, dy: dy)
+            (currentTVManager as? SamsungRemoteManager)?.mouseMove(dx: dx, dy: dy)
             
         default:
             // Optional fallback (you can ignore or use DPAD)
@@ -988,10 +1004,10 @@ class RemoteViewModel: NSObject, ObservableObject {
         switch type {
             
         case .LG:
-            (currentTVManager as? LGTVManager)?.clickPointer()
+            (currentTVManager as? LGRemoteManager)?.clickPointer()
             
         case .SAMSUNG:
-            (currentTVManager as? SamsungTVManager)?.mouseClick()
+            (currentTVManager as? SamsungRemoteManager)?.mouseClick()
             
         default:
             sendCommand(.OK)
@@ -1179,10 +1195,10 @@ extension RemoteViewModel {
         switch type {
             
         case .ANDROID:
-            (currentTVManager as? AndroidTVManager)?.sendText(text: text)
+            (currentTVManager as? AndroidRemoteManager)?.sendText(text: text)
             
         case .FIRE:
-            //            (currentTVManager as? FireTVManager)?.sendText(text)
+            //            (currentTVManager as? FireRemoteManager)?.sendText(text)
             break
         case .ROKU:
             //            (currentTVManager as? RokuTVRemoteManager)?.sendText(text)

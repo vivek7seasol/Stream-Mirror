@@ -10,7 +10,9 @@ import SwiftUI
 struct RecordingListView: View {
 
     @ObservedObject var recordingVM: ScreenRecordingViewModel
-        
+    @State private var recordingToDelete: RecordingItem?
+    @State private var showDeleteAlert = false
+    
     var body: some View {
 
         ZStack {
@@ -59,9 +61,8 @@ struct RecordingListView: View {
                                     },
                                     deleteAction: {
 
-                                        recordingVM.deleteRecording(
-                                            recording
-                                        )
+                                        recordingToDelete = recording
+                                        showDeleteAlert = true
                                     },
                                     buttonAction: {
                                         recordingVM.selectedRecording = recording
@@ -87,6 +88,20 @@ struct RecordingListView: View {
         }
         .onAppear {
             recordingVM.loadScreenRecordings()
+        }
+        .alert(str.DeleteRecording,
+               isPresented: $showDeleteAlert,
+               presenting: recordingToDelete) { recording in
+
+            Button(str.Cancel, role: .cancel) { }
+
+            Button(str.Delete, role: .destructive) {
+                recordingVM.deleteRecording(recording)
+            }
+
+        } message: { _ in
+
+            Text(str.recordingAlert)
         }
     }
 }

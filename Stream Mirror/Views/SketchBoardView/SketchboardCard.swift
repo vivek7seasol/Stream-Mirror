@@ -36,7 +36,7 @@ struct DrawingListRow: View {
                         shareAction()
                     } label: {
                         Label(
-                            "Share",
+                            str.Share,
                             systemImage: "square.and.arrow.up"
                         )
                     }
@@ -45,7 +45,7 @@ struct DrawingListRow: View {
                         deleteAction()
                     } label: {
                         Label(
-                            "Delete",
+                            str.Delete,
                             systemImage: "trash"
                         )
                     }

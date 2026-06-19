@@ -28,19 +28,12 @@ class IPTVViewModel: ObservableObject {
     func fetchIPTVCategory() async {
         if getIPTVCategory() != nil{
             self.categories = getIPTVCategory() ?? []
-            self.isLoadings = false
             self.isDataLoaded = true
             return
         }
         
-        await MainActor.run {
-            self.isLoadings = true
-        }
         
         guard let url = URL(string: iptvCategoryApi) else {
-            await MainActor.run {
-                self.isLoadings = false
-            }
             return
         }
         
@@ -49,9 +42,7 @@ class IPTVViewModel: ObservableObject {
             
             guard let httpResponse = response as? HTTPURLResponse,
                   (200...299).contains(httpResponse.statusCode) else {
-                await MainActor.run {
-                    self.isLoadings = false
-                }
+                
                 return
             }
             
@@ -60,13 +51,11 @@ class IPTVViewModel: ObservableObject {
             await MainActor.run {
                 setIPTVCategory(datum: categories)
                 self.categories = categories
-                self.isLoadings = false
                 self.isDataLoaded = true
             }
             
         } catch {
             await MainActor.run {
-                self.isLoadings = false
                 self.isDataLoaded = true
             }
         }
@@ -75,19 +64,11 @@ class IPTVViewModel: ObservableObject {
     func fetchIPTVCountry() async {
         if getIPTVCountry() != nil{
             self.countries = getIPTVCountry() ?? []
-            self.isLoadings = false
             self.isDataLoaded = true
             return
         }
         
-        await MainActor.run {
-            self.isLoadings = true
-        }
-        
         guard let url = URL(string: iptvCountryApi) else {
-            await MainActor.run {
-                self.isLoadings = false
-            }
             return
         }
         
@@ -96,9 +77,6 @@ class IPTVViewModel: ObservableObject {
             
             guard let httpResponse = response as? HTTPURLResponse,
                   (200...299).contains(httpResponse.statusCode) else {
-                await MainActor.run {
-                    self.isLoadings = false
-                }
                 return
             }
             
@@ -107,12 +85,10 @@ class IPTVViewModel: ObservableObject {
             await MainActor.run {
                 setIPTVCountry(datum: countries)
                 self.countries = countries
-                self.isLoadings = false
                 self.isDataLoaded = true
             }
         } catch {
             await MainActor.run {
-                self.isLoadings = false
                 self.isDataLoaded = true
             }
         }

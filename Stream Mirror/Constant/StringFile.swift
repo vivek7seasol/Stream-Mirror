@@ -218,4 +218,8 @@ class StringFile {
     
     let DeleteDrawing = "Delete Drawing?".localized
     let DeleteDrawingMessage = "Are you sure you want to delete this drawing?".localized
+    let StartMirroring1 = "Start Mirroring?".localized
+    let mirrorAlert = "Do you want to start screen mirroring?".localized
+    let DeleteRecording = "Delete Recording".localized
+    let recordingAlert = "Are you sure you want to delete this recording? This action cannot be undone.".localized
 }

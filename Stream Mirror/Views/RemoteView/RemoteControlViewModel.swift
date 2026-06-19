@@ -60,18 +60,18 @@ class RemoteControlViewModel: ObservableObject {
             
             switch tvVM.connectedTVType {
             case .ROKU:
-                (tvVM.currentTVManager as? RokuTVManager)?.sendKeyboardInput("")
+                (tvVM.currentTVManager as? RokuRemoteManager)?.sendKeyboardInput("")
                 
             case .FIRE:
-                (tvVM.currentTVManager as? FireTVManager)?
+                (tvVM.currentTVManager as? FireRemoteManager)?
                     .PerformKeyPress(keyAction: .KEYCODE_BACKSPACE)
                 
             case .LG:
-                (tvVM.currentTVManager as? LGTVManager)?
+                (tvVM.currentTVManager as? LGRemoteManager)?
                     .sendCommand(.KEYCODE_BACKSPACE)
                 
             case .ANDROID:
-                (tvVM.currentTVManager as? AndroidTVManager)?
+                (tvVM.currentTVManager as? AndroidRemoteManager)?
                     .delete()
                 
             default:
@@ -84,19 +84,19 @@ class RemoteControlViewModel: ObservableObject {
             
             switch tvVM.connectedTVType {
             case .ROKU:
-                (tvVM.currentTVManager as? RokuTVManager)?
+                (tvVM.currentTVManager as? RokuRemoteManager)?
                     .sendKeyboardInput(char)
                 
             case .FIRE:
-                (tvVM.currentTVManager as? FireTVManager)?
+                (tvVM.currentTVManager as? FireRemoteManager)?
                     .sendSearchTextInput(action: char) { _ in }
                 
             case .LG:
-                (tvVM.currentTVManager as? LGTVManager)?
+                (tvVM.currentTVManager as? LGRemoteManager)?
                     .keyboard(input: char)
                 
             case .ANDROID:
-                (tvVM.currentTVManager as? AndroidTVManager)?
+                (tvVM.currentTVManager as? AndroidRemoteManager)?
                     .sendText(text: char)
                 
             default:
@@ -257,19 +257,19 @@ class RemoteControlViewModel: ObservableObject {
         
         switch tvVM.connectedTVType {
         case .ROKU:
-            (tvVM.currentTVManager as? RokuTVManager)?
+            (tvVM.currentTVManager as? RokuRemoteManager)?
                 .sendKeyboardInput(text)
             
         case .FIRE:
-            (tvVM.currentTVManager as? FireTVManager)?
+            (tvVM.currentTVManager as? FireRemoteManager)?
                 .sendSearchTextInput(action: text) { _ in }
             
         case .LG:
-            (tvVM.currentTVManager as? LGTVManager)?
+            (tvVM.currentTVManager as? LGRemoteManager)?
                 .keyboard(input: text)
             
         case .ANDROID:
-            (tvVM.currentTVManager as? AndroidTVManager)?
+            (tvVM.currentTVManager as? AndroidRemoteManager)?
                 .sendText(text: text)
             
         default:

@@ -1,5 +1,5 @@
 //
-//  AndroidTVManager.swift
+//  AndroidRemoteManager.swift
 //  TV Remote
 //
 //  Created by iOS Developer on 25/08/2025.
@@ -8,10 +8,10 @@
 import Foundation
 import Combine
 
-class AndroidTVManager: ObservableObject {
+class AndroidRemoteManager: ObservableObject {
     private let operationQueue = DispatchQueue(label: "operationQueue")
     
-    let connectionHandler: PairingManager
+    let connectionHandler: PairManager
     private let deviceController: RemoteManager
     static var currentHost: String?
     public var connectionStateUpdated: ((String) -> ())?
@@ -51,13 +51,13 @@ class AndroidTVManager: ObservableObject {
             }
         }
         
-        connectionHandler = PairingManager(encryptionHandler, securityHandler, DefaultLogger())
+        connectionHandler = PairManager(encryptionHandler, securityHandler, DefaultLogger())
         deviceController = RemoteManager(encryptionHandler, CommandNetwork.DeviceInfo("TV Remote", "iPhone", "1.0.0", AppStrings.appName, "235"), DefaultLogger())
     }
     
     func establishConnection(with host: String) {
         self.deviceIP = host
-        AndroidTVManager.currentHost = host
+        AndroidRemoteManager.currentHost = host
         if ConnectedTVs.shared.isIPKnown(host) {
             pairWithOutCode(host: host)
         } else {

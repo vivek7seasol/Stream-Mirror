@@ -36,10 +36,10 @@ struct RecordingView: View {
                             .font(.system(size: isIpad() ? 36 : 30, weight: .medium))
                             .foregroundColor(.white)
                         
-                        //                        Text(recordingVM.recordingStatusText)
-                        //                            .font(.system(size: isIpad() ? 18 : 12))
-                        //                            .foregroundStyle(AppColor.textColor)
-                        //                            .padding(.vertical, 1)
+                        Text(recordingVM.isRecording ? str.RecordinginProgress : str.ReadytoRecord)
+                            .font(.system(size: isIpad() ? 18 : 12))
+                            .foregroundStyle(AppColor.textColor)
+                            .padding(.vertical, 1)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -48,7 +48,7 @@ struct RecordingView: View {
                     (recordingVM.isRecording)
                     ? LinearGradient(
                         colors: [
-                            Color("#EF4444"),
+                            Color("#EF4444").opacity(0.50),
                             Color("#EF4444").opacity(0.60)
                         ],
                         startPoint: .top,

@@ -1,5 +1,5 @@
 //
-//  PairingManager.swift
+//  PairManager.swift
 //  
 //
 //
@@ -8,7 +8,7 @@ import Foundation
 import Network
 import CryptoKit
 
-public class PairingManager {
+public class PairManager {
     private let stateQueue = DispatchQueue(label: "pairing.state")
     private let connectQueue = DispatchQueue(label: "pairing.connect")
     
@@ -291,7 +291,7 @@ public class PairingManager {
     }
 }
 
-extension PairingManager {
+extension PairManager {
    public enum PairingState {
         case idle
         case extractTLSparams

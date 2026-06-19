@@ -79,7 +79,7 @@ struct RecordingLisRow: View {
                         } label: {
 
                             Label(
-                                "Share".localized,
+                                str.Share,
                                 systemImage: "square.and.arrow.up"
                             )
                         }
@@ -91,7 +91,7 @@ struct RecordingLisRow: View {
                         } label: {
 
                             Label(
-                                "Delete".localized,
+                                str.Delete,
                                 systemImage: "trash"
                             )
                         }

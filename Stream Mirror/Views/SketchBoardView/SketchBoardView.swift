@@ -22,6 +22,7 @@ struct SketchBoardView: View {
     @StateObject private var sketchVM = SketchBoardViewModel()
     @StateObject private var recordingVM = ScreenRecordingViewModel()
     @State var stopMirroring = false
+    @State private var showMirroringAlert = false
     var existingDrawingURL: URL? = nil
     
     init(existingDrawingURL: URL? = nil) {
@@ -59,27 +60,28 @@ struct SketchBoardView: View {
                     HStack {
                         Spacer()
                         sketcboardButtons(image: "redo") {
-                            sketchVM.redo()
-                        }
-                        .disabled(!sketchVM.canRedo)
-                        .opacity(sketchVM.canRedo ? 1 : 0.4)
-                        
-                        Spacer()
-                        sketcboardButtons(image: "undo") {
                             sketchVM.undo()
                         }
                         .disabled(!sketchVM.canUndo)
                         .opacity(sketchVM.canUndo ? 1 : 0.4)
                         
                         Spacer()
+                        sketcboardButtons(image: "undo") {
+                            
+                            sketchVM.redo()
+                        }
+                        .disabled(!sketchVM.canRedo)
+                        .opacity(sketchVM.canRedo ? 1 : 0.4)
+                        
+                        Spacer()
                         sketcboardButtons(image: "save", action: {
                             if let savedURL = sketchVM.saveSketchboard(existingURL: existingDrawingURL) {
                                 
                                 if existingDrawingURL != nil {
-                                    showToastAtCenter(message: "Drawing updated successfully")
+//                                    showToastAtCenter(message: "Drawing updated successfully")
                                     dismiss()
                                 } else {
-                                    showToastAtCenter(message: "Drawing saved successfully")
+//                                    showToastAtCenter(message: "Drawing saved successfully")
                                     dismiss()
                                 }
                                 
@@ -135,12 +137,13 @@ struct SketchBoardView: View {
                 .environmentObject(commonVM)
         }
         .onAppear {
-            startMirroringFlow()
+            sketchVM.hideToolPicker()
+            showMirroringAlert = true
+
             sketchVM.fetchBroadcastStatus()
             sketchVM.setup(commonVm: commonVM)
             sketchVM.showToolPicker(colorScheme: colorScheme)
-            
-            // Thodi delay do taaki canvas setup ho jaye pehle
+
             if let existingDrawingURL {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     sketchVM.loadSketchboard(from: existingDrawingURL)
@@ -181,11 +184,27 @@ struct SketchBoardView: View {
         ) {
             PremiumView()
         }
+        .alert(str.StartMirroring1, isPresented: $showMirroringAlert) {
+
+            Button(str.No, role: .cancel) {
+                // sirf dismiss
+            }
+
+            Button(str.Yes) {
+                startMirroringFlow()
+            }
+
+        } message: {
+
+            Text(str.mirrorAlert)
+
+        }
     }
     
     func startMirroringFlow() {
         
         guard commonVM.isDeviceConnected else {
+            sketchVM.hideToolPicker()
             recordingVM.showDeviceList = true
             return
         }
@@ -193,6 +212,7 @@ struct SketchBoardView: View {
         // ✅ SAFE CHECK (MOST IMPORTANT FIX)
         guard let type = TVRemoteVM.connectedTVType,
               TVRemoteVM.isConnectedSuccessfully else {
+            sketchVM.hideToolPicker()
             recordingVM.showDeviceList = true
             return
         }
@@ -216,6 +236,7 @@ struct SketchBoardView: View {
             let lgModel = commonVM.connectSDKDiscoveryModel
             
             guard lgModel.isConnectedToLG else {
+                sketchVM.hideToolPicker()
                 recordingVM.showDeviceList = true
                 return
             }
@@ -224,7 +245,7 @@ struct SketchBoardView: View {
             
             guard let url = TVMirrorServer.shared.serverURL else {
                 print("❌ Mirroring URL is nil")
-                
+                sketchVM.hideToolPicker()
                 recordingVM.showDeviceList = true
                 
                 return

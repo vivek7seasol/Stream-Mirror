@@ -9,8 +9,8 @@ import Foundation
 import Combine
 
 class AppsViewModel: ObservableObject {
-    @Published var ASApps: [AndroidSamsungApps] = []
-    @Published var RFApps: [RokuFireApps] = []
+    @Published var ASApps: [AndroidSamsungTVApps] = []
+    @Published var RFApps: [RokuFireTVApps] = []
     @Published var LgApps: [LGApps] = []
 
     @Published var isLoadingApps = false
@@ -52,15 +52,15 @@ class AppsViewModel: ObservableObject {
     
     private func fetchAndroidApps() {
         let androidApps = [
-            AndroidSamsungApps(name: "Netflix", imageName: "netflix", url: "https://www.netflix.com/title", tvApp: .netflix()),
-            AndroidSamsungApps(name: "Prime Video", imageName: "prime_video", url: "https://www.primevideo.com", tvApp: .primeVideo()),
-            AndroidSamsungApps(name: "YouTube", imageName: "youtube", url: "https://www.youtube.com", tvApp: .youtube()),
-            AndroidSamsungApps(name: "Disney+", imageName: "disney_plus", url: "https://www.disneyplus.com", tvApp: .disnep()),
-            AndroidSamsungApps(name: "Tubi", imageName: "tubi", url: "https://www.tubi.tv", tvApp: .tubi()),
-            AndroidSamsungApps(name: "Peacock", imageName: "peacock", url: "https://www.peacocktv.com", tvApp: .peacock()),
-            AndroidSamsungApps(name: "Pluto TV", imageName: "pluto", url: "https://pluto.tv", tvApp: .plutoTV()),
-            AndroidSamsungApps(name: "Spotify", imageName: "spotify", url: "https://www.spotify.com", tvApp: .spotify()),
-            AndroidSamsungApps(name: "YouTube Kids", imageName: "youtube_kids", url: "https://www.youtubekids.com", tvApp: .youtubeKids())
+            AndroidSamsungTVApps(name: "Netflix", imageName: "netflix", url: "https://www.netflix.com/title", tvApp: .netflix()),
+            AndroidSamsungTVApps(name: "Prime Video", imageName: "prime_video", url: "https://www.primevideo.com", tvApp: .primeVideo()),
+            AndroidSamsungTVApps(name: "YouTube", imageName: "youtube", url: "https://www.youtube.com", tvApp: .youtube()),
+            AndroidSamsungTVApps(name: "Disney+", imageName: "disney_plus", url: "https://www.disneyplus.com", tvApp: .disnep()),
+            AndroidSamsungTVApps(name: "Tubi", imageName: "tubi", url: "https://www.tubi.tv", tvApp: .tubi()),
+            AndroidSamsungTVApps(name: "Peacock", imageName: "peacock", url: "https://www.peacocktv.com", tvApp: .peacock()),
+            AndroidSamsungTVApps(name: "Pluto TV", imageName: "pluto", url: "https://pluto.tv", tvApp: .plutoTV()),
+            AndroidSamsungTVApps(name: "Spotify", imageName: "spotify", url: "https://www.spotify.com", tvApp: .spotify()),
+            AndroidSamsungTVApps(name: "YouTube Kids", imageName: "youtube_kids", url: "https://www.youtubekids.com", tvApp: .youtubeKids())
         ]
         
         self.ASApps = androidApps
@@ -69,15 +69,15 @@ class AppsViewModel: ObservableObject {
     
     private func fetchSamsungApps() {
         let samsungApps = [
-            AndroidSamsungApps(name: "Netflix", imageName: "netflix", url: "", tvApp: .netflix()),
-            AndroidSamsungApps(name: "Prime Video", imageName: "prime_video", url: "", tvApp: .primeVideo()),
-            AndroidSamsungApps(name: "YouTube", imageName: "youtube", url: "", tvApp: .youtube()),
-            AndroidSamsungApps(name: "Disney+", imageName: "disney_plus", url: "", tvApp: .disnep()),
-            AndroidSamsungApps(name: "Tubi", imageName: "tubi", url: "", tvApp: .tubi()),
-            AndroidSamsungApps(name: "Peacock", imageName: "peacock", url: "", tvApp: .peacock()),
-            AndroidSamsungApps(name: "Pluto TV", imageName: "pluto", url: "", tvApp: .plutoTV()),
-            AndroidSamsungApps(name: "Spotify", imageName: "spotify", url: "", tvApp: .spotify()),
-            AndroidSamsungApps(name: "YouTube Kids", imageName: "youtube_kids", url: "", tvApp: .youtubeKids())
+            AndroidSamsungTVApps(name: "Netflix", imageName: "netflix", url: "", tvApp: .netflix()),
+            AndroidSamsungTVApps(name: "Prime Video", imageName: "prime_video", url: "", tvApp: .primeVideo()),
+            AndroidSamsungTVApps(name: "YouTube", imageName: "youtube", url: "", tvApp: .youtube()),
+            AndroidSamsungTVApps(name: "Disney+", imageName: "disney_plus", url: "", tvApp: .disnep()),
+            AndroidSamsungTVApps(name: "Tubi", imageName: "tubi", url: "", tvApp: .tubi()),
+            AndroidSamsungTVApps(name: "Peacock", imageName: "peacock", url: "", tvApp: .peacock()),
+            AndroidSamsungTVApps(name: "Pluto TV", imageName: "pluto", url: "", tvApp: .plutoTV()),
+            AndroidSamsungTVApps(name: "Spotify", imageName: "spotify", url: "", tvApp: .spotify()),
+            AndroidSamsungTVApps(name: "YouTube Kids", imageName: "youtube_kids", url: "", tvApp: .youtubeKids())
         ]
         
         self.ASApps = samsungApps
@@ -87,14 +87,14 @@ class AppsViewModel: ObservableObject {
     private func fetchFireTVApps() {
         isLoadingApps = true
         
-        guard let fireTVManager = tvRemoteViewModel.currentTVManager as? FireTVManager else {
+        guard let FireRemoteManager = tvRemoteViewModel.currentTVManager as? FireRemoteManager else {
             isLoadingApps = false
             appFetchError = "Fire TV manager not available"
             return
         }
         
-        let fireApps = fireTVManager.availableApps.map { app in
-            RokuFireApps(
+        let fireApps = FireRemoteManager.availableApps.map { app in
+            RokuFireTVApps(
                 appID: app.identifier, name: app.title, imageName: app.iconURL
             )
         }
@@ -106,17 +106,17 @@ class AppsViewModel: ObservableObject {
     private func fetchRokuApps() {
         isLoadingApps = true
         
-        guard let rokuTVManager = tvRemoteViewModel.currentTVManager as? RokuTVManager else {
+        guard let RokuRemoteManager = tvRemoteViewModel.currentTVManager as? RokuRemoteManager else {
             isLoadingApps = false
             appFetchError = "Roku TV manager not available"
             return
         }
         
-        let rokuApps = rokuTVManager.availableApps.map { appId in
-            RokuFireApps(
+        let rokuApps = RokuRemoteManager.availableApps.map { appId in
+            RokuFireTVApps(
                 appID: appId,
                 name: appId,
-                imageName: rokuTVManager.getAppImageUrl(id: appId)
+                imageName: RokuRemoteManager.getAppImageUrl(id: appId)
             )
         }
         
@@ -152,29 +152,29 @@ class AppsViewModel: ObservableObject {
         
         switch tvType {
         case .ANDROID:
-            if let androidManager = manager as? AndroidTVManager,
-               let androidApp = app as? AndroidSamsungApps {
+            if let androidManager = manager as? AndroidRemoteManager,
+               let androidApp = app as? AndroidSamsungTVApps {
                 androidManager.launchChannel(with: androidApp.url)
                 success = true
             }
             
         case .ROKU:
-            if let rokuManager = manager as? RokuTVManager,
-               let rokuApp = app as? RokuFireApps {
+            if let rokuManager = manager as? RokuRemoteManager,
+               let rokuApp = app as? RokuFireTVApps {
                 rokuManager.launchApp(rokuApp.appID)
                 success = true
             }
             
         case .LG:
-            if let lgManager = manager as? LGTVManager,
+            if let lgManager = manager as? LGRemoteManager,
                let lgApp = app as? LGApps {
                 lgManager.LaunchApp(url: lgApp.url)
                 success = true
             }
             
         case .FIRE:
-            if let fireManager = manager as? FireTVManager,
-               let fireApp = app as? RokuFireApps {
+            if let fireManager = manager as? FireRemoteManager,
+               let fireApp = app as? RokuFireTVApps {
                 fireManager.launchApplication(appId: fireApp.appID) { response in
                     print(response)
                 }
@@ -182,8 +182,8 @@ class AppsViewModel: ObservableObject {
             }
             
         case .SAMSUNG:
-            if let samsungManager = manager as? SamsungTVManager,
-               let samsungApp = app as? AndroidSamsungApps {
+            if let samsungManager = manager as? SamsungRemoteManager,
+               let samsungApp = app as? AndroidSamsungTVApps {
                 samsungManager.UserTappedLaunchApp(tvapp: samsungApp.tvApp)
                 success = true
             }

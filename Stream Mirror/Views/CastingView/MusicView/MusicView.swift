@@ -40,7 +40,7 @@ struct MusicView: View {
                     
                     Spacer()
                     
-                    ProgressView("Loading Music...")
+                    ProgressView("Loading Music...".localized)
                         .tint(.white)
                         .foregroundColor(.white)
                     

@@ -31,7 +31,7 @@ class YoutubeViewModel: NSObject, ObservableObject {
         
         return webView
     }()
-    
+    private var navObservations: [NSKeyValueObservation] = []
     @Published var isLoading: Bool = false
     
     @Published var canGoBack: Bool = false
@@ -46,6 +46,31 @@ class YoutubeViewModel: NSObject, ObservableObject {
     
     @Published var player: AVPlayer?
     @Published var selectedVideo: VideoResolution?
+    
+    override init() {
+            super.init()
+            setupNavigationObservers()
+        }
+    
+    private func setupNavigationObservers() {
+            let backObs = webView.observe(\.canGoBack, options: [.new]) { [weak self] webView, _ in
+                DispatchQueue.main.async {
+                    self?.canGoBack = webView.canGoBack
+                }
+            }
+            
+            let forwardObs = webView.observe(\.canGoForward, options: [.new]) { [weak self] webView, _ in
+                DispatchQueue.main.async {
+                    self?.canGoForward = webView.canGoForward
+                }
+            }
+            
+            navObservations = [backObs, forwardObs]
+        }
+        
+        deinit {
+            navObservations.removeAll() // ✅ Cleanup
+        }
     
     func loadHome() {
         guard let url = URL(string: "https://www.youtube.com/") else { return }
@@ -287,7 +312,6 @@ struct YoutubePreview: UIViewRepresentable {
 
             DispatchQueue.main.async {
                 self.parent.isLoading = true
-                self.viewModel?.updateNavigationState()
             }
         }
 
@@ -296,7 +320,6 @@ struct YoutubePreview: UIViewRepresentable {
 
             DispatchQueue.main.async {
                 self.parent.isLoading = false
-                self.viewModel?.updateNavigationState()
             }
 
             injectBlockingJS(webView)

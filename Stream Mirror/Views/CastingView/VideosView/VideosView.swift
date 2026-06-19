@@ -33,7 +33,7 @@ struct VideosView: View {
 
                     Spacer()
 
-                    ProgressView("Loading Videos...")
+                    ProgressView("Loading Videos...".localized)
                         .tint(.white)
                         .foregroundColor(.white)
 

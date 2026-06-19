@@ -34,7 +34,7 @@ struct FilesPageView: View {
                     
                     Spacer()
                     
-                    ProgressView("Loading Pages...")
+                    ProgressView("Loading Pages...".localized)
                         .tint(.white)
                         .foregroundColor(.white)
                     

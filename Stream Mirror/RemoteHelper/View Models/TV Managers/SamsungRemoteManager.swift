@@ -1,5 +1,5 @@
 //
-//  SamsungTVManager.swift
+//  SamsungRemoteManager.swift
 //  TV Remote
 //
 //  Created by IOS Developer on 09/09/2025.
@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class SamsungTVManager: TVCommanderDelegate, ObservableObject {
+class SamsungRemoteManager: TVCommanderDelegate, ObservableObject {
     var deviceIP = ""
     var authToken: TVAuthToken?
     var tvWakeOnLANDevice = TVWakeOnLANDevice(mac: "")

@@ -109,7 +109,7 @@ struct LanguageView: View {
                 }
             }
         }
-        .appScreen()
+        .appScreen(disableSwipeBack: true)
         .onAppear {
             let savedLang = appLanguage
 

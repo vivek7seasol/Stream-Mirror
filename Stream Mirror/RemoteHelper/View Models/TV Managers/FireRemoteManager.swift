@@ -10,7 +10,7 @@ import Security
 import Network
 import Combine
 
-class FireTVManager: NSObject, ObservableObject, URLSessionDelegate {
+class FireRemoteManager: NSObject, ObservableObject, URLSessionDelegate {
     private var networkSession: URLSession!
     @Published var availableApps: [FireTVApplication] = []
     @Published var connectionStatus: Bool = false

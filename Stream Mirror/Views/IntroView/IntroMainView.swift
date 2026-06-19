@@ -88,7 +88,7 @@ struct IntroMainView: View {
                 }
             }
         }
-        .appScreen()
+        .appScreen(disableSwipeBack: true)
         .navigationDestination(isPresented: $showTabbar) {
             TabbarView()
                 .environmentObject(tabBarManager)

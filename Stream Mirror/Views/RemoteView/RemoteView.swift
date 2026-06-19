@@ -183,40 +183,123 @@ struct RemoteView: View {
                             CircleButton(icon: "mic",size: 30,size2: 66, action: {
                                 
                             })
+                            .onTapGesture {
+                                if isPro {
+                                    if !(commonVM.isAirPlayConnected() || TVRemoteVM.isConnectedSuccessfully) {
+                                        viewModel.showConnectionView = true
+                                        return
+                                    }
+                                    
+                                    if commonVM.isAirPlayConnected() {
+                                        viewModel.showAirPlayAlert = true
+                                        return
+                                    }
+                                    
+                                    // Permission already granted
+                                    if !isPro {
+                                        viewModel.showPremiumView = true
+                                        return
+                                    }
+                                    
+                                    let speechStatus = SFSpeechRecognizer.authorizationStatus()
+                                    let micStatus = AVAudioSession.sharedInstance().recordPermission
+                                    
+                                    if speechStatus != .authorized || micStatus != .granted {
+                                        viewModel.requestMicPermission()
+                                        
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                            viewModel.stopLiveRecognition()
+                                            viewModel.isRecording = false
+                                        }
+                                    }
+                                    
+                                    // Pro user
+                                    if !viewModel.isRecording {
+                                        viewModel.recognizedText = "Hold and Speak"
+                                        viewModel.showRecognizedView = true
+                                        
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            if !viewModel.isRecording {
+                                                viewModel.showRecognizedView = false
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    showPremium = true
+                                }
+                            }
                             .simultaneousGesture(
                                 LongPressGesture(minimumDuration: 0.2)
                                     .onEnded { _ in
+                                        if !(commonVM.isAirPlayConnected() || TVRemoteVM.isConnectedSuccessfully) {
+                                            viewModel.showConnectionView = true
+                                            return
+                                        }
                                         
-                                        handleDeviceSatus {
-                                            
-                                            let speechStatus = SFSpeechRecognizer.authorizationStatus()
-                                            let micStatus = AVAudioSession.sharedInstance().recordPermission
-                                            
-                                            if speechStatus != .authorized || micStatus != .granted {
-                                                
-                                                viewModel.requestMicPermission()
-                                                
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                                    viewModel.stopLiveRecognition()
-                                                    viewModel.isRecording = false
-                                                }
-                                            }
-                                            
-                                            if !viewModel.isRecording {
-                                                viewModel.recognizedText = "Hold and Speak"
-                                                viewModel.showRecognizedView = true
-                                                
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                    if !viewModel.isRecording {
-                                                        viewModel.showRecognizedView = false
-                                                    }
-                                                }
-                                            }
-                                            
+                                        if commonVM.isAirPlayConnected() {
+                                            viewModel.showAirPlayAlert = true
+                                            return
+                                        }
+                                        
+                                        if isPro {
                                             viewModel.micTouchDown()
+                                        } else {
+                                            viewModel.showPremiumView = true
                                         }
                                     }
                             )
+                            .simultaneousGesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onEnded { _ in
+                                        if !(commonVM.isAirPlayConnected() || TVRemoteVM.isConnectedSuccessfully) {
+                                            viewModel.showConnectionView = true
+                                            return
+                                        }
+                                        
+                                        if commonVM.isAirPlayConnected() {
+                                            viewModel.showAirPlayAlert = true
+                                            return
+                                        }
+                                        
+                                        if isPro && viewModel.isRecording {
+                                            viewModel.micTouchUp(tvVM: TVRemoteVM)
+                                        }
+                                    }
+                            )
+//                            .simultaneousGesture(
+//                                LongPressGesture(minimumDuration: 0.2)
+//                                    .onEnded { _ in
+//                                        
+//                                        handleDeviceSatus {
+//                                            
+//                                            let speechStatus = SFSpeechRecognizer.authorizationStatus()
+//                                            let micStatus = AVAudioSession.sharedInstance().recordPermission
+//                                            
+//                                            if speechStatus != .authorized || micStatus != .granted {
+//                                                
+//                                                viewModel.requestMicPermission()
+//                                                
+//                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                                                    viewModel.stopLiveRecognition()
+//                                                    viewModel.isRecording = false
+//                                                }
+//                                            }
+//                                            
+//                                            if !viewModel.isRecording {
+//                                                viewModel.recognizedText = "Hold and Speak"
+//                                                viewModel.showRecognizedView = true
+//                                                
+//                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//                                                    if !viewModel.isRecording {
+//                                                        viewModel.showRecognizedView = false
+//                                                    }
+//                                                }
+//                                            }
+//                                            
+//                                            viewModel.micTouchDown()
+//                                        }
+//                                    }
+//                            )
                         }
                         
                         VStack(spacing:20) {

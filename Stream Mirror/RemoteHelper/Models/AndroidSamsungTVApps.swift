@@ -1,5 +1,5 @@
 //
-//  AndroidSamsungApps.swift
+//  AndroidSamsungTVApps.swift
 //  TV Remote
 //
 //  Created by iOS Developer on 18/01/2026.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct AndroidSamsungApps: Identifiable, Hashable, Codable {
+struct AndroidSamsungTVApps: Identifiable, Hashable, Codable {
     let id: UUID
     let name: String
     let imageName: String
