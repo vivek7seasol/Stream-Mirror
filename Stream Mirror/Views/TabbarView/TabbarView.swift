@@ -161,12 +161,11 @@ struct TabbarView: View {
         } message: {
             Text("This feature is not available while using AirPlay.")
         }
-        
     }
-    
     
     func tabItem(index: Int, icon: String, title: String) -> some View {
         Button {
+            logAnalyticView(title: title, screen: "TabbarView")
             selectedTab = index
         } label: {
             ZStack {

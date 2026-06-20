@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import FirebaseCore
+import FirebaseCrashlytics
+import FirebasePerformance
 
 @main
 struct Stream_MirrorApp: App {
@@ -21,6 +24,16 @@ struct Stream_MirrorApp: App {
     @AppStorage(SessionKeys.isPro) var isPro = false
     
     init() {
+        
+        FirebaseApp.configure()
+        FirebaseApp.debugDescription()
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
+        Crashlytics.crashlytics().log("App Launched")
+        // Enable performance monitoring
+        Performance.sharedInstance().isInstrumentationEnabled = true
+        Performance.sharedInstance().isDataCollectionEnabled = true
+        FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.min)
+        
         let savedLang = UserDefaults.standard.string(forKey: SessionKeys.appLanguage) ?? "en"
         LocalizationHelper.shared.setLanguage(code: savedLang)
         

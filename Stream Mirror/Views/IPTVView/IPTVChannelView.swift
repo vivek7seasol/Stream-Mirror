@@ -95,6 +95,7 @@ struct IPTVChannelView: View {
                                     title: channel.name ?? "Channel",
                                     isURLImage: true
                                 ) {
+                                    logAnalyticView(title: "IPTVCastingView", screen: "IPTV")
                                     if isPro {
                                         TVRemoteVM.handleDeviceAction {
                                             

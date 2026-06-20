@@ -47,7 +47,7 @@ var NewsAPI = "https://api-story.7seasol.in/api/"
 let getJSON : String = "https://7seasol-application.s3.amazonaws.com/admin_prod/pbz-grfgvat-arj.json"
 #else
 //Live URL
-let getJSON : String = "https://7seasol-application.s3.amazonaws.com/admin_prod/pbz-ivrj-zveebe-ceb.json"
+let getJSON : String = "https://7seasol-application.s3.amazonaws.com/admin_prod/pbz-fcurer-rqtr.json"
 #endif
 
 let prefixUrl = "https://api-livevideocall.7seasol.in/proxy?url="

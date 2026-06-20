@@ -161,6 +161,7 @@
 				B81F469324DB9B002C973630 /* [CP] Embed Pods Frameworks */,
 				9DDE3036B98A7E500C35EE78 /* [CP] Copy Pods Resources */,
 				FF8684882FD98D22002462D0 /* Embed Foundation Extensions */,
+				FF726F502FE6562D00D810B6 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -333,6 +334,29 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		FF726F502FE6562D00D810B6 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -492,6 +516,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Stream-Mirror-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Screen Cast";
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app needs access to your music library to display songs.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires camera access to stream and mirror your camera content on connected devices.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app requires access to the local network to discover and cast to Smart TV";
@@ -547,6 +572,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Stream-Mirror-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Screen Cast";
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app needs access to your music library to display songs.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires camera access to stream and mirror your camera content on connected devices.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app requires access to the local network to discover and cast to Smart TV";

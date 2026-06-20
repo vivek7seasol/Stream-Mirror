@@ -28,7 +28,7 @@ struct MirrorView: View {
     @State var startMirroring = false
     @State var stopMirroring = false
     @State private var isBroadcasting: Bool = false
-    
+    @State private var isLandscape = UIDevice.current.orientation.isLandscape
     private var UD: UserDefaults? {
         UserDefaults(suiteName: AppStrings.groupID)
     }
@@ -40,9 +40,13 @@ struct MirrorView: View {
     var body: some View {
         ZStack {
             VStack {
-                CommonStatusView(title: str.MirrorScreen,onCast: {
-                    showDeviceList = true
-                })
+                CommonStatusView(
+                    title: str.MirrorScreen,
+                    onCast: {
+                        showDeviceList = true
+                    }
+                )
+                .zIndex(999)
                 
                 ZStack {
                     VStack(spacing:8) {
@@ -66,7 +70,7 @@ struct MirrorView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, isIpad() ? 60 : 30)
+                .padding(.vertical, isIpad() ? 50 : 30)
                 .background(
                     Image("mirrorBG")
                     .resizable()
@@ -75,21 +79,44 @@ struct MirrorView: View {
                 .cornerRadius(25)
                 .padding(.horizontal,15)
                 
-                VStack(spacing: 20) {
+                
+                if isIpad() && isLandscape {
 
-                    MirrorCard(
-                        image: "rotate",
-                        title: str.AutoRotate,
-                        title2: str.Matchdeviceorientation,
-                        isOn: $isRotateOn
-                    )
+                    HStack(spacing: 10) {
 
-                    MirrorCard(
-                        image: "sound",
-                        title: str.Sound,
-                        title2: str.StreamaudiotoTV,
-                        isOn: $soundEnabled
-                    )
+                        MirrorCard(
+                            image: "rotate",
+                            title: str.AutoRotate,
+                            title2: str.Matchdeviceorientation,
+                            isOn: $isRotateOn
+                        )
+
+                        MirrorCard(
+                            image: "sound",
+                            title: str.Sound,
+                            title2: str.StreamaudiotoTV,
+                            isOn: $soundEnabled
+                        )
+                    }
+
+                } else {
+
+                    VStack(spacing: 10) {
+
+                        MirrorCard(
+                            image: "rotate",
+                            title: str.AutoRotate,
+                            title2: str.Matchdeviceorientation,
+                            isOn: $isRotateOn
+                        )
+
+                        MirrorCard(
+                            image: "sound",
+                            title: str.Sound,
+                            title2: str.StreamaudiotoTV,
+                            isOn: $soundEnabled
+                        )
+                    }
                 }
                 
                 ZStack {
@@ -122,11 +149,10 @@ struct MirrorView: View {
                     
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, isIpad() ? 35 : 15)
+                .padding(.vertical,isIpad() ? (isLandscape ? 15 : 30) : 15)
                 .modifier(GlassCardModifier(cornerRadius: 28))
                 .padding(.horizontal, 15)
-                .padding(.vertical, isIpad() ? 20 : 10)
-                
+                .padding(.vertical, 10)
                 
                 Spacer()
                 
@@ -194,6 +220,16 @@ struct MirrorView: View {
                 default:
                     selectedQuality = .balanced
                 }
+            }
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIDevice.orientationDidChangeNotification
+            )
+        ) { _ in
+
+            if UIDevice.current.orientation.isValidInterfaceOrientation {
+                isLandscape = UIDevice.current.orientation.isLandscape
             }
         }
         .onAppear {

@@ -135,6 +135,7 @@ extension PhotosView {
             ) { index, asset in
 
                 Button {
+                        logAnalyticView(title: "Photo Casting", screen: "PhotoListingView")
                     if isPro {
                         TVRemoteVM.handleDeviceAction(
                             onAirPlay: {

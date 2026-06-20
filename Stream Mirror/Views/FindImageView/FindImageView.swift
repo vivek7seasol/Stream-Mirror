@@ -185,6 +185,7 @@ extension FindImageView {
             ForEach(imageVM.images, id: \.id) { item in
 
                 Button {
+                    logAnalyticView(title: "Photo Casting", screen: "FinaImageListingView")
                     if isPro {
                         TVRemoteVM.handleDeviceAction {
                             

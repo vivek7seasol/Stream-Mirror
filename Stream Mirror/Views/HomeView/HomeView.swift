@@ -59,12 +59,15 @@ struct HomeView: View {
                     }
                     
                     firstCard {
+                        logAnalyticView(title: "Screen Mirror", screen: "Home")
                         adVm.registerTap()
                         showMirror = true
                     } YTAction: {
+                        logAnalyticView(title: "Youtube", screen: "Home")
                         adVm.registerTap()
                         showYoutube = true
                     } FileAction: {
+                        logAnalyticView(title: "Files Listing", screen: "Home")
                         adVm.registerTap()
                         showFiles = true
                     }
@@ -94,21 +97,25 @@ struct HomeView: View {
                                 HStack {
                                     Spacer()
                                     castingCard(title: str.Camera, image: "Camera") {
+                                        logAnalyticView(title: "Camera", screen: "Home")
                                         adVm.registerTap()
                                         showCamera = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Photo, image: "Photo") {
+                                        logAnalyticView(title: "Photo Listing", screen: "Home")
                                         adVm.registerTap()
                                         showPhotos = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Video, image: "Video") {
+                                        logAnalyticView(title: "Video Listing", screen: "Home")
                                         adVm.registerTap()
                                         showVideos = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Music, image: "Music") {
+                                        logAnalyticView(title: "Music Listing", screen: "Home")
                                         adVm.registerTap()
                                         showMusic = true
                                     }
@@ -138,21 +145,25 @@ struct HomeView: View {
                                 HStack {
                                     Spacer()
                                     castingCard(title: str.Browser, image: "Browser") {
+                                        logAnalyticView(title: "Browser", screen: "Home")
                                         adVm.registerTap()
                                         showBrowser = true
                                     }
                                     Spacer()
                                     castingCard(title: str.OnlineImage, image: "Online Image") {
+                                        logAnalyticView(title: "Online image", screen: "Home")
                                         adVm.registerTap()
                                         showFindImage = true
                                     }
                                     Spacer()
                                     castingCard(title: str.IPTV, image: "IPTV") {
+                                        logAnalyticView(title: "IPTV", screen: "Home")
                                         adVm.registerTap()
                                         showIPTV = true
                                     }
                                     Spacer()
                                     castingCard(title: str.Drawing, image: "Drawing") {
+                                        logAnalyticView(title: "drawing", screen: "Home")
                                         adVm.registerTap()
                                         showDrawing = true
                                     }
@@ -168,10 +179,13 @@ struct HomeView: View {
                     }
                     .padding(.top,15)
                 }
-                .padding(.bottom,100)
+                .padding(.bottom, isIpad() ? 120 : 100)
             }
         }
         .appScreen(disableSwipeBack: true)
+        .task {
+            logAnalyticView(title: "Home Screen", screen: "Home")
+        }
         .onAppear {
             UserDefaults.standard.set(true, forKey: SessionKeys.isHomeOpened)
             let didAskForReview = UserDefaults.standard.bool(forKey: "didAskForReview")

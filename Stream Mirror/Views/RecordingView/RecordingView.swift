@@ -83,6 +83,7 @@ struct RecordingView: View {
                             isToggle: false,
                             isOn: .constant(false)
                         ) {
+                            logAnalyticView(title: "RecordinHistory", screen: "RecordingView")
                             adVm.registerTap()
                             recordingVM.showRecordingList = true
                         }

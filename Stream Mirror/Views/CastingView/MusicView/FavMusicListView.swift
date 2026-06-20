@@ -74,6 +74,7 @@ struct FavMusicListView: View {
                                     }
                                 )
                                 .onTapGesture {
+                                    logAnalyticView(title: "Music casting", screen: "FavMusicListingView")
                                     if isPro {
                                         TVRemoteVM.handleDeviceAction {
                                             

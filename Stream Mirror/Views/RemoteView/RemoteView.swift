@@ -31,6 +31,7 @@ struct RemoteView: View {
     @StateObject private var viewModel = RemoteControlViewModel()
     @State private var controlType: ControlType = .mouse
     @State private var text: String = ""
+    @State private var isLandscape = UIDevice.current.orientation.isLandscape
     @State private var refreshID = UUID()
     @Binding var showChannelView: Bool
     @Binding var showNumberPad: Bool
@@ -40,7 +41,7 @@ struct RemoteView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                VStack(spacing:isIpad() ? 25 : 15) {
+                VStack(spacing:isIpad() ? (isLandscape ? 10 : 25) : 15) {
                     HStack {
                         Button {
                             haptic()
@@ -60,7 +61,7 @@ struct RemoteView: View {
                                 }
                             }
                             .padding(.horizontal,15)
-                            .frame(height: isIpad() ? 50 : 42)
+                            .frame(height: isIpad() ? (isLandscape ? 42 : 50) : 42)
                             .modifier(GlassCardModifier(cornerRadius: isIpad() ? 25 : 21))
                         }
                         .buttonStyle(.plain)
@@ -74,33 +75,35 @@ struct RemoteView: View {
                         } label: {
                             Image("power")
                                 .resizable()
-                                .frame(width: isIpad() ? 75 : 56,height:  isIpad() ? 75 : 56)
+                                .frame(width: isIpad() ? (isLandscape ? 56 : 75) : 56,height:  isIpad() ? (isLandscape ? 56 : 75) : 56)
                         }
                         
                     }
                     .padding(.horizontal, isIpad() ? 30 : 15)
                     
-                    if viewModel.isRecording {
-                        ZStack {
-                            Text(viewModel.recognizedText)
-                                .font(.system(size: isIpad() ? 22 : 16, weight: .medium))
-                                .foregroundStyle(AppColor.textColor2)
-                                .lineLimit(2)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 10)
+                    VStack(spacing: isIpad() ? 10 : 5) {
+                        if viewModel.isRecording {
+                            ZStack {
+                                Text(viewModel.recognizedText)
+                                    .font(.system(size: isIpad() ? 22 : 16, weight: .medium))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 10)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: isIpad() ? 40 : 30)
+                            .modifier(GlassCardModifier(cornerRadius: 20))
+                            .cornerRadius(20)
+                            .padding(.horizontal,25)
                         }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: isIpad() ? 70 : 50)
-                        .background(.white)
-                        .cornerRadius(20)
-                        .padding(.horizontal,15)
+                        
+                        ZStack {
+                            ControlBtn(selectedType: $controlType)
+                                .padding(.horizontal, 25)
+                        }
+                        .padding(.vertical,isIpad() ? (isLandscape ? 0 : 10) : 10)
                     }
-                    
-                    ZStack {
-                        ControlBtn(selectedType: $controlType)
-                            .padding(.horizontal, 25)
-                    }
-                    .padding(.vertical,10)
                     
                     Group {
                         if controlType == .remote {
@@ -364,10 +367,10 @@ struct RemoteView: View {
                         }
                     }
                     .padding(.horizontal,15)
-                    .padding(.vertical,10)
+                    .padding(.vertical, isIpad() ? ((isLandscape ? 0 : 10)) : 10)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .padding(.top,45)
+                .padding(.top, 45)
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .frame(width: geo.size.width, height: geo.size.height)
@@ -392,6 +395,9 @@ struct RemoteView: View {
                     for: UIDevice.orientationDidChangeNotification
                 )
             ) { _ in
+
+                isLandscape = UIDevice.current.orientation.isLandscape
+
                 refreshID = UUID()
             }
             .fullScreenCover(isPresented: $showPremium, onDismiss: {

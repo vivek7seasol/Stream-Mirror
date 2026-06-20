@@ -141,8 +141,8 @@ struct GlassCardModifier: ViewModifier {
                 )
         } else {
             content
-                .background(Blur())
-                .background(Color.white.opacity(0.6))
+//                .background(Blur())
+                .background(.white.opacity(0.10))
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius)

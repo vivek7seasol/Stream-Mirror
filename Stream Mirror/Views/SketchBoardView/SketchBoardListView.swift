@@ -59,6 +59,7 @@ struct SketchBoardListView: View {
                                         sketchVM.showDeleteAlert = true
                                     },
                                     buttonAction: {
+                                        logAnalyticView(title: "DrawingView", screen: "Drawing List View")
                                         adVm.registerTap()
                                         sketchVM.selectedDrawing = drawing
                                         sketchVM.showEditDrawing = true
@@ -84,17 +85,17 @@ struct SketchBoardListView: View {
         .overlay(alignment: .bottomTrailing) {
             
             Button {
-//                if isPro {
-//                    TVRemoteVM.handleDeviceAction {
-//                        
-//                    } onTV: {
+                if isPro {
+                    TVRemoteVM.handleDeviceAction {
+                        
+                    } onTV: {
                         sketchVM.showSketchboardView = true
-//                    } onNoDevice: {
-//                        showDeviceList = true
-//                    }
-//                } else {
-//                    showPremium = true
-//                }
+                    } onNoDevice: {
+                        showDeviceList = true
+                    }
+                } else {
+                    showPremium = true
+                }
             } label: {
                 Image("Add")
                     .resizable()

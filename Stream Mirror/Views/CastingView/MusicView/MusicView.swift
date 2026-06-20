@@ -98,6 +98,7 @@ struct MusicView: View {
                                     }, showPlayPause: true
                                 )
                                 .onTapGesture {
+                                    logAnalyticView(title: "MusicCastingView", screen: "MusicListingView")
                                     if isPro {
                                         TVRemoteVM.handleDeviceAction {
                                             

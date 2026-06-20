@@ -10,6 +10,7 @@ import ConnectSDK
 
 struct ControlBtn: View {
     
+    @State private var isLandscape = UIDevice.current.orientation.isLandscape
     @Binding var selectedType: ControlType
     
     var body: some View {
@@ -51,7 +52,7 @@ struct ControlBtn: View {
                 .buttonStyle(.plain)
             }
         }
-        .frame(height: isIpad() ? 70 : 50)
+        .frame(height: isIpad() ? (isLandscape ? 50 : 70) : 50)
         .background(.white.opacity(0.10))
         .modifier(GlassCardModifier(cornerRadius: isIpad() ? 35 : 25))
         .clipShape(RoundedRectangle(cornerRadius: isIpad() ? 35 : 25))
@@ -65,7 +66,7 @@ struct controlTypeCard: View {
     let leftAction: () -> Void
     let rightAction: () -> Void
     let okAction: () -> Void
-    
+    @State private var isLandscape = UIDevice.current.orientation.isLandscape
     // Ek hi value se square banega
     private var cardSize: CGFloat {
         min(DeviceHelper.width * 0.55, DeviceHelper.height * 0.25)
@@ -73,7 +74,7 @@ struct controlTypeCard: View {
     
     var body: some View {
         ZStack {
-            HStack(spacing: isIpad() ? 60 : 30) {
+            HStack(spacing: isIpad() ? (isLandscape ? 30 : 60) : 30) {
                 Button {
                     haptic()
                     leftAction()
@@ -85,7 +86,7 @@ struct controlTypeCard: View {
                 }
                 .buttonStyle(.plain)
                 
-                VStack(spacing: isIpad() ? 60 : 30) {
+                VStack(spacing: isIpad() ? (isLandscape ? 30 : 60) : 30) {
                     Button {
                         haptic()
                         upAction()
@@ -106,7 +107,7 @@ struct controlTypeCard: View {
                                 .font(.system(size: isIpad() ? 26 : 20, weight: .semibold))
                                 .foregroundStyle(.white)
                         }
-                        .frame(width: isIpad() ? 100 : 84, height: isIpad() ? 100 : 84)
+                        .frame(width: isIpad() ? (isLandscape ? 84 : 100) : 84, height: isIpad() ? (isLandscape ? 84 : 100) : 84)
                         .background(AppColor.textColor.opacity(0.50))
                         .cornerRadius(isIpad() ? 50 : 42)
                     }
@@ -358,11 +359,14 @@ struct VolChButtonCard: View {
     @State private var action2Timer: Timer?
     @State private var isHoldingAction1 = false
     @State private var isHoldingAction2 = false
+    @State private var action1WorkItem: DispatchWorkItem?
+    @State private var action2WorkItem: DispatchWorkItem?
     
     // MARK: - Timer Helpers
     private func startAction1Repeating() {
-        action1Timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
-            haptic()
+        stopAction1Repeating()
+
+        action1Timer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { _ in
             action1()
         }
     }
@@ -371,10 +375,41 @@ struct VolChButtonCard: View {
         action1Timer?.invalidate()
         action1Timer = nil
     }
+    private func startAction1LongPress() {
+
+        guard checkConnection() else { return }
+
+        let workItem = DispatchWorkItem {
+            if isHoldingAction1 {
+
+                startAction1Repeating()
+
+                haptic()
+
+                action1()
+            }
+        }
+
+        action1WorkItem = workItem
+
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + 0.3,
+            execute: workItem
+        )
+    }
+
+    private func stopAction1LongPress() {
+        action1WorkItem?.cancel()
+        action1WorkItem = nil
+
+        stopAction1Repeating()
+        isHoldingAction1 = false
+    }
     
     private func startAction2Repeating() {
-        action2Timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
-            haptic()
+        stopAction2Repeating()
+
+        action2Timer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { _ in
             action2()
         }
     }
@@ -382,6 +417,37 @@ struct VolChButtonCard: View {
     private func stopAction2Repeating() {
         action2Timer?.invalidate()
         action2Timer = nil
+    }
+    
+    private func startAction2LongPress() {
+
+        guard checkConnection() else { return }
+
+        let workItem = DispatchWorkItem {
+            if isHoldingAction2 {
+
+                startAction2Repeating()
+
+                haptic()
+
+                action2()
+            }
+        }
+
+        action2WorkItem = workItem
+
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + 0.3,
+            execute: workItem
+        )
+    }
+
+    private func stopAction2LongPress() {
+        action2WorkItem?.cancel()
+        action2WorkItem = nil
+
+        stopAction2Repeating()
+        isHoldingAction2 = false
     }
     
     var body: some View {
@@ -406,22 +472,11 @@ struct VolChButtonCard: View {
                         .onChanged { _ in
                             if !isHoldingAction1 {
                                 isHoldingAction1 = true
-                                
-                                guard checkConnection() else {
-                                    isHoldingAction1 = false
-                                    return
-                                }
-                                
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    if isHoldingAction1 {
-                                        startAction1Repeating()
-                                    }
-                                }
+                                startAction1LongPress()
                             }
                         }
                         .onEnded { _ in
-                            stopAction1Repeating()
-                            isHoldingAction1 = false
+                            stopAction1LongPress()
                         }
                 )
                 
@@ -447,22 +502,11 @@ struct VolChButtonCard: View {
                         .onChanged { _ in
                             if !isHoldingAction2 {
                                 isHoldingAction2 = true
-                                
-                                guard checkConnection() else {
-                                    isHoldingAction2 = false
-                                    return
-                                }
-                                
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    if isHoldingAction2 {
-                                        startAction2Repeating()
-                                    }
-                                }
+                                startAction2LongPress()
                             }
                         }
                         .onEnded { _ in
-                            stopAction2Repeating()
-                            isHoldingAction2 = false
+                            stopAction2LongPress()
                         }
                 )
             }

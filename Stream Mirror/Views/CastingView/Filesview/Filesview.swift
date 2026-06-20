@@ -28,18 +28,21 @@ struct Filesview: View {
                 
                 VStack(spacing:15) {
                     FileLibraryRow(lbl1: str.PDFFiles, lbl2: str.AllyourPDFfilesinoneplace, lbl3: str.OpenPDF, image: "PDF") {
+                        logAnalyticView(title: "Files Listing View", screen: "FilesView")
                         adVm.registerTap()
                         filesVM.selectedType = .PDF
                         filesVM.showFileListView = true
                     }
                     
                     FileLibraryRow(lbl1: str.WordDocuments, lbl2: str.Viewyourddocumentsanytime, lbl3: str.OpenDoc, image: "DOC") {
+                        logAnalyticView(title: "Files Listing View", screen: "FilesView")
                         adVm.registerTap()
                         filesVM.selectedType = .DOC
                         filesVM.showFileListView = true
                     }
                     
                     FileLibraryRow(lbl1: str.PPTFiles, lbl2: str.Quicklyaccessyourfilesanytime, lbl3: str.OpenPresentation, image: "PPT") {
+                        logAnalyticView(title: "Files Listing View", screen: "FilesView")
                         adVm.registerTap()
                         filesVM.selectedType = .PPT
                         filesVM.showFileListView = true

@@ -48,6 +48,7 @@ struct YTView: View {
                     
                     if isOpenFromYT {
                         Button {
+                            logAnalyticView(title: "YoutubeCasting", screen: "BrowserView")
                             if isPro {
                                 TVRemoteVM.handleDeviceAction {
                                     

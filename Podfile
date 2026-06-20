@@ -14,6 +14,13 @@ target 'Stream Mirror' do
   pod 'lottie-ios'
   pod 'SDWebImage'
   
+  pod 'FirebaseAnalytics'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Firestore'
+  pod 'Firebase/Messaging'
+  pod 'Firebase/Crashlytics'
+  pod 'Firebase/Performance'
+  
   post_install do |installer|
      installer.generated_projects.each do |project|
        project.targets.each do |target|

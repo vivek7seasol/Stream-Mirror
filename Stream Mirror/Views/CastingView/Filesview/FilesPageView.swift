@@ -64,6 +64,7 @@ struct FilesPageView: View {
                             ForEach(Array(filesPageVM.pages.enumerated()), id: \.offset) { index, image in
                                 
                                 Button {
+                                    logAnalyticView(title: "Photo Casting", screen: "FilePageView")
                                     if isPro {
                                         TVRemoteVM.handleDeviceAction {
                                             

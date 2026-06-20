@@ -82,18 +82,21 @@ struct BrowserView: View {
                         HStack(spacing: 5) {
                             Spacer()
                             webRow(title: str.Google, image: "Google") {
+                                logAnalyticView(title: "Browser Preview", screen: "BrowserView")
                                 adVm.registerTap()
                                 selectedURL = "https://www.google.com/"
                                 navigateToBrowser = true
                             }
                             Spacer()
                             webRow(title: str.Instagram, image: "Instagram") {
+                                logAnalyticView(title: "Browser Preview", screen: "BrowserView")
                                 adVm.registerTap()
                                 selectedURL = "https://www.instagram.com/"
                                 navigateToBrowser = true
                             }
                             Spacer()
                             webRow(title: str.Vimeo, image: "Vimeo") {
+                                logAnalyticView(title: "Browser Preview", screen: "BrowserView")
                                 adVm.registerTap()
                                 selectedURL = "https://vimeo.com/"
                                 navigateToBrowser = true
@@ -103,18 +106,21 @@ struct BrowserView: View {
                         HStack(spacing: 5) {
                             Spacer()
                             webRow(title: str.Youtube, image: "Youtube") {
+                                logAnalyticView(title: "Browser Preview", screen: "BrowserView")
                                 adVm.registerTap()
                                 selectedURL = "https://www.youtube.com"
                                 navigateToBrowser = true
                             }
                             Spacer()
                             webRow(title: str.Facebook, image: "Facebook") {
+                                logAnalyticView(title: "Browser Preview", screen: "BrowserView")
                                 adVm.registerTap()
                                 selectedURL = "https://www.facebook.com"
                                 navigateToBrowser = true
                             }
                             Spacer()
                             webRow(title: str.Telegram, image: "Telegram") {
+                                logAnalyticView(title: "Browser Preview", screen: "BrowserView")
                                 adVm.registerTap()
                                 selectedURL = "https://web.telegram.org"
                                 navigateToBrowser = true

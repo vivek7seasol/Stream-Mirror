@@ -135,6 +135,7 @@ extension VideosView {
             ) { index, asset in
 
                 Button {
+                    logAnalyticView(title: "Video Casting", screen: "VideoListingView")
                     if isPro {
                         TVRemoteVM.handleDeviceAction(
                             onAirPlay: {
@@ -146,6 +147,7 @@ extension VideosView {
                                 photoVM.selectedIndex = index
                             },
                             onTV: {
+                               
                                 adVm.registerTap()
                                 photoVM.selectedVideoIndex = index
                                 photoVM.showVideoCasting = true

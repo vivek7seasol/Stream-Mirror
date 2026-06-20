@@ -103,15 +103,7 @@ struct IPTVView: View {
                 .padding(.horizontal, 15)
                 .padding(.top, 10)
                 
-                if iptvVM.isLoadings {
-                    ProgressView("Loading Images...".localized)
-                        .tint(.white)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(12)
-                }
-                else if !iptvVM.isLoadings &&
+                 if !iptvVM.isLoadings &&
                     iptvVM.selectedType == .country &&
                     filteredCountries.isEmpty {
 
@@ -144,7 +136,7 @@ struct IPTVView: View {
                     ScrollView(.vertical,showsIndicators: false) {
                         if !isPro {
                             NativeAd7()
-                                .padding(.top,15)
+                                .padding(.top,3)
                                 .padding(.horizontal,15)
                         }
                         if iptvVM.selectedType == .country {
@@ -154,6 +146,7 @@ struct IPTVView: View {
                                 catCountryCard(
                                     title: country.country ?? "Unknown",
                                     channel: "\(country.channels?.count ?? 0)", action: {
+                                        logAnalyticView(title: "IPTV channel", screen: "IPTV")
                                         adVm.registerTap()
                                         iptvVM.selectedChannels = country.channels ?? []
                                         iptvVM.selectedTitle = country.country ?? "Channels"
@@ -168,6 +161,7 @@ struct IPTVView: View {
                                     catCountryCard(
                                         title: category.category ?? "Unknown",
                                         channel: "\(category.channels?.count ?? 0)", action: {
+                                            logAnalyticView(title: "IPTV channel", screen: "IPTV")
                                             adVm.registerTap()
                                             iptvVM.selectedChannels = category.channels ?? []
                                             iptvVM.selectedTitle = category.category ?? "Channels"
@@ -181,7 +175,16 @@ struct IPTVView: View {
                     .padding(.top,10)
                     .scrollDismissesKeyboard(.immediately)
                 }
+                Spacer()
             }
+            
+            
+            if iptvVM.isLoadings {
+                ProgressView("Loading Countries...".localized)
+                    .tint(.white)
+                    .foregroundColor(.white)
+            }
+            
         }
         .appScreen(isPresented: $iptvVM.showDeviceList) {
             DeviceListview(isPresented: $iptvVM.showDeviceList)

@@ -56,6 +56,7 @@ struct FilesListingView: View {
                                         filesVM.showDeleteAlert = true
                                     },
                                     buttonAction: {
+                                        logAnalyticView(title: "FilesPageView", screen: "Files Listing")
                                         adVm.registerTap()
                                         filesVM.selectedFile = file
                                         filesVM.showFilesPage = true
