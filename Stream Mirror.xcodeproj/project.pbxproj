@@ -516,7 +516,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Stream-Mirror-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Screen Cast";
+				INFOPLIST_KEY_CFBundleDisplayName = Chromecast;
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app needs access to your music library to display songs.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires camera access to stream and mirror your camera content on connected devices.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app requires access to the local network to discover and cast to Smart TV";
@@ -572,7 +572,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Stream-Mirror-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Screen Cast";
+				INFOPLIST_KEY_CFBundleDisplayName = Chromecast;
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app needs access to your music library to display songs.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires camera access to stream and mirror your camera content on connected devices.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app requires access to the local network to discover and cast to Smart TV";

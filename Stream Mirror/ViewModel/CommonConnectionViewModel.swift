@@ -265,6 +265,14 @@ class CommonConnectionViewModel: ObservableObject {
         }
     }
     
+    func WebCasting(mediaUrl: URL, title: String, des: String){
+        if getConnectedTvType() == .ANDROID || getConnectedTvType() == .SAMSUNG {
+            CastMedia(url: mediaUrl, mediaType: "video/mp4", title: title, des: des,imgHei: 1024, imgWid: 1024)
+        } else {
+            connectSDKDiscoveryModel.sendMediaToLGTVWeb(mediaUrl: mediaUrl)
+        }
+    }
+    
     func stopRemoteMediaClient() {
         if getConnectedTvType() == .ANDROID {
             castViewModel.StopRemoteMediaCleint()

@@ -243,7 +243,7 @@ struct YoutubePreview: UIViewRepresentable {
 
     @Binding var webView: WKWebView
     @Binding var isLoading: Bool
-
+    var onURLChanged: ((URL) -> Void)?
     var viewModel: YoutubeViewModel
     var onVideoDetected: ((URL?) -> Void)?
 
@@ -252,6 +252,7 @@ struct YoutubePreview: UIViewRepresentable {
         webView.navigationDelegate = context.coordinator
 
         context.coordinator.onVideoDetected = onVideoDetected
+        context.coordinator.onURLChanged = onURLChanged
         context.coordinator.viewModel = viewModel
 
         webView.addObserver(
@@ -278,6 +279,7 @@ struct YoutubePreview: UIViewRepresentable {
 
         var parent: YoutubePreview
         var onVideoDetected: ((URL?) -> Void)?
+        var onURLChanged: ((URL) -> Void)?
         weak var viewModel: YoutubeViewModel?
 
         init(_ parent: YoutubePreview) {
@@ -295,9 +297,14 @@ struct YoutubePreview: UIViewRepresentable {
                   let webView = object as? WKWebView,
                   let url = webView.url else { return }
 
+            guard let url = webView.url else { return }
+
             DispatchQueue.main.async {
 
                 self.viewModel?.updateNavigationState()
+
+                // Har URL change pe
+                self.onURLChanged?(url)
 
                 if self.isValidYouTubeVideo(url: url) {
                     self.onVideoDetected?(url)
@@ -319,7 +326,12 @@ struct YoutubePreview: UIViewRepresentable {
                      didFinish navigation: WKNavigation!) {
 
             DispatchQueue.main.async {
+
                 self.parent.isLoading = false
+
+                if let url = webView.url {
+                    self.onURLChanged?(url)
+                }
             }
 
             injectBlockingJS(webView)

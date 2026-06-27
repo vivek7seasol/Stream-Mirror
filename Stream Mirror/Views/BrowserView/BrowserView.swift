@@ -14,6 +14,10 @@ struct BrowserView: View {
     @State private var selectedURL = ""
     @AppStorage(SessionKeys.isPro) var isPro = false
     @EnvironmentObject var adVm : AdCountViewModel
+    @EnvironmentObject var commonVM: CommonConnectionViewModel
+    @EnvironmentObject var TVRemoteVM: RemoteViewModel
+    @State private var showDeviceList: Bool = false
+    @State private var showPremium: Bool = false
     var body: some View {
         ZStack {
             VStack {
@@ -51,8 +55,18 @@ struct BrowserView: View {
                                 
                                 TextField("", text: $text, onCommit: {
                                     selectedURL = text
-                                    adVm.registerTap()
-                                    navigateToBrowser = true
+                                    if isPro {
+                                        TVRemoteVM.handleDeviceAction {
+                                            
+                                        } onTV: {
+                                            adVm.registerTap()
+                                            navigateToBrowser = true
+                                        } onNoDevice: {
+                                            showDeviceList = true
+                                        }
+                                    } else {
+                                        showPremium = true
+                                    }
                                 })
                                 .foregroundColor(AppColor.textColor)
                             }
@@ -83,23 +97,56 @@ struct BrowserView: View {
                             Spacer()
                             webRow(title: str.Google, image: "Google") {
                                 logAnalyticView(title: "Browser Preview", screen: "BrowserView")
-                                adVm.registerTap()
-                                selectedURL = "https://www.google.com/"
-                                navigateToBrowser = true
+                                if isPro {
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        
+                                        selectedURL = "https://www.google.com/"
+                                        adVm.registerTap()
+                                        navigateToBrowser = true
+                                    } onNoDevice: {
+                                        showDeviceList = true
+                                    }
+                                } else {
+                                    showPremium = true
+                                }
+
                             }
                             Spacer()
                             webRow(title: str.Instagram, image: "Instagram") {
                                 logAnalyticView(title: "Browser Preview", screen: "BrowserView")
-                                adVm.registerTap()
-                                selectedURL = "https://www.instagram.com/"
-                                navigateToBrowser = true
+                                if isPro {
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        
+                                        adVm.registerTap()
+                                        selectedURL = "https://www.instagram.com/"
+                                        navigateToBrowser = true
+                                    } onNoDevice: {
+                                        showDeviceList = true
+                                    }
+                                } else {
+                                    showPremium = true
+                                }
                             }
                             Spacer()
                             webRow(title: str.Vimeo, image: "Vimeo") {
                                 logAnalyticView(title: "Browser Preview", screen: "BrowserView")
-                                adVm.registerTap()
-                                selectedURL = "https://vimeo.com/"
-                                navigateToBrowser = true
+                                if isPro {
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        adVm.registerTap()
+                                        selectedURL = "https://vimeo.com/"
+                                        navigateToBrowser = true
+                                    } onNoDevice: {
+                                        showDeviceList = true
+                                    }
+                                } else {
+                                    showPremium = true
+                                }
                             }
                             Spacer()
                         }
@@ -107,23 +154,53 @@ struct BrowserView: View {
                             Spacer()
                             webRow(title: str.Youtube, image: "Youtube") {
                                 logAnalyticView(title: "Browser Preview", screen: "BrowserView")
-                                adVm.registerTap()
-                                selectedURL = "https://www.youtube.com"
-                                navigateToBrowser = true
+                                if isPro {
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        adVm.registerTap()
+                                        selectedURL = "https://www.youtube.com"
+                                        navigateToBrowser = true
+                                    } onNoDevice: {
+                                        showDeviceList = true
+                                    }
+                                } else {
+                                    showPremium = true
+                                }
                             }
                             Spacer()
                             webRow(title: str.Facebook, image: "Facebook") {
                                 logAnalyticView(title: "Browser Preview", screen: "BrowserView")
-                                adVm.registerTap()
-                                selectedURL = "https://www.facebook.com"
-                                navigateToBrowser = true
+                                if isPro {
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        adVm.registerTap()
+                                        selectedURL = "https://www.facebook.com"
+                                        navigateToBrowser = true
+                                    } onNoDevice: {
+                                        showDeviceList = true
+                                    }
+                                } else {
+                                    showPremium = true
+                                }
                             }
                             Spacer()
                             webRow(title: str.Telegram, image: "Telegram") {
                                 logAnalyticView(title: "Browser Preview", screen: "BrowserView")
-                                adVm.registerTap()
-                                selectedURL = "https://web.telegram.org"
-                                navigateToBrowser = true
+                                if isPro {
+                                    TVRemoteVM.handleDeviceAction {
+                                        
+                                    } onTV: {
+                                        adVm.registerTap()
+                                        selectedURL = "https://web.telegram.org"
+                                        navigateToBrowser = true
+                                    } onNoDevice: {
+                                        showDeviceList = true
+                                    }
+                                } else {
+                                    showPremium = true
+                                }
                             }
                             Spacer()
                         }
@@ -144,8 +221,23 @@ struct BrowserView: View {
             hideKeyboard()
         }
         .navigationDestination(isPresented: $navigateToBrowser) {
-            YTView(initialURL: selectedURL)
+            YTView(initialURL: selectedURL, baseURL: "")
         }
+        .sheet(isPresented: $showDeviceList) {
+            DeviceListview(isPresented: $showDeviceList)
+                .environmentObject(TVRemoteVM)
+                .environmentObject(commonVM)
+                .presentationDetents([.height(isIpad() ? 830 : 700)])
+                .presentationDragIndicator(.hidden)
+                .presentationBackground(LinearGradient(colors: [Color("#222222"), Color("#1A1A1A"), Color("#111111")], startPoint: .topLeading, endPoint: .bottomTrailing))
+        }
+        .fullScreenCover(isPresented: $showPremium, onDismiss: {
+            if pro_close_inter == "true" {
+                adVm.registerTap()
+            }
+        }, content: {
+            PremiumView()
+        })
     }
 }
 

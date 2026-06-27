@@ -235,7 +235,7 @@ struct HomeView: View {
             }
         }
         .navigationDestination(isPresented: $showYoutube) {
-            YTView(isOpenFromYT: true, initialURL: "https://www.youtube.com/")
+            YTView(isOpenFromYT: true, initialURL: "https://www.youtube.com/", baseURL: "")
                 .environmentObject(TVRemoteVM)
                 .environmentObject(commonVM)
         }

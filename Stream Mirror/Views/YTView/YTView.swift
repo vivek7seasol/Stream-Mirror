@@ -19,6 +19,8 @@ struct YTView: View {
     @StateObject private var YTVM = YoutubeViewModel()
     var isOpenFromYT = false
     let initialURL: String
+    @State var baseURL: String
+    @State var currentURL: URL?
     
     var body: some View {
         ZStack {
@@ -39,7 +41,16 @@ struct YTView: View {
                     YoutubePreview(
                         webView: $YTVM.webView,
                         isLoading: $YTVM.isLoading,
-                        viewModel: YTVM,
+                        onURLChanged: { url in
+
+                            currentURL = url
+
+                            commonVM.WebCasting(
+                                mediaUrl: url,
+                                title: YTVM.webView.title ?? AppStrings.appName,
+                                des: ""
+                            )
+                        }, viewModel: YTVM,
                         onVideoDetected: { url in
                             guard let url else { return }
                             YTVM.processAndFetchVideoDetails(from: url)
@@ -154,6 +165,10 @@ struct YTView: View {
         .appScreen()
         .onAppear {
             YTVM.loadSearchOrURL(text: initialURL)
+            currentURL = URL(string: baseURL)
+            if let currentURL = currentURL {
+                commonVM.WebCasting(mediaUrl: currentURL, title: AppStrings.appName, des: "")
+            }
         }
         .navigationDestination(isPresented: $YTVM.showPreview) {
 
@@ -184,5 +199,5 @@ struct YTView: View {
 }
 
 #Preview {
-    YTView(initialURL: "")
+    YTView(initialURL: "", baseURL: "")
 }

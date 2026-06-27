@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct AppStrings {
-    static let appName             = "Screen Cast"
+    static let appName             = "Chromecast"
     
     static let groupID = "group.com.sumit.remote"
     static let appExtensionPackageName = "com.sumit.remote.SmartRemoteBroadcast"
